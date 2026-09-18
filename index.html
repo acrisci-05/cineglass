@@ -197,7 +197,7 @@ a{color:inherit;text-decoration:none}
 
 /* ---------- Toolbar: ricerca + filtri per genere ---------- */
 .toolbar-row{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
-.toolbar{display:flex;flex-direction:column;align-items:center;gap:10px;min-width:0;margin-top:clamp(12px,2.2vw,20px)}
+.toolbar{position:relative;display:flex;flex-direction:column;align-items:center;gap:10px;min-width:0;margin-top:clamp(12px,2.2vw,20px)}
 .chips{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-width:0;max-width:100%;
   overflow-x:auto;overscroll-behavior-x:contain;padding:2px 4px 6px;scrollbar-width:none}
 .chips::-webkit-scrollbar{display:none}
@@ -396,11 +396,25 @@ a{color:inherit;text-decoration:none}
   background:linear-gradient(90deg, transparent, rgba(255,255,255,.09), transparent);animation:shimmer 1.7s infinite}
 
 /* ---------- Pannello dettagli ---------- */
-.panel{max-width:1080px;margin:clamp(18px,3vw,36px) auto 0}
+.panel{position:relative;max-width:1080px;margin:clamp(18px,3vw,36px) auto 0}
 .panel[hidden]{display:none}
-.panel-inner{position:relative;padding:clamp(20px,3vw,32px);border-radius:var(--radius);overflow:hidden;
-  background:linear-gradient(155deg, rgba(255,255,255,.085), rgba(255,255,255,.028));
-  border:1px solid var(--stroke);backdrop-filter:blur(24px) saturate(1.5);-webkit-backdrop-filter:blur(24px) saturate(1.5);
+/* La locandina a tutto riquadro dietro al vetro: e' il vetro stesso a
+   sfocarla e a scurirla, cosi' il testo resta leggibile e la scheda prende
+   i colori del film invece di restare un rettangolo nero. */
+.panel-bg{position:absolute;inset:-4% -2%;z-index:0;border-radius:calc(var(--radius) + 10px);
+  background-size:cover;background-position:center 28%;opacity:0;
+  transition:opacity 1s var(--ease), background-image .01s;
+  -webkit-mask-image:radial-gradient(120% 110% at 50% 30%, #000 42%, transparent 88%);
+  mask-image:radial-gradient(120% 110% at 50% 30%, #000 42%, transparent 88%)}
+.panel-bg.on{opacity:.62}
+/* un velo scuro sotto al vetro: la locandina resta riconoscibile, il testo no */
+.panel-bg::after{content:'';position:absolute;inset:0;border-radius:inherit;
+  background:linear-gradient(170deg, rgba(4,3,9,.35), rgba(4,3,9,.82) 72%)}
+.panel-inner{position:relative;z-index:1;padding:clamp(20px,3vw,32px);border-radius:var(--radius);overflow:hidden;
+  background:linear-gradient(155deg, rgba(10,8,18,.34), rgba(6,5,12,.5));
+  border:1px solid var(--stroke);
+  backdrop-filter:blur(40px) brightness(.3) saturate(1.6);
+  -webkit-backdrop-filter:blur(40px) brightness(.3) saturate(1.6);
   box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.12)}
 .panel-inner::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;
   background:linear-gradient(90deg,transparent,color-mix(in oklab, var(--c1) 80%, transparent),color-mix(in oklab, var(--c3) 80%, transparent),transparent)}
@@ -969,9 +983,11 @@ button,.btn,a.btn,.chip,.frame,.dot-btn{-webkit-tap-highlight-color:transparent}
   background:rgba(255,255,255,.05);border:1px solid var(--stroke-soft);cursor:pointer;touch-action:none}
 .spoiler[hidden]{display:none}
 .spoiler-txt{font-size:12.5px;display:flex;align-items:center;gap:8px}
-.spoiler-glass{position:absolute;inset:0;display:grid;place-items:center;gap:4px;
-  background:rgba(214,220,255,.14);backdrop-filter:blur(9px) saturate(.6);-webkit-backdrop-filter:blur(9px) saturate(.6);
-  font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.8);
+.spoiler-txt{position:relative;z-index:0}
+.spoiler-glass{position:absolute;inset:0;z-index:1;display:grid;place-items:center;gap:4px;
+  background:linear-gradient(150deg, #cdd4f2, #98a2cb);
+  backdrop-filter:blur(16px) saturate(.5);-webkit-backdrop-filter:blur(16px) saturate(.5);
+  font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:rgba(14,12,26,.82);font-weight:600;
   transition:opacity .25s linear, backdrop-filter .25s linear}
 .spoiler.pulito .spoiler-glass{opacity:0;pointer-events:none}
 
@@ -1401,6 +1417,125 @@ a.prov-row:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,
   transition:color .25s, background .25s, transform .35s var(--elastic)}
 .foot-links button:hover,.foot-links a:hover{color:var(--txt);background:rgba(255,255,255,.1);transform:translateY(-1px)}
 
+/* ==========================================================
+   v10.1 — Scheda: testata, barra valutazioni, locandina, azioni
+   ========================================================== */
+
+/* ---------- Testata ---------- */
+.panel-head{display:block}
+
+/* ---------- Barra valutazioni sotto al titolo ---------- */
+.metabar{display:flex;flex-wrap:wrap;align-items:center;gap:12px 18px;margin-top:14px;padding:10px 14px;
+  border-radius:18px;
+  background:linear-gradient(140deg, rgba(255,255,255,.09), rgba(255,255,255,.025));
+  border:1px solid var(--stroke-soft);
+  backdrop-filter:blur(16px) saturate(1.4);-webkit-backdrop-filter:blur(16px) saturate(1.4);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.2)}
+.mb-facts{display:flex;flex-wrap:wrap;align-items:center;gap:9px;font-size:14px;font-weight:500}
+.mb-facts:empty{display:none}
+.mb-fact{white-space:nowrap}
+.mb-dot{color:var(--faint);font-size:12px}
+.mb-rat{display:flex;align-items:center;gap:9px;margin-left:auto;flex-wrap:wrap}
+/* il cerchio TMDB entra nella barra: stesso effetto, misura da badge */
+.metabar .score{width:58px;height:58px;flex:0 0 auto}
+.metabar .score-core svg{width:11px;height:11px}
+.metabar .score-num{font-size:15px}
+.metabar .score-num small{font-size:8.5px}
+.metabar .rat-row{width:auto;min-width:0;gap:8px}
+.metabar .rat{flex:0 0 auto;min-width:76px}
+.rating-cap{display:block;margin-top:6px;padding-right:4px;font-size:10.5px;letter-spacing:.06em;
+  color:var(--faint);text-align:right;max-width:none;text-transform:none}
+
+/* ---------- Locandina accanto alla trama ---------- */
+.panel-cols{display:grid;grid-template-columns:minmax(0,1fr) clamp(140px,16vw,196px);
+  gap:clamp(18px,2.6vw,32px);align-items:start;margin-top:18px}
+.panel-poster{grid-column:2;grid-row:1;margin:0;cursor:zoom-in;border-radius:18px;overflow:hidden;
+  border:1px solid rgba(255,255,255,.22);
+  box-shadow:0 26px 60px -26px #000, inset 0 1px 0 rgba(255,255,255,.3),
+             0 0 46px -18px color-mix(in oklab, var(--amb, var(--c1)) 80%, transparent);
+  transition:transform .45s var(--elastic), box-shadow .4s}
+.panel-poster[hidden]{display:none}
+.panel-poster img{display:block;width:100%;aspect-ratio:2/3;object-fit:cover;background:rgba(255,255,255,.06)}
+.panel-poster:hover{transform:translateY(-3px) scale(1.02)}
+.panel-main{grid-column:1;grid-row:1;min-width:0}
+.panel-main .overview{margin-top:0}
+
+/* ---------- Barra azioni rapide ---------- */
+.qbar{display:flex;flex-wrap:wrap;gap:9px;align-items:stretch;margin-top:18px;padding:10px;border-radius:20px;
+  background:linear-gradient(150deg, rgba(255,255,255,.1), rgba(255,255,255,.03));
+  border:1px solid var(--stroke-soft);
+  backdrop-filter:blur(18px) saturate(1.45);-webkit-backdrop-filter:blur(18px) saturate(1.45);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22), 0 18px 44px -32px #000}
+.qbar .btn{flex:0 1 auto;padding:12px 16px;white-space:nowrap}
+.qbar .trailer-card{flex:1 1 210px;min-width:0;padding:6px 18px 6px 6px;gap:11px;border-radius:16px}
+.qbar .trailer-title{white-space:nowrap}
+.qbar .trailer-thumb{width:84px;height:48px;border-radius:11px}
+.qbar .trailer-thumb .play svg{width:21px;height:21px}
+.qbar .savewrap{position:relative;display:inline-flex}
+
+/* ---------- Filtri secondari a comparsa ---------- */
+.filterwrap{position:relative;display:inline-flex;flex:0 0 auto}
+.chip-filtri{display:inline-flex;align-items:center;gap:7px}
+.chip-filtri.on{color:var(--txt);
+  background:linear-gradient(120deg, color-mix(in oklab, var(--c1) 26%, transparent), color-mix(in oklab, var(--c2) 26%, transparent));
+  border-color:color-mix(in oklab, var(--c1) 42%, transparent)}
+.chip-filtri .n{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;border-radius:999px;
+  margin-left:2px;opacity:1;font-size:10.5px;font-weight:600;
+  background:rgba(255,255,255,.22);border:1px solid var(--stroke-soft)}
+.filtermenu{position:absolute;left:50%;translate:-50% 0;top:calc(100% + 9px);z-index:80;
+  width:min(420px,92vw);padding:13px;border-radius:20px;
+  background:linear-gradient(155deg, rgba(255,255,255,.12), rgba(255,255,255,.04));
+  border:1px solid var(--stroke);backdrop-filter:blur(26px) saturate(1.5);-webkit-backdrop-filter:blur(26px) saturate(1.5);
+  box-shadow:0 34px 80px -30px #000;animation:popIn .26s var(--ease)}
+.filtermenu[hidden]{display:none}
+.fm-lab{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);padding:0 2px 8px}
+.filtermenu .chips{justify-content:flex-start;flex-wrap:wrap;overflow:visible;padding:0}
+.fm-reset{display:block;width:100%;min-height:40px;margin-top:10px;padding:10px;border-radius:13px;font-size:12.5px;
+  color:var(--muted);background:rgba(255,255,255,.05);border:1px solid var(--stroke-soft);transition:color .25s, background .25s}
+.fm-reset:hover{color:var(--txt);background:rgba(255,255,255,.1)}
+.fm-reset[hidden]{display:none}
+
+/* ---------- Locandina piu' generosa sugli schermi grandi ---------- */
+@media (min-width:1200px){
+  .card{width:clamp(226px,27.5vw,330px)}
+  .stage{height:clamp(440px,60vh,600px)}
+}
+
+/* ---------- Scheda su schermi stretti ---------- */
+@media (max-width:760px){
+  /* la locandina resta accanto alla trama, ma piccola: cosi' la barra delle
+     azioni arriva subito sotto invece di finire fuori schermo */
+  .panel-cols{grid-template-columns:clamp(84px,26vw,126px) minmax(0,1fr);gap:14px}
+  .panel-poster{grid-column:1;grid-row:1;align-self:start}
+  .panel-main{grid-column:2;grid-row:1}
+  .panel-main .genres,.panel-main .tags,.panel-main .provs{margin-top:11px}
+  .overview{font-size:14px;line-height:1.6}
+  /* sotto i 340px la colonna di testo diventa illeggibile: si torna in verticale */
+  @media (max-width:340px){
+    .panel-cols{grid-template-columns:1fr}
+    .panel-poster{grid-column:1;grid-row:1;width:min(42vw,150px);margin:0 auto}
+    .panel-main{grid-column:1;grid-row:2}
+  }
+  .metabar{gap:10px 12px;padding:10px 12px}
+  .mb-rat{margin-left:0;width:100%;justify-content:space-between}
+  .metabar .rat-row{flex:1}
+  .qbar .trailer-card{flex:1 1 100%}
+  .qbar .btn{flex:1 1 calc(50% - 5px);justify-content:center;text-align:center}
+}
+
+/* ---------- Barra dei filtri su una sola riga ---------- */
+.toolbar-main{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-width:0}
+.toolbar-main .chips{width:auto;flex:0 1 auto;justify-content:center}
+.toolbar-main .filterwrap,.toolbar-main .layout-mini{flex:0 0 auto}
+@media (max-width:900px){
+  .toolbar-main{flex-wrap:wrap}
+  .toolbar-main .chips{flex:1 1 100%;justify-content:flex-start}
+  /* il tasto puo' finire ovunque nella riga: il pannello si ancora alla barra
+     intera e resta centrato nello schermo invece di sbordare */
+  .filterwrap{position:static}
+  .filtermenu{left:50%;right:auto;translate:-50% 0;width:min(420px,calc(100vw - 28px))}
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width:860px){
   .panel-head{gap:16px}
@@ -1428,13 +1563,9 @@ a.prov-row:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,
   .actions{gap:8px}
   .actions .btn{flex:1 1 calc(50% - 4px);min-width:0;padding:12px 14px;font-size:13px;
     white-space:normal;line-height:1.25;text-align:center}
-  /* specificità più alta di ".actions .btn", altrimenti il trailer resta a metà riga */
-  .actions .trailer-card{flex:1 1 100%;justify-content:flex-start;padding:8px 16px 8px 8px;white-space:nowrap}
-  .actions .trailer-card .trailer-title{white-space:nowrap}
-  .score{width:92px;height:92px}
-  .rat-row{min-width:168px}
-  .rat{padding:6px}
-  .score-num{font-size:22px}
+  .metabar .score{width:52px;height:52px}
+  .metabar .score-num{font-size:14px}
+  .metabar .rat{min-width:70px;padding:6px}
   .hero{padding-top:10px}
   .hero p.sub{margin-top:9px}
   .sub-long{display:none}          /* su telefono il carosello deve restare vicino */
@@ -1586,9 +1717,20 @@ a.prov-row:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,
 
   <!-- ====================== RICERCA + FILTRI ====================== -->
   <div class="toolbar">
+    <div class="toolbar-main">
     <div class="chips" id="chips" role="group" aria-label="Filtra per genere"></div>
     <div class="chips" id="chipsYear" role="group" aria-label="Filtra per anno" hidden></div>
-    <div class="chips" id="chipsExtra" role="group" aria-label="Filtra per durata e tipo"></div>
+    <div class="filterwrap">
+      <button type="button" class="chip chip-filtri" id="filtersBtn" aria-expanded="false" aria-haspopup="true"
+              title="Altri filtri: durata, storia vera, box office">
+        🎛️ Filtri<span class="n" id="filtersCount" hidden></span>
+      </button>
+      <div class="filtermenu" id="filterMenu" hidden>
+        <div class="fm-lab">Durata e tipo</div>
+        <div class="chips" id="chipsExtra" role="group" aria-label="Filtra per durata e tipo"></div>
+        <button type="button" class="fm-reset" id="filtersReset" hidden>Azzera i filtri</button>
+      </div>
+    </div>
     <div class="layout-mini" id="layoutMini" role="group" aria-label="Impaginazione">
       <button type="button" id="btnCarousel" class="on" aria-pressed="true" title="Carosello 3D">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="8.5" y="4" width="7" height="16" rx="2"/><path d="M4.5 7.5v9M19.5 7.5v9"/></svg>
@@ -1598,6 +1740,7 @@ a.prov-row:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
         <span class="lbl">Lista</span>
       </button>
+    </div>
     </div>
     <div class="search-tag" id="searchTag" hidden>
       <span>Risultati per <b id="searchTagText"></b></span>
@@ -1671,13 +1814,17 @@ a.prov-row:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,
 
   <!-- ====================== PANNELLO DETTAGLI ====================== -->
   <section class="panel" id="panel" hidden aria-live="polite">
+    <div class="panel-bg" id="panelBg" aria-hidden="true"></div>
     <div class="panel-inner" id="panelInner">
       <div class="panel-head">
-        <div style="min-width:0;flex:1">
-          <h2 id="pTitle">—</h2>
-          <p class="tagline" id="pTagline"></p>
-        </div>
-        <div class="rating-wrap">
+        <h2 id="pTitle">—</h2>
+        <p class="tagline" id="pTagline"></p>
+      </div>
+
+      <!-- Barra valutazioni: anno, durata, visto censura e i tre punteggi -->
+      <div class="metabar">
+        <div class="mb-facts" id="mbFacts"></div>
+        <div class="mb-rat">
           <div class="score" id="score" role="img" aria-label="Gradimento del pubblico">
             <div class="score-fill" id="scoreFill"></div>
             <svg class="score-ring" viewBox="0 0 100 100" aria-hidden="true">
@@ -1689,20 +1836,68 @@ a.prov-row:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,
               <span class="score-num" id="pVote">—</span>
             </div>
           </div>
-          <span class="rating-cap" id="voteMeta">Gradimento</span>
           <div class="rat-row" id="ratRow"></div>
         </div>
       </div>
+      <span class="rating-cap" id="voteMeta">Gradimento</span>
 
-      <p class="overview clamped" id="pOverview"></p>
-      <button class="read-more" id="readMore" type="button" aria-expanded="false">
-        <span id="readMoreLabel">Leggi tutto</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-      </button>
-      <span class="lang-note" id="langNote"></span>
-      <div class="genres" id="pGenres"></div>
-      <div class="tags" id="pTags"></div>
-      <div class="provs" id="pProvs" aria-live="polite"></div>
+      <div class="panel-cols">
+        <figure class="panel-poster" id="panelPoster" hidden>
+          <img id="panelPosterImg" alt="" loading="lazy" decoding="async">
+        </figure>
+        <div class="panel-main">
+          <p class="overview clamped" id="pOverview"></p>
+          <button class="read-more" id="readMore" type="button" aria-expanded="false">
+            <span id="readMoreLabel">Leggi tutto</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <span class="lang-note" id="langNote"></span>
+          <div class="genres" id="pGenres"></div>
+          <div class="tags" id="pTags"></div>
+          <div class="provs" id="pProvs" aria-live="polite"></div>
+
+          <!-- Azioni rapide sempre a vista -->
+          <div class="qbar" id="qbar">
+            <button class="btn primary trailer-card no-thumb sweep ripple magnetic" id="trailerBtn">
+              <span class="trailer-thumb" id="trailerThumb">
+                <img id="trailerImg" alt="" loading="lazy" decoding="async">
+                <span class="play"><svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5.2v13.6a1 1 0 0 0 1.53.85l10.6-6.8a1 1 0 0 0 0-1.7L9.53 4.35A1 1 0 0 0 8 5.2Z"/></svg></span>
+              </span>
+              <span class="trailer-meta">
+                <span class="trailer-title" id="trailerTitle">Guarda il trailer</span>
+                <span class="trailer-tags" id="trailerTags"></span>
+              </span>
+            </button>
+            <button class="btn ghost ripple magnetic" id="cutBtn" title="Strappa il biglietto e salvalo in watchlist">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="6.2" cy="17.4" r="2.6"/><circle cx="6.2" cy="6.6" r="2.6"/>
+                <path d="M8.4 15.9 19.5 5.2M8.4 8.1 19.5 18.8"/><path d="m12.4 12 1.6-1.5"/>
+              </svg>
+              Taglia biglietto
+            </button>
+            <button class="btn ghost ripple magnetic" id="cinemaBtn" title="Orari delle proiezioni e biglietti nella tua città">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z"/><circle cx="12" cy="10" r="2.6"/></svg>
+              Orari e biglietti
+            </button>
+            <span class="savewrap">
+              <button class="btn ghost ripple magnetic" id="saveBtn" aria-expanded="false" aria-haspopup="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18M12 14v4M10 16h4"/></svg>
+                Calendario
+              </button>
+              <div class="savemenu" id="saveMenu" hidden>
+                <a id="calBtn" target="_blank" rel="noopener noreferrer">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
+                  <span>Google Calendar<small>Si apre nel browser</small></span>
+                </a>
+                <button type="button" id="icsBtn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v11m0 0 4-4m-4 4-4-4"/><path d="M4 16.5V19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2.5"/></svg>
+                  <span>Apple Calendar / Outlook<small>Scarica il file .ics</small></span>
+                </button>
+              </div>
+            </span>
+          </div>
+        </div>
+      </div>
       <div class="ost" id="pOst" hidden></div>
       <div class="spoiler" id="pSpoiler" hidden>
         <div class="spoiler-txt">🍿 <span>Questo film ha una scena dopo i titoli di coda: resta in sala.</span></div>
@@ -1736,32 +1931,6 @@ a.prov-row:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,
       </div>
 
       <div class="actions">
-        <button class="btn primary trailer-card no-thumb sweep ripple magnetic" id="trailerBtn">
-          <span class="trailer-thumb" id="trailerThumb">
-            <img id="trailerImg" alt="" loading="lazy" decoding="async">
-            <span class="play"><svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5.2v13.6a1 1 0 0 0 1.53.85l10.6-6.8a1 1 0 0 0 0-1.7L9.53 4.35A1 1 0 0 0 8 5.2Z"/></svg></span>
-          </span>
-          <span class="trailer-meta">
-            <span class="trailer-title" id="trailerTitle">Guarda il trailer</span>
-            <span class="trailer-tags" id="trailerTags"></span>
-          </span>
-        </button>
-        <span class="savewrap">
-          <button class="btn ghost sweep ripple magnetic" id="saveBtn" aria-expanded="false" aria-haspopup="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18M12 14v4M10 16h4"/></svg>
-            Salva data
-          </button>
-          <div class="savemenu" id="saveMenu" hidden>
-            <a id="calBtn" target="_blank" rel="noopener noreferrer">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
-              <span>Google Calendar<small>Si apre nel browser</small></span>
-            </a>
-            <button type="button" id="icsBtn">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v11m0 0 4-4m-4 4-4-4"/><path d="M4 16.5V19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2.5"/></svg>
-              <span>Apple Calendar / Outlook<small>Scarica il file .ics</small></span>
-            </button>
-          </div>
-        </span>
         <button class="btn ghost sweep ripple magnetic" id="inviteBtn" title="Condividi con gli amici">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12a4 4 0 1 0-4-4"/><path d="M4 8a4 4 0 0 0 4 4"/><circle cx="18" cy="6" r="2.6"/><circle cx="18" cy="18" r="2.6"/><circle cx="6" cy="12" r="2.6"/><path d="m8.3 10.7 7.4-3.9M8.3 13.3l7.4 3.9"/></svg>
           Invita amici
@@ -1769,10 +1938,6 @@ a.prov-row:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,
         <button class="btn ghost ripple magnetic" id="oledBtn" title="Countdown a schermo intero" hidden>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9.5V13l2.4 1.6M9.5 2.5h5"/></svg>
           Countdown schermo intero
-        </button>
-        <button class="btn ghost ripple magnetic" id="cinemaBtn" title="Orari delle proiezioni e biglietti nella tua città">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z"/><circle cx="12" cy="10" r="2.6"/></svg>
-          📍 Orari e Biglietti
         </button>
       </div>
 
@@ -2333,7 +2498,11 @@ const el = {
   prev:$('#prevBtn'), next:$('#nextBtn'), panel:$('#panel'), panelInner:$('#panelInner'),
   title:$('#pTitle'), tagline:$('#pTagline'), overview:$('#pOverview'), vote:$('#pVote'),
   scoreFill:$('#scoreFill'), score:$('#score'), scoreProg:$('#scoreProg'), voteMeta:$('#voteMeta'),
-  ratRow:$('#ratRow'),
+  ratRow:$('#ratRow'), mbFacts:$('#mbFacts'),
+  panelBg:$('#panelBg'), panelPoster:$('#panelPoster'), panelPosterImg:$('#panelPosterImg'),
+  cutBtn:$('#cutBtn'),
+  filtersBtn:$('#filtersBtn'), filterMenu:$('#filterMenu'),
+  filtersCount:$('#filtersCount'), filtersReset:$('#filtersReset'),
   facts:$('#pFacts'), genres:$('#pGenres'), readMore:$('#readMore'), readMoreLabel:$('#readMoreLabel'),
   langNote:$('#langNote'), rerelease:$('#pRerelease'), rereleaseText:$('#pRereleaseText'),
   trailerThumb:$('#trailerThumb'), trailerImg:$('#trailerImg'), trailerTitle:$('#trailerTitle'),
@@ -3403,6 +3572,30 @@ function stimaCritica(vote, votes){
   return clamp(Math.round((v * 10 - 50) * 1.35 + 50), 5, 99);
 }
 
+/* Anno, durata e visto censura accanto ai punteggi, come in una scheda cinema */
+function renderMetaBar(movie, details){
+  const voci = [];
+  const anno = fmtYear((details && details.releaseIT) || movie.release_date);
+  if (anno && anno !== '—') voci.push(`<span class="mb-fact">${esc(anno)}</span>`);
+  if (details && details.runtime) voci.push(`<span class="mb-fact">${esc(fmtRuntime(details.runtime))}</span>`);
+  const cert = details ? details.cert : null;
+  const html = voci.join('<span class="mb-dot" aria-hidden="true">•</span>') +
+    (cert ? (voci.length ? '<span class="mb-dot" aria-hidden="true">•</span>' : '') +
+            `<span class="age ${esc(cert.classe)}" title="Visto censura italiano">${esc(cert.etichetta)}</span>` : '');
+  el.mbFacts.innerHTML = html;
+}
+
+/* La locandina accanto alla trama e, dietro tutto, la stessa immagine in grande */
+function renderPanelArt(movie){
+  const piccola = img(movie.poster_path, 'w342') || placeholderPoster(movie.title);
+  el.panelPosterImg.src = piccola;
+  el.panelPosterImg.alt = 'Locandina di ' + movie.title;
+  el.panelPoster.hidden = false;
+  const grande = img(movie.backdrop_path, 'w780') || img(movie.poster_path, 'w780') || piccola;
+  el.panelBg.style.backgroundImage = `url("${grande}")`;
+  el.panelBg.classList.add('on');
+}
+
 function renderRatings(movie, details){
   const box = el.ratRow;
   const vote = details ? details.vote : movie.vote_average;
@@ -3557,6 +3750,8 @@ function renderPanel(movie, details){
                  details ? details.overviewLang : 'it');
   setScore(details ? details.vote : movie.vote_average, details ? details.votes : movie.vote_count);
   renderRatings(movie, details);
+  renderMetaBar(movie, details);
+  renderPanelArt(movie);
   renderFacts(details);
   renderGenres(details && details.genreIds && details.genreIds.length ? details.genreIds : movie.genre_ids);
 
@@ -5497,6 +5692,7 @@ function buildChipsExtra(){
     `<button type="button" class="chip${state.storiaVera ? ' on' : ''}" data-vera="1">📖 Storia vera / libro</button>` +
     '<button type="button" class="chip chip-bo" data-bo="1" title="Vai alla classifica degli incassi">💰 Box Office</button>';
   el.chipsExtra.hidden = false;
+  aggiornaFiltri();
 }
 
 /* =========================================================
@@ -6219,6 +6415,11 @@ el.boTabIt.addEventListener('click', () => setBoTab('it'));
 el.boTabWw.addEventListener('click', () => setBoTab('ww'));
 el.icsBtn.addEventListener('click', scaricaIcs);
 el.tkQrBtn.addEventListener('click', condividiQR);
+el.cutBtn.addEventListener('click', () => {
+  el.ticket.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  /* si aspetta che il biglietto sia in vista, altrimenti le schegge volano fuori campo */
+  setTimeout(strappa, 340);
+});
 el.cinemaBtn.addEventListener('click', orariInSala);
 
 /* --- Suono cristallino al passaggio sulle schede --- */
@@ -6364,6 +6565,7 @@ el.results.addEventListener('click', e => {
 el.saveBtn.addEventListener('click', e => { e.stopPropagation(); toggleSaveMenu(); });
 document.addEventListener('click', e => {
   if (!el.saveMenu.hidden && !e.target.closest('.savewrap')) toggleSaveMenu(false);
+  if (!el.filterMenu.hidden && !e.target.closest('.filterwrap')) toggleFiltri(false);
 });
 el.icsBtn.addEventListener('click', () => toggleSaveMenu(false));
 el.calBtn.addEventListener('click', () => toggleSaveMenu(false));
@@ -6418,16 +6620,46 @@ el.contrastBtn.addEventListener('click', () => {
 el.oledBtn.addEventListener('click', apriOled);
 el.oledClose.addEventListener('click', chiudiOled);
 
+/* --- Filtri secondari a comparsa: sul desktop la barra resta pulita --- */
+function filtriAttivi(){
+  return (state.durata ? 1 : 0) + (state.storiaVera ? 1 : 0);
+}
+
+function aggiornaFiltri(){
+  const n = filtriAttivi();
+  el.filtersCount.hidden = !n;
+  el.filtersCount.textContent = String(n);
+  el.filtersBtn.classList.toggle('on', !!n);
+  el.filtersReset.hidden = !n;
+}
+
+function toggleFiltri(forza){
+  const apri = forza === undefined ? el.filterMenu.hidden : forza;
+  el.filterMenu.hidden = !apri;
+  el.filtersBtn.setAttribute('aria-expanded', apri ? 'true' : 'false');
+  if (apri) sfx.play('tap');
+}
+
 /* --- Filtri durata e storia vera --- */
 el.chipsExtra.addEventListener('click', async e => {
   const chip = e.target.closest('.chip');
   if (!chip) return;
   sfx.play('tap');
-  if (chip.dataset.bo){ vaiAlBoxOffice(); return; }
+  if (chip.dataset.bo){ toggleFiltri(false); vaiAlBoxOffice(); return; }
   if (chip.dataset.durata) state.durata = state.durata === chip.dataset.durata ? null : chip.dataset.durata;
   else if (chip.dataset.vera) state.storiaVera = !state.storiaVera;
+  aggiornaFiltri();
   if (state.durata || state.storiaVera) await assicuraDettagli();
   rebuild(state.activeId);
+});
+
+el.filtersBtn.addEventListener('click', e => { e.stopPropagation(); toggleFiltri(); });
+el.filtersReset.addEventListener('click', () => {
+  state.durata = null;
+  state.storiaVera = false;
+  buildChipsExtra();
+  rebuild(state.activeId);
+  toggleFiltri(false);
 });
 
 
@@ -6438,6 +6670,14 @@ el.readMore.addEventListener('click', () => {
   el.readMore.setAttribute('aria-expanded', aperta ? 'true' : 'false');
 });
 el.trailerImg.addEventListener('error', () => el.trailerBtn.classList.add('no-thumb'));
+el.panelPosterImg.addEventListener('error', () => {
+  const m = movies()[state.activeIndex];
+  if (m) el.panelPosterImg.src = placeholderPoster(m.title);
+});
+el.panelPoster.addEventListener('click', () => {
+  const m = movies()[state.activeIndex];
+  if (m) apriLightbox(m);
+});
 
 el.lightsBtn.addEventListener('click', toggleLights);
 el.modal.addEventListener('click', e => { if (e.target.closest('[data-close]')) closeTrailer(); });
@@ -6454,6 +6694,7 @@ document.addEventListener('keydown', e => {
     if (e.key === 'Escape'){ e.preventDefault(); apriWatchlist(false); }
     return;
   }
+  if (!el.filterMenu.hidden && e.key === 'Escape'){ e.preventDefault(); toggleFiltri(false); el.filtersBtn.focus(); return; }
   const sheetAperto = !el.creatorSheet.hidden ? el.creatorSheet : (!el.filmoSheet.hidden ? el.filmoSheet : null);
   if (sheetAperto){
     if (e.key === 'Escape'){ e.preventDefault(); closeSheet(sheetAperto); }

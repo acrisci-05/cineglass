@@ -175,6 +175,12 @@ fermano, quindi a riposo non consuma CPU.
 **Finestra temporale** — il carosello mostra le uscite italiane dei prossimi 90 giorni
 (`release_date.lte`); tutto ciò che sta oltre resta visibile nella CineTimeline.
 
+**Barra dei filtri** — sul desktop una riga sola: le pillole dei generi, il pulsante
+`🎛️ Filtri` che apre un pannello traslucido con durata, storia vera e box office (con il
+contatore dei filtri attivi e un `Azzera`), e il micro-selettore carosello/lista. Sugli schermi
+grandi la locandina centrale del carosello è più generosa (fino a 330px) per riempire il campo
+visivo invece di lasciare vuoti ai lati.
+
 **Ricerca Spotlight** — la lente in vetro (o `Ctrl/Cmd + K`, o `/`) apre un overlay centrale a
 `backdrop-filter: blur(30px)` che cerca mentre si digita, con miniature, data e separazione fra
 🎟️ *In sala* e ⏳ *In arrivo*; debounce di 300 ms e ultime 3 ricerche in `localStorage`.
