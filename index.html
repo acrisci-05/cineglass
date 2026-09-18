@@ -85,6 +85,9 @@ a{color:inherit;text-decoration:none}
 
 /* ---------- Layout ---------- */
 .shell{position:relative;z-index:1;max-width:1280px;margin:0 auto;padding:0 clamp(14px,3.6vw,34px)}
+/* la prima schermata (hero + filtri + carosello) resta centrata nel viewport */
+.top{min-height:calc(100dvh - 68px);display:flex;flex-direction:column;justify-content:center}
+@supports not (height:100dvh){.top{min-height:calc(100vh - 68px)}}
 
 /* ---------- Topbar ---------- */
 .topbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;justify-content:space-between;gap:14px;
@@ -116,15 +119,17 @@ a{color:inherit;text-decoration:none}
 .icon-btn.plain:hover{transform:none}
 
 /* ---------- Hero ---------- */
-.hero{padding:clamp(22px,4.4vw,46px) 0 clamp(8px,1.6vw,18px);text-align:center}
+.hero{padding:clamp(12px,2.6vw,28px) 0 clamp(6px,1.4vw,14px);text-align:center}
 .eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:11.5px;letter-spacing:.24em;text-transform:uppercase;
   color:var(--muted);padding:7px 15px;border-radius:999px;background:var(--glass);border:1px solid var(--stroke-soft);backdrop-filter:blur(12px)}
 .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--c1);box-shadow:0 0 12px var(--c1);animation:pulse 2.4s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.7)}}
-.hero h1{margin-top:16px;font-size:clamp(30px,6.4vw,62px);font-weight:600;line-height:1.02;letter-spacing:-.035em}
-.hero h1 span{display:block;font-weight:300;background:linear-gradient(100deg,var(--c1),var(--c2) 48%,var(--c3));
-  -webkit-background-clip:text;background-clip:text;color:transparent;transition:background .9s var(--ease)}
-.hero p.sub{margin:14px auto 0;max-width:540px;color:var(--muted);font-size:clamp(13.5px,1.7vw,15.5px);font-weight:300}
+.hero h1{margin-top:15px;font-size:clamp(28px,5.6vw,58px);font-weight:700;line-height:1.02;letter-spacing:.004em;text-transform:uppercase;
+  background:linear-gradient(100deg,#fff 18%, color-mix(in oklab, var(--c1) 42%, #fff) 58%, color-mix(in oklab, var(--c3) 45%, #fff) 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 8px 34px color-mix(in oklab, var(--c2) 38%, transparent));transition:background .9s var(--ease)}
+.hero p.sub{margin:13px auto 0;max-width:560px;color:var(--muted);font-size:clamp(13.5px,1.7vw,15.5px);font-weight:300;line-height:1.6}
+.hero p.sub em{font-family:var(--serif);font-style:italic;font-size:1.16em;color:rgba(255,255,255,.9)}
 
 /* ---------- Notice / API key ---------- */
 .notice{display:flex;gap:14px;align-items:flex-start;margin:18px auto 0;max-width:760px;padding:16px 16px 16px 18px;
@@ -143,6 +148,34 @@ a{color:inherit;text-decoration:none}
   background:rgba(0,0,0,.28);border:1px solid var(--stroke);color:var(--txt)}
 .key-form input::placeholder{color:var(--faint)}
 @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+/* ---------- Toolbar: ricerca + filtri per genere ---------- */
+.toolbar{display:flex;flex-direction:column;align-items:center;gap:10px;min-width:0;margin-top:clamp(12px,2.2vw,20px)}
+.search{display:flex;align-items:center;gap:8px;width:min(520px,100%);min-width:0;padding:6px 6px 6px 16px;border-radius:999px;
+  background:var(--glass);border:1px solid var(--stroke);backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px);
+  box-shadow:0 14px 34px -22px rgba(0,0,0,.9);animation:fadeUp .35s var(--ease) both}
+.search[hidden]{display:none}
+.search svg{width:16px;height:16px;flex:0 0 auto;opacity:.6}
+.search input{flex:1;min-width:0;background:none;border:0;outline:none;font-size:14.5px;font-weight:300;padding:8px 0}
+.search input::placeholder{color:var(--faint)}
+.search .btn{padding:9px 18px}
+.chips{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-width:0;max-width:100%;
+  overflow-x:auto;overscroll-behavior-x:contain;padding:2px 4px 6px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chips[hidden]{display:none}
+.chip{flex:0 0 auto;padding:7px 15px;border-radius:999px;font-size:12.5px;font-weight:400;color:var(--muted);
+  background:rgba(255,255,255,.04);border:1px solid var(--stroke-soft);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  transition:color .25s, background .25s, border-color .25s, transform .25s var(--ease);white-space:nowrap}
+.chip:hover{color:var(--txt);background:rgba(255,255,255,.08);transform:translateY(-1px)}
+.chip.on{color:var(--txt);background:linear-gradient(120deg, color-mix(in oklab, var(--c1) 26%, transparent), color-mix(in oklab, var(--c2) 26%, transparent));
+  border-color:color-mix(in oklab, var(--c1) 42%, transparent);box-shadow:0 8px 22px -12px color-mix(in oklab, var(--c1) 75%, transparent)}
+.chip .n{opacity:.5;margin-left:5px;font-size:11px}
+.search-tag{display:inline-flex;align-items:center;gap:9px;padding:7px 9px 7px 15px;border-radius:999px;font-size:12.5px;
+  background:rgba(255,255,255,.05);border:1px solid var(--stroke-soft)}
+.search-tag[hidden]{display:none}
+.search-tag b{font-weight:500}
+.search-tag button{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.1)}
+.search-tag button svg{width:11px;height:11px}
 
 /* ---------- Carosello 3D ---------- */
 .carousel{position:relative;margin-top:clamp(10px,2.4vw,26px);touch-action:pan-y}
@@ -194,6 +227,19 @@ a{color:inherit;text-decoration:none}
 .card-fav:hover{background:rgba(255,255,255,.2)}
 .card-fav:active svg{transform:scale(.8)}
 .card-fav[aria-pressed="true"] svg{fill:#ff5f7e;stroke:#ff5f7e;filter:drop-shadow(0 0 8px rgba(255,95,126,.7))}
+
+.card-badge{position:absolute;top:12px;left:12px;z-index:4;padding:6px 11px;border-radius:999px;
+  font-size:9.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:#052015;white-space:nowrap;
+  background:linear-gradient(120deg,#7dffc0,#4ff0ff);border:1px solid rgba(255,255,255,.55);
+  box-shadow:0 0 18px -2px rgba(90,255,190,.75), 0 6px 18px -8px rgba(0,0,0,.9);animation:neon 2.4s ease-in-out infinite}
+@keyframes neon{0%,100%{box-shadow:0 0 16px -3px rgba(90,255,190,.6), 0 6px 18px -8px rgba(0,0,0,.9)}
+  50%{box-shadow:0 0 26px 1px rgba(90,255,190,.95), 0 6px 18px -8px rgba(0,0,0,.9)}}
+.card:not(.is-active) .card-badge{opacity:.55;animation:none;box-shadow:none}
+.panel-badge{display:none;align-items:center;gap:8px;margin-top:10px;padding:8px 15px;border-radius:999px;
+  font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#052015;width:fit-content;
+  background:linear-gradient(120deg,#7dffc0,#4ff0ff);border:1px solid rgba(255,255,255,.5);animation:neon 2.4s ease-in-out infinite}
+.panel-badge.on{display:inline-flex}
+.panel-badge .pulse{width:7px;height:7px;border-radius:50%;background:#052015;animation:pulse 1.6s ease-in-out infinite}
 
 .card.is-active{z-index:60}
 .card.is-active .card-play,.card.is-active .card-fav{opacity:1;scale:1;pointer-events:auto}
@@ -261,7 +307,8 @@ a{color:inherit;text-decoration:none}
 .panel-head{display:flex;gap:22px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
 .panel-head h2{font-size:clamp(22px,3.4vw,34px);font-weight:600;letter-spacing:-.03em;line-height:1.1}
 .tagline{margin-top:8px;font-family:var(--serif);font-style:italic;font-size:clamp(15px,2.1vw,21px);line-height:1.35;
-  color:color-mix(in oklab, var(--c1) 45%, #fff);max-width:56ch}
+  color:rgba(255,255,255,.88);max-width:56ch;
+  text-shadow:0 0 26px color-mix(in oklab, var(--c1) 45%, transparent), 0 2px 10px rgba(0,0,0,.5)}
 .tagline:empty{display:none}
 .overview{margin-top:16px;font-size:14.2px;font-weight:300;line-height:1.72;color:var(--muted);max-width:74ch}
 
@@ -318,17 +365,26 @@ a{color:inherit;text-decoration:none}
 
 /* Azioni */
 .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:13px 22px;border-radius:999px;
-  font-size:14px;font-weight:500;letter-spacing:-.01em;transition:transform .3s var(--ease), box-shadow .3s, background .3s, opacity .3s;white-space:nowrap}
+.btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:13px 22px;border-radius:999px;
+  font-size:14px;font-weight:500;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;
+  background:linear-gradient(160deg, rgba(255,255,255,.16), rgba(255,255,255,0) 48%), var(--glass);
+  border:1px solid var(--stroke);backdrop-filter:blur(16px) saturate(1.4);-webkit-backdrop-filter:blur(16px) saturate(1.4);
+  box-shadow:0 12px 30px -18px rgba(0,0,0,.95), inset 0 1px 0 rgba(255,255,255,.16);
+  transition:transform .3s var(--ease), box-shadow .3s, background .3s, border-color .3s, opacity .3s}
+.btn:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.22);
+  background:linear-gradient(160deg, rgba(255,255,255,.2), rgba(255,255,255,0) 48%), var(--glass-strong)}
 .btn svg{width:16px;height:16px;flex:0 0 auto}
-.btn.primary{background:linear-gradient(120deg,var(--c1),var(--c2) 62%,var(--c3));color:#0a0712;font-weight:600;
-  box-shadow:0 16px 40px -16px color-mix(in oklab, var(--c1) 85%, transparent)}
-.btn.primary:hover{transform:translateY(-2px);box-shadow:0 22px 48px -16px color-mix(in oklab, var(--c2) 85%, transparent)}
-.btn.ghost{background:var(--glass);border:1px solid var(--stroke);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
-.btn.ghost:hover{background:var(--glass-strong);transform:translateY(-2px)}
+.btn.primary{font-weight:600;color:#fff;
+  background:linear-gradient(160deg, rgba(255,255,255,.22), rgba(255,255,255,0) 50%),
+             linear-gradient(120deg, color-mix(in oklab, var(--c1) 50%, transparent), color-mix(in oklab, var(--c2) 48%, transparent) 62%, color-mix(in oklab, var(--c3) 46%, transparent));
+  border-color:color-mix(in oklab, var(--c1) 55%, transparent);
+  box-shadow:0 16px 40px -20px color-mix(in oklab, var(--c1) 90%, transparent), inset 0 1px 0 rgba(255,255,255,.26)}
+.btn.primary:hover{border-color:color-mix(in oklab, var(--c1) 75%, transparent);
+  box-shadow:0 22px 48px -18px color-mix(in oklab, var(--c2) 90%, transparent), inset 0 1px 0 rgba(255,255,255,.3)}
 .btn.small{padding:9px 16px;font-size:13px}
 .btn[disabled]{opacity:.42;pointer-events:none}
-.btn.fav-on{background:linear-gradient(120deg, rgba(255,95,126,.28), rgba(255,140,90,.26));border-color:rgba(255,95,126,.45)}
+.btn.fav-on{border-color:rgba(255,95,126,.5);
+  background:linear-gradient(160deg, rgba(255,255,255,.18), rgba(255,255,255,0) 48%), linear-gradient(120deg, rgba(255,95,126,.32), rgba(255,140,90,.26))}
 .btn.fav-on svg{fill:#ff5f7e;stroke:#ff5f7e}
 
 /* Stato vuoto */
@@ -398,7 +454,11 @@ footer a{text-decoration:underline;text-underline-offset:3px}
   .pill-btn{padding:8px 12px;font-size:12.5px}
   .pill-btn .lbl{display:none}
   .actions .btn{flex:1}
-  .hero{padding-top:18px}
+  .hero{padding-top:12px}
+  .chips{justify-content:flex-start;align-self:stretch}
+  .toolbar{align-items:stretch}
+  .search{width:100%}
+  .top{min-height:0}
 }
 @media (prefers-reduced-motion:reduce){
   .blob{animation:none}
@@ -433,6 +493,11 @@ footer a{text-decoration:underline;text-underline-offset:3px}
     <span class="brand-text">Cine<em>Glass</em></span>
   </div>
   <div class="topbar-actions">
+    <button id="searchBtn" class="icon-btn plain" aria-expanded="false" title="Cerca un film su TMDB" aria-label="Cerca un film">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+        <circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/>
+      </svg>
+    </button>
     <button id="favFilter" class="pill-btn" aria-pressed="false" title="Mostra solo la tua lista">
       <svg class="heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">
         <path d="M12 20.5 4.2 13a4.8 4.8 0 0 1 6.8-6.8l1 1 1-1A4.8 4.8 0 1 1 19.8 13Z"/>
@@ -450,12 +515,30 @@ footer a{text-decoration:underline;text-underline-offset:3px}
 
 <div class="shell">
 
+  <div class="top">
+
   <!-- ====================== HERO ====================== -->
   <section class="hero">
-    <p class="eyebrow"><span class="dot"></span>Prossimamente al cinema · Italia</p>
-    <h1>Il grande schermo<span>ti sta aspettando</span></h1>
-    <p class="sub">Scorri il carosello per scoprire le uscite italiane, guarda il trailer ufficiale e segna la data sul calendario.</p>
+    <p class="eyebrow"><span class="dot"></span>Uscite italiane · dati TMDB</p>
+    <h1>Prossimamente in sala</h1>
+    <p class="sub"><em>Il grande schermo ti sta aspettando.</em> Scorri il carosello, guarda il trailer ufficiale e segna la data sul calendario.</p>
   </section>
+
+  <!-- ====================== RICERCA + FILTRI ====================== -->
+  <div class="toolbar">
+    <form class="search" id="searchBar" role="search" hidden autocomplete="off">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>
+      <input id="searchInput" type="search" placeholder="Cerca un film su TMDB…" aria-label="Cerca un film su TMDB">
+      <button class="btn small" type="button" id="searchClose">Chiudi</button>
+    </form>
+    <div class="chips" id="chips" role="group" aria-label="Filtra per genere"></div>
+    <div class="search-tag" id="searchTag" hidden>
+      <span>Risultati per <b id="searchTagText"></b></span>
+      <button type="button" id="searchReset" aria-label="Annulla la ricerca">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+  </div>
 
   <!-- ====================== AVVISO / API KEY ====================== -->
   <div id="notice" class="notice" hidden>
@@ -489,6 +572,8 @@ footer a{text-decoration:underline;text-underline-offset:3px}
     </button>
     <div class="dots" id="dots"></div>
   </section>
+
+  </div><!-- /.top -->
 
   <!-- ====================== SKELETON PANNELLO ====================== -->
   <div class="sk-panel" id="skPanel">
@@ -542,6 +627,7 @@ footer a{text-decoration:underline;text-underline-offset:3px}
         <div>
           <div class="rel-lab">Uscita nelle sale italiane</div>
           <div class="rel-val" id="pDate">—</div>
+          <div class="panel-badge" id="pBadge"><span class="pulse"></span><span id="pBadgeText"></span></div>
         </div>
         <div class="countdown" id="countdown"></div>
       </div>
@@ -608,7 +694,7 @@ footer a{text-decoration:underline;text-underline-offset:3px}
 /* =========================================================
    1. CONFIGURAZIONE
    ========================================================= */
-const API_KEY = 'INSERISCI_QUI_LA_TUA_KEY';
+const API_KEY = '6a0fc5ffd32134ab76c8210acbb5243c';
 
 const API_BASE  = 'https://api.themoviedb.org/3';
 const IMG_BASE  = 'https://image.tmdb.org/t/p/';
@@ -798,6 +884,7 @@ const DEMO = [
    ========================================================= */
 const state = {
   movies: [], favs: [], favOnly: false, detailsCache: {},
+  view: [], genre: null, mode: 'upcoming', searchList: [], searchQuery: '',
   current: 0, target: 0, activeIndex: 0, activeId: null, activeDetails: null,
   demo: false, raf: 0, drag: null, cardW: 260, spacing: 180, lastRelease: null
 };
@@ -810,6 +897,10 @@ const el = {
   studio:$('#fStudio'), genres:$('#fGenres'), date:$('#pDate'), countdown:$('#countdown'),
   trailerBtn:$('#trailerBtn'), calBtn:$('#calBtn'), favBtn:$('#favBtn'), favBtnLabel:$('#favBtnLabel'),
   favFilter:$('#favFilter'), favCount:$('#favCount'), refresh:$('#refreshBtn'),
+  badge:$('#pBadge'), badgeText:$('#pBadgeText'), chips:$('#chips'),
+  searchBtn:$('#searchBtn'), searchBar:$('#searchBar'), searchInput:$('#searchInput'),
+  searchClose:$('#searchClose'), searchTag:$('#searchTag'), searchTagText:$('#searchTagText'),
+  searchReset:$('#searchReset'),
   notice:$('#notice'), noticeIco:$('#noticeIco'), noticeTitle:$('#noticeTitle'), noticeText:$('#noticeText'),
   noticeClose:$('#noticeClose'), keyForm:$('#keyForm'), keyInput:$('#keyInput'),
   modal:$('#modal'), modalTitle:$('#mTitle'), player:$('#player'), lightsBtn:$('#lightsBtn'),
@@ -818,8 +909,30 @@ const el = {
 };
 let cards = [];
 
-const movies = () => (state.favOnly ? state.favs : state.movies);
+/* lista di partenza (uscite, ricerca o preferiti) e vista filtrata per genere */
+const baseList = () => (state.mode === 'search' ? state.searchList : (state.favOnly ? state.favs : state.movies));
+const movies = () => state.view;
 const wrapIndex = (i, n) => ((Math.round(i) % n) + n) % n;
+
+function computeView(){
+  const base = baseList();
+  if (state.genre && !base.some(m => (m.genre_ids || []).includes(state.genre))) state.genre = null;
+  state.view = state.genre ? base.filter(m => (m.genre_ids || []).includes(state.genre)) : base;
+}
+
+/* Etichetta per le uscite imminenti (entro 7 giorni) */
+function releaseBadge(iso){
+  const d = parseISO(iso);
+  if (!d) return null;
+  const now = new Date(); now.setHours(0, 0, 0, 0);
+  const days = Math.round((d.getTime() - now.getTime()) / 86400000);
+  if (days < 0 || days > 7) return null;
+  if (days === 0) return 'Da oggi in sala';
+  if (days === 1) return 'Domani in sala';
+  const wd = d.getDay();
+  if ((wd === 5 || wd === 6 || wd === 0) && days <= 4) return 'In uscita questo weekend';
+  return 'Tra ' + days + ' giorni';
+}
 
 /* =========================================================
    5. LIVELLO DATI (TMDB + cache localStorage)
@@ -966,10 +1079,12 @@ function buildCards(){
     card.dataset.i = String(i);
     card.dataset.id = String(m.id);
     const fav = isFav(m.id);
+    const badge = releaseBadge(m.release_date);
     card.innerHTML =
       '<div class="card-inner">' +
         `<img class="poster" alt="Locandina di ${esc(m.title)}" loading="lazy" decoding="async" src="${esc(img(m.poster_path, 'w500') || placeholderPoster(m.title))}">` +
         '<div class="frost"></div><div class="shine"></div><div class="card-grad"></div>' +
+        (badge ? `<span class="card-badge">${esc(badge)}</span>` : '') +
         `<button class="card-fav" data-act="fav" aria-pressed="${fav ? 'true' : 'false'}" aria-label="${fav ? 'Rimuovi da' : 'Aggiungi a'} Non perdertelo">` +
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 20.5 4.2 13a4.8 4.8 0 0 1 6.8-6.8l1 1 1-1A4.8 4.8 0 1 1 19.8 13Z"/></svg>' +
         '</button>' +
@@ -993,6 +1108,37 @@ function buildCards(){
   buildDots(list.length);
   measure();
 }
+
+function buildChips(){
+  const base = baseList();
+  const counts = new Map();
+  base.forEach(m => (m.genre_ids || []).forEach(id => {
+    if (GENRES[id]) counts.set(id, (counts.get(id) || 0) + 1);
+  }));
+  let top = Array.from(counts.entries())
+    .sort((a, b) => b[1] - a[1] || GENRES[a[0]].localeCompare(GENRES[b[0]]))
+    .slice(0, 5);
+  if (state.genre && counts.has(state.genre) && !top.some(t => t[0] === state.genre))
+    top = top.slice(0, 4).concat([[state.genre, counts.get(state.genre)]]);
+  if (top.length < 2 || base.length < 3){ el.chips.hidden = true; el.chips.innerHTML = ''; return; }
+  el.chips.hidden = false;
+  const items = [[null, base.length]].concat(top);
+  el.chips.innerHTML = items.map(([id, n]) => {
+    const on = state.genre === id;
+    return `<button type="button" class="chip${on ? ' on' : ''}" data-genre="${id === null ? '' : id}" aria-pressed="${on}">` +
+           `${id === null ? 'Tutti' : esc(GENRES[id])}<span class="n">${n}</span></button>`;
+  }).join('');
+}
+
+el.chips.addEventListener('click', e => {
+  const chip = e.target.closest('.chip');
+  if (!chip) return;
+  const raw = chip.dataset.genre;
+  const id = raw ? Number(raw) : null;
+  if (state.genre === id) return;
+  state.genre = id;
+  rebuild(state.activeId);
+});
 
 function buildDots(n){
   el.dots.innerHTML = '';
@@ -1267,6 +1413,9 @@ function renderPanel(movie, details){
   state.lastRelease = iso;
   el.date.textContent = fmtDate(iso);
   el.date.title = fmtDateLong(iso);
+  const badge = releaseBadge(iso);
+  el.badge.classList.toggle('on', !!badge);
+  el.badgeText.textContent = badge || '';
   renderCountdown();
 
   /* Trailer */
@@ -1413,7 +1562,74 @@ function syncFavButton(movie){
 function setFavOnly(on){
   state.favOnly = on;
   el.favFilter.setAttribute('aria-pressed', on ? 'true' : 'false');
+  if (on && state.mode === 'search') exitSearch(true);
+  state.genre = null;
   state.activeId = null;
+  rebuild(null);
+}
+
+/* =========================================================
+   9-bis. RICERCA SU TMDB
+   ========================================================= */
+let searchSeq = 0, searchTimer = 0;
+
+function openSearch(on){
+  el.searchBar.hidden = !on;
+  el.searchBtn.setAttribute('aria-expanded', on ? 'true' : 'false');
+  if (on){ el.searchInput.focus(); el.searchInput.select(); }
+}
+
+function exitSearch(silent){
+  clearTimeout(searchTimer);
+  searchSeq++;
+  const wasSearch = state.mode === 'search';
+  state.mode = 'upcoming';
+  state.searchList = [];
+  state.searchQuery = '';
+  el.searchTag.hidden = true;
+  el.searchInput.value = '';
+  openSearch(false);
+  if (wasSearch && !silent){
+    state.genre = null;
+    state.activeId = null;
+    rebuild(null);
+  }
+}
+
+async function runSearch(q){
+  const query = String(q || '').trim();
+  if (query.length < 2) return;
+  const seq = ++searchSeq;
+  state.searchQuery = query;
+  showSkeleton(true);
+  let list = [];
+  const key = resolveKey();
+  try{
+    if (!key){
+      const needle = query.toLowerCase();
+      list = DEMO.filter(m => m.title.toLowerCase().includes(needle));
+    } else {
+      const url = `${API_BASE}/search/movie?api_key=${encodeURIComponent(key)}` +
+                  `&language=it-IT&include_adult=false&region=IT&page=1&query=${encodeURIComponent(query)}`;
+      const data = await fetchJSON(url);
+      list = (data && data.results ? data.results : []).map(slimMovie).slice(0, 20);
+    }
+  }catch(err){
+    if (seq !== searchSeq) return;
+    showSkeleton(false);
+    toast('Ricerca non riuscita: riprova', 'warn');
+    return;
+  }
+  if (seq !== searchSeq) return;
+  state.mode = 'search';
+  state.favOnly = false;
+  el.favFilter.setAttribute('aria-pressed', 'false');
+  state.searchList = list;
+  state.genre = null;
+  state.activeId = null;
+  el.searchTagText.textContent = '\u201c' + query + '\u201d';
+  el.searchTag.hidden = false;
+  showSkeleton(false);
   rebuild(null);
 }
 
@@ -1520,6 +1736,16 @@ function showEmpty(on, mode){
     el.emptyText.textContent = 'TMDB non ha restituito uscite italiane in questo momento. Riprova tra poco con il pulsante Aggiorna.';
     el.emptyBtn.textContent = 'Riprova';
     el.emptyBtn.dataset.act = 'reload';
+  } else if (mode === 'search'){
+    el.emptyTitle.textContent = 'Nessun risultato';
+    el.emptyText.textContent = 'Nessun film trovato per \u201c' + state.searchQuery + '\u201d. Prova con un altro titolo.';
+    el.emptyBtn.textContent = 'Torna alle uscite';
+    el.emptyBtn.dataset.act = 'exitSearch';
+  } else if (mode === 'genre'){
+    el.emptyTitle.textContent = 'Nessun film in questo genere';
+    el.emptyText.textContent = 'Non ci sono titoli che corrispondono al filtro selezionato.';
+    el.emptyBtn.textContent = 'Mostra tutti i generi';
+    el.emptyBtn.dataset.act = 'allGenres';
   } else {
     el.emptyTitle.textContent = 'La tua lista è vuota';
     el.emptyText.textContent = 'Tocca il cuore su una locandina per salvare i film che non vuoi perderti: li ritroverai qui in un tocco.';
@@ -1534,13 +1760,15 @@ function showEmpty(on, mode){
 const skNode = el.skeleton;
 
 function rebuild(preserveId){
+  computeView();
+  buildChips();
   const list = movies();
   if (!list.length){
     cards = [];
     el.stage.innerHTML = '';
     el.dots.innerHTML = '';
     showSkeleton(false);
-    showEmpty(true, state.favOnly ? 'favs' : 'nodata');
+    showEmpty(true, state.genre ? 'genre' : state.mode === 'search' ? 'search' : state.favOnly ? 'favs' : 'nodata');
     return;
   }
   showEmpty(false);
@@ -1562,8 +1790,8 @@ function rebuild(preserveId){
 
 function applyList(list, preserveId){
   state.movies = list;
-  if (!state.favOnly) rebuild(preserveId);
-  else updateFavUI();
+  if (!state.favOnly && state.mode !== 'search') rebuild(preserveId);
+  else { buildChips(); updateFavUI(); }
 }
 
 async function loadFromAPI(key, opts){
@@ -1645,7 +1873,10 @@ el.favBtn.addEventListener('click', () => {
 });
 el.favFilter.addEventListener('click', () => setFavOnly(!state.favOnly));
 el.emptyBtn.addEventListener('click', () => {
-  if (el.emptyBtn.dataset.act === 'all') setFavOnly(false);
+  const act = el.emptyBtn.dataset.act;
+  if (act === 'all') setFavOnly(false);
+  else if (act === 'exitSearch') exitSearch();
+  else if (act === 'allGenres'){ state.genre = null; rebuild(null); }
   else { const key = resolveKey(); if (key) loadFromAPI(key, { notify: true }); else enterDemo(); }
 });
 el.refresh.addEventListener('click', () => {
@@ -1667,6 +1898,24 @@ el.keyForm.addEventListener('submit', async e => {
   if (ok) toast('API key attiva: dati reali caricati', 'ok');
 });
 
+el.searchBtn.addEventListener('click', () => openSearch(el.searchBar.hidden));
+el.searchClose.addEventListener('click', () => exitSearch());
+el.searchReset.addEventListener('click', () => exitSearch());
+el.searchBar.addEventListener('submit', e => {
+  e.preventDefault();
+  clearTimeout(searchTimer);
+  runSearch(el.searchInput.value);
+});
+el.searchInput.addEventListener('input', () => {
+  clearTimeout(searchTimer);
+  const v = el.searchInput.value.trim();
+  if (v.length < 2) return;
+  searchTimer = setTimeout(() => runSearch(v), 420);
+});
+el.searchInput.addEventListener('keydown', e => {
+  if (e.key === 'Escape'){ e.preventDefault(); exitSearch(); }
+});
+
 el.lightsBtn.addEventListener('click', toggleLights);
 el.modal.addEventListener('click', e => { if (e.target.closest('[data-close]')) closeTrailer(); });
 
@@ -1678,6 +1927,7 @@ document.addEventListener('keydown', e => {
   }
   const tag = (e.target && e.target.tagName ? e.target.tagName : '').toLowerCase();
   if (tag === 'input' || tag === 'textarea') return;
+  if (e.key === '/'){ e.preventDefault(); openSearch(true); return; }
   if (e.key === 'ArrowRight'){ e.preventDefault(); next(); }
   else if (e.key === 'ArrowLeft'){ e.preventDefault(); prev(); }
   else if (e.key === 'Home'){ e.preventDefault(); goTo(0); }

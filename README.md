@@ -5,17 +5,23 @@ Web app single-page (un solo file `index.html`, zero build, zero server) con int
 
 ## Avvio rapido
 
-1. Ottieni una API key gratuita (v3 auth) su [themoviedb.org/settings/api](https://www.themoviedb.org/settings/api).
-2. Apri `index.html` e sostituisci il valore della costante in cima allo `<script>`:
+Apri `index.html` nel browser, oppure servilo con un qualsiasi static server:
 
-   ```js
-   const API_KEY = 'INSERISCI_QUI_LA_TUA_KEY';
-   ```
+```bash
+npx http-server -p 8080     # poi apri http://localhost:8080
+```
 
-3. Apri il file nel browser (o servilo con un qualsiasi static server, es. `npx http-server`).
+La API key TMDB (v3 auth) è la costante in cima allo `<script>`:
 
-Senza key l'app parte comunque in **modalità demo** con dati di esempio e permette di
-incollare la key direttamente nell'interfaccia: viene salvata solo nel `localStorage` del browser.
+```js
+const API_KEY = '...';
+```
+
+Essendo un'app interamente client-side la key è visibile a chiunque apra il sito o il sorgente:
+va considerata pubblica e si rigenera quando serve da
+[themoviedb.org/settings/api](https://www.themoviedb.org/settings/api).
+Se la costante è vuota o non valida, l'app parte in **modalità demo** con dati di esempio e
+permette di incollare una key dall'interfaccia: in quel caso resta solo nel `localStorage` del browser.
 
 ## Cosa fa
 
@@ -34,6 +40,10 @@ incollare la key direttamente nell'interfaccia: viene salvata solo nel `localSto
 - **Countdown live**, **indicatore a riempimento liquido** del gradimento,
   **modal trailer con "Luci spente"**, **link dinamico a Google Calendar** e lista
   **"Non perdertelo"** salvata in `localStorage`.
+- **Ricerca su TMDB** (`/search/movie`) dalla lente nell'header o con il tasto `/`,
+  **filtri per genere** generati dai film effettivamente caricati e **badge fluorescente**
+  sulle uscite entro 7 giorni ("Da oggi in sala", "Domani in sala", "In uscita questo weekend",
+  "Tra N giorni").
 - **Stati di errore** — skeleton screen animato, locandine generate in SVG quando l'immagine
   manca, fallback sulla cache e modalità demo se TMDB non risponde.
 
