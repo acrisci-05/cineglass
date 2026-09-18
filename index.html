@@ -44,6 +44,7 @@
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
 html{-webkit-text-size-adjust:100%}
 body{
   font-family:var(--font);
@@ -435,6 +436,18 @@ body.lights-out .topbar{opacity:0;pointer-events:none}
 .toast svg{width:16px;height:16px}
 
 footer{position:relative;z-index:1;text-align:center;padding:42px 20px 10px;font-size:12px;color:var(--faint);font-weight:300}
+.status{display:inline-flex;align-items:center;gap:8px;margin-bottom:12px;padding:8px 15px;border-radius:999px;
+  font-size:11.5px;color:var(--muted);background:rgba(255,255,255,.04);border:1px solid var(--stroke-soft);
+  max-width:100%;flex-wrap:wrap;justify-content:center}
+.status .led{width:7px;height:7px;border-radius:50%;background:#5ce6a0;box-shadow:0 0 10px #5ce6a0;flex:0 0 auto}
+.status.warn{color:#ffd9a0;background:rgba(255,176,60,.1);border-color:rgba(255,176,60,.32)}
+.status.warn .led{background:#ffb03c;box-shadow:0 0 10px #ffb03c}
+.debug{max-width:780px;margin:14px auto 0;text-align:left}
+.debug[hidden]{display:none}
+.debug summary{cursor:pointer;font-size:12px;color:var(--muted);padding:6px 0}
+.debug pre{margin-top:8px;padding:14px;border-radius:14px;background:rgba(0,0,0,.4);border:1px solid var(--stroke-soft);
+  font-size:11px;line-height:1.5;color:var(--muted);overflow:auto;max-height:340px;white-space:pre-wrap;word-break:break-all}
+.card-badge.demo{background:linear-gradient(120deg,#ffd18a,#ffa14f);color:#3a1f05;box-shadow:none;animation:none}
 footer a{text-decoration:underline;text-underline-offset:3px}
 
 /* ---------- Responsive ---------- */
@@ -657,8 +670,15 @@ footer a{text-decoration:underline;text-underline-offset:3px}
   </div>
 
   <footer>
-    Dati e immagini forniti da <a href="https://www.themoviedb.org" target="_blank" rel="noopener noreferrer">TMDB</a>.
-    Questo prodotto usa le API di TMDB ma non è approvato né certificato da TMDB.
+    <p class="status" id="status"><span class="led"></span><span id="statusText">Caricamento…</span></p>
+    <details class="debug" id="debugBox" hidden>
+      <summary>Dettagli tecnici delle chiamate a TMDB</summary>
+      <pre id="debugOut"></pre>
+    </details>
+    <p>
+      Dati e immagini forniti da <a href="https://www.themoviedb.org" target="_blank" rel="noopener noreferrer">TMDB</a>.
+      Questo prodotto usa le API di TMDB ma non è approvato né certificato da TMDB.
+    </p>
   </footer>
 </div>
 
@@ -756,9 +776,7 @@ const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
    usano tutti questa base (l'orologio del dispositivo). */
 const now = () => Date.now();
 function todayISO(){
-  const d = new Date(now());
-  const pad = n => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  return new Date(now()).toISOString().split('T')[0];
 }
 function startOfToday(){
   const d = new Date(now());
@@ -915,7 +933,8 @@ const el = {
   badge:$('#pBadge'), badgeText:$('#pBadgeText'), chips:$('#chips'),
   searchBtn:$('#searchBtn'), searchBar:$('#searchBar'), searchInput:$('#searchInput'),
   searchClose:$('#searchClose'), searchTag:$('#searchTag'), searchTagText:$('#searchTagText'),
-  searchReset:$('#searchReset'),
+  searchReset:$('#searchReset'), status:$('#status'), statusText:$('#statusText'),
+  debugBox:$('#debugBox'), debugOut:$('#debugOut'),
   notice:$('#notice'), noticeIco:$('#noticeIco'), noticeTitle:$('#noticeTitle'), noticeText:$('#noticeText'),
   noticeClose:$('#noticeClose'), keyForm:$('#keyForm'), keyInput:$('#keyInput'),
   modal:$('#modal'), modalTitle:$('#mTitle'), player:$('#player'), lightsBtn:$('#lightsBtn'),
@@ -958,13 +977,46 @@ function resolveKey(){
   return isValidKey(saved) ? String(saved).trim() : null;
 }
 
+/* ---------------------------------------------------------
+   Diagnostica: da dove arrivano i film mostrati a schermo
+   --------------------------------------------------------- */
+const diag = { source: 'boot', label: 'avvio…', count: 0, filterDate: '', at: 0, note: '', calls: [] };
+
+function setDiag(patch){
+  Object.assign(diag, patch);
+  renderStatus();
+}
+function logCall(url, esito, ms){
+  diag.calls.unshift({
+    url: String(url).replace(/api_key=[^&]*/, 'api_key=***').replace(API_BASE, ''),
+    esito, ms: Math.round(ms)
+  });
+  diag.calls.length = Math.min(diag.calls.length, 24);
+}
+function renderStatus(){
+  if (!el.statusText) return;
+  const demo = diag.source === 'demo';
+  const when = diag.at ? new Date(diag.at).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }) : '—';
+  el.statusText.textContent = demo
+    ? 'Dati di esempio — i titoli NON sono reali. ' + diag.note
+    : `Fonte: ${diag.label} · ${diag.count} film · uscite dal ${diag.filterDate || '—'} · aggiornato ${when}`;
+  el.status.classList.toggle('warn', demo);
+  if (el.debugOut && !el.debugBox.hidden) el.debugOut.textContent = JSON.stringify(diag, null, 2);
+}
+
 async function fetchJSON(url, timeout){
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), timeout || 12000);
+  const t0 = performance.now();
   try{
     const res = await fetch(url, { signal: ctrl.signal, headers: { Accept: 'application/json' } });
+    logCall(url, 'HTTP ' + res.status, performance.now() - t0);
     if (!res.ok){ const e = new Error('HTTP ' + res.status); e.status = res.status; throw e; }
     return await res.json();
+  } catch(err){
+    if (!/^HTTP /.test(err.message || ''))
+      logCall(url, 'errore di rete: ' + (err.name === 'AbortError' ? 'timeout' : err.message), performance.now() - t0);
+    throw err;
   } finally { clearTimeout(timer); }
 }
 
@@ -1018,8 +1070,10 @@ async function fetchUpcoming(key){
     ]);
     const raw = pages.reduce((acc, d) => acc.concat(d && d.results ? d.results : []), []);
     list = orderList(raw, { requirePoster: true, skipDates: true, limit: MAX_CANDIDATES });
+    setDiag({ source: 'discover', label: 'TMDB /discover (uscite IT)', filterDate: today, note: '' });
   }catch(err){
     list = [];
+    setDiag({ note: 'discover non riuscito: ' + err.message });
   }
 
   /* Rete di sicurezza: se discover non restituisce abbastanza titoli si torna
@@ -1029,6 +1083,7 @@ async function fetchUpcoming(key){
     const [a, b] = await Promise.all([ fetchJSON(upcoming(1)), fetchJSON(upcoming(2)).catch(() => null) ]);
     const raw = [...(a && a.results ? a.results : []), ...(b && b.results ? b.results : [])];
     list = orderList(raw, { tolerance: 3, limit: MAX_CANDIDATES });
+    setDiag({ source: 'upcoming', label: 'TMDB /movie/upcoming (ripiego)', filterDate: today });
   }
   if (!list.length) throw new Error('Nessun film in uscita restituito da TMDB');
   return list;
@@ -1159,12 +1214,12 @@ function buildCards(){
     card.dataset.i = String(i);
     card.dataset.id = String(m.id);
     const fav = isFav(m.id);
-    const badge = releaseBadge(m.release_date);
+    const badge = m.__demo ? 'Esempio' : releaseBadge(m.release_date);
     card.innerHTML =
       '<div class="card-inner">' +
         `<img class="poster" alt="Locandina di ${esc(m.title)}" loading="lazy" decoding="async" src="${esc(img(m.poster_path, 'w500') || placeholderPoster(m.title))}">` +
         '<div class="frost"></div><div class="shine"></div><div class="card-grad"></div>' +
-        (badge ? `<span class="card-badge">${esc(badge)}</span>` : '') +
+        (badge ? `<span class="card-badge${m.__demo ? ' demo' : ''}">${esc(badge)}</span>` : '') +
         `<button class="card-fav" data-act="fav" aria-pressed="${fav ? 'true' : 'false'}" aria-label="${fav ? 'Rimuovi da' : 'Aggiungi a'} Non perdertelo">` +
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 20.5 4.2 13a4.8 4.8 0 0 1 6.8-6.8l1 1 1-1A4.8 4.8 0 1 1 19.8 13Z"/></svg>' +
         '</button>' +
@@ -1788,6 +1843,7 @@ function showNotice(opts){
   el.noticeText.innerHTML = opts.html || esc(opts.text || '');
   el.noticeIco.textContent = opts.icon || '!';
   el.keyForm.hidden = !opts.askKey;
+  el.noticeClose.hidden = !!opts.persistent;   // in modalità demo l'avviso non si chiude
   el.notice.hidden = false;
 }
 function hideNotice(){ el.notice.hidden = true; }
@@ -1882,6 +1938,7 @@ async function loadFromAPI(key, opts){
     state.demo = false;
     hideNotice();
     applyList(candidates.slice(0, MAX_MOVIES), opts.silent ? state.activeId : null);
+    setDiag({ count: movies().length, at: now() });
     if (opts.notify) toast('Uscite aggiornate da TMDB', 'ok');
     refineDates(key, candidates);
     return true;
@@ -1908,22 +1965,28 @@ async function loadFromAPI(key, opts){
    e riordina il carosello se qualcosa e' cambiato. */
 async function refineDates(key, candidates){
   try{
-    await enrichReleaseDates(key, candidates);
+    const datesChanged = await enrichReleaseDates(key, candidates);
     const refined = orderList(candidates, {});
     if (!refined.length) return;
     store.set(STORE.list, { ts: now(), data: refined });
+    setDiag({ count: refined.length, at: now(), label: diag.label + ' + date IT verificate' });
+    if (state.mode === 'search') return;
     const current = state.movies;
-    const same = refined.length === current.length && refined.every((m, i) => current[i] && current[i].id === m.id);
-    if (same || state.mode === 'search') return;
+    const sameList = refined.length === current.length && refined.every((m, i) => current[i] && current[i].id === m.id);
+    /* Anche a parita' di ordine le locandine vanno ridisegnate: anno e badge
+       sulle card derivano dalla data, che nel frattempo e' cambiata. */
+    if (!datesChanged && sameList) return;
     applyList(refined, state.activeId);
   }catch(err){ /* si tiene la lista cosi' com'e' */ }
 }
 
 function enterDemo(reason){
   state.demo = true;
+  setDiag({ source: 'demo', note: reason || 'Nessuna API key valida configurata.', count: DEMO.length, at: now() });
   applyList(DEMO.map(m => m), null);
   showNotice({
-    title: 'Modalità demo — dati di esempio',
+    persistent: true,
+    title: 'Modalità demo — questi film non sono reali',
     html: esc(reason || 'Per vedere le vere uscite italiane serve una API key TMDB gratuita.') +
           ' <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener noreferrer">Ottieni una key su TMDB</a>' +
           ' oppure incollala qui sotto (resta salvata solo nel tuo browser).',
@@ -1945,6 +2008,8 @@ async function boot(){
   if (hasCache){
     const age = now() - (cached.ts || 0);
     applyList(cached.data, null);                 // avvio istantaneo dalla cache
+    setDiag({ source: 'cache', label: 'cache locale del dispositivo', count: cached.data.length,
+              at: cached.ts || 0, filterDate: todayISO() });
     if (age > TTL){
       if (key) loadFromAPI(key, { silent: true }).then(ok => { if (ok) toast('Uscite aggiornate', 'ok'); });
       else enterDemo('La cache locale è scaduta e non c’è nessuna API key configurata.');
@@ -2040,6 +2105,8 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden) rend
 /* =========================================================
    14. AVVIO
    ========================================================= */
+if (/[?&]debug/.test(location.search)) el.debugBox.hidden = false;
+renderStatus();
 initDrag();
 boot();
 

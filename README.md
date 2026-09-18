@@ -52,6 +52,17 @@ permette di incollare una key dall'interfaccia: in quel caso resta solo nel `loc
 - **Stati di errore** — skeleton screen animato, locandine generate in SVG quando l'immagine
   manca, fallback sulla cache e modalità demo se TMDB non risponde.
 
+## Capire cosa si sta guardando
+
+In fondo alla pagina una riga di stato dichiara sempre la sorgente dei film mostrati:
+`Fonte: TMDB /discover (uscite IT) + date IT verificate · 24 film · uscite dal 2026-09-18 · aggiornato 14:02`.
+Se diventa ambrata (`Dati di esempio — i titoli NON sono reali`) significa che TMDB non è
+raggiungibile: in quel caso l'avviso in alto non è chiudibile e ogni locandina porta il badge
+"Esempio", così i dati finti non possono essere scambiati per veri.
+
+Aggiungendo `?debug=1` all'indirizzo compare il dettaglio tecnico di ogni chiamata fatta a
+TMDB (URL con la chiave mascherata, esito HTTP o errore di rete, durata).
+
 ## Nota sulle date
 
 Il filtro sulle uscite, il countdown e i badge usano l'orologio del dispositivo: TMDB non
