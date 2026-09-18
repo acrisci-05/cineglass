@@ -700,10 +700,11 @@ const API_BASE  = 'https://api.themoviedb.org/3';
 const IMG_BASE  = 'https://image.tmdb.org/t/p/';
 const TTL       = 6 * 60 * 60 * 1000;        // cache lista: 6 ore
 const TTL_DET   = 24 * 60 * 60 * 1000;       // cache dettagli: 24 ore
-const MAX_MOVIES = 24;
+const MAX_MOVIES = 24;       // film mostrati nel carosello
+const MAX_CANDIDATES = 40;   // film interrogati per conoscerne la data italiana
 const STORE = {
-  list:    'cineglass:upcoming:v1',
-  details: 'cineglass:details:v1',
+  list:    'cineglass:upcoming:v2',
+  details: 'cineglass:details:v2',
   favs:    'cineglass:favs:v1',
   key:     'cineglass:apikey:v1'
 };
@@ -750,6 +751,20 @@ const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => (
   { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]
 ));
 const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* Unico punto in cui si legge l'ora: filtri sulle uscite, countdown e badge
+   usano tutti questa base (l'orologio del dispositivo). */
+const now = () => Date.now();
+function todayISO(){
+  const d = new Date(now());
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+function startOfToday(){
+  const d = new Date(now());
+  d.setHours(0, 0, 0, 0);
+  return d.getTime();
+}
 
 const store = {
   get(k){ try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : null; } catch(e){ return null; } },
@@ -924,8 +939,7 @@ function computeView(){
 function releaseBadge(iso){
   const d = parseISO(iso);
   if (!d) return null;
-  const now = new Date(); now.setHours(0, 0, 0, 0);
-  const days = Math.round((d.getTime() - now.getTime()) / 86400000);
+  const days = Math.round((d.getTime() - startOfToday()) / 86400000);
   if (days < 0 || days > 7) return null;
   if (days === 0) return 'Da oggi in sala';
   if (days === 1) return 'Domani in sala';
@@ -957,6 +971,7 @@ async function fetchJSON(url, timeout){
 /* Riduce il film ai campi che ci servono davvero (cache leggera) */
 function slimMovie(m){
   return {
+    __slim: true,
     id: m.id, title: m.title || m.original_title || 'Senza titolo',
     overview: m.overview || '', poster_path: m.poster_path || null,
     backdrop_path: m.backdrop_path || null, release_date: m.release_date || null,
@@ -965,21 +980,77 @@ function slimMovie(m){
   };
 }
 
-async function fetchUpcoming(key){
-  const mk = p => `${API_BASE}/movie/upcoming?api_key=${encodeURIComponent(key)}&language=it-IT&region=IT&page=${p}`;
-  const [p1, p2] = await Promise.all([ fetchJSON(mk(1)), fetchJSON(mk(2)).catch(() => null) ]);
-  const raw = [...(p1 && p1.results ? p1.results : []), ...(p2 && p2.results ? p2.results : [])];
+/* Deduplica, ordina dalla prima uscita e taglia la lista.
+   skipDates: i risultati di /discover portano la data di uscita PRINCIPALE (spesso
+   estera e gia' passata), quindi in quella fase non si filtra per data: ci pensa
+   enrichReleaseDates a recuperare quella italiana. */
+function orderList(raw, opts){
+  const o = opts || {};
   const seen = new Set();
-  const today = new Date(); today.setHours(0, 0, 0, 0);
-  const limit = today.getTime() - 3 * 24 * 60 * 60 * 1000;
-  const list = raw
+  const limit = startOfToday() - (o.tolerance === undefined ? 0 : o.tolerance) * 86400000;
+  return raw
     .filter(m => m && m.id && !seen.has(m.id) && seen.add(m.id))
-    .map(slimMovie)
-    .filter(m => { const d = parseISO(m.release_date); return d && d.getTime() >= limit; })
+    .map(m => (m.__slim ? m : slimMovie(m)))
+    .filter(m => !o.requirePoster || m.poster_path)
+    .filter(m => {
+      const d = parseISO(m.release_date);
+      if (!d) return false;
+      return o.skipDates ? true : d.getTime() >= limit;
+    })
     .sort((a, b) => parseISO(a.release_date) - parseISO(b.release_date))
-    .slice(0, MAX_MOVIES);
+    .slice(0, o.limit || MAX_MOVIES);
+}
+
+/* Uscite italiane: /discover filtrato sulle date di uscita IT in sala
+   (with_release_type 3 = distribuzione, 2 = anteprime/limitata). */
+async function fetchUpcoming(key){
+  const today = todayISO();
+  const discover = p => `${API_BASE}/discover/movie?api_key=${encodeURIComponent(key)}` +
+    `&language=it-IT&region=IT&sort_by=primary_release_date.asc` +
+    `&with_release_type=${encodeURIComponent('3|2')}&release_date.gte=${today}` +
+    `&include_adult=false&include_video=false&page=${p}`;
+
+  let list = [];
+  try{
+    const pages = await Promise.all([
+      fetchJSON(discover(1)),
+      fetchJSON(discover(2)).catch(() => null)
+    ]);
+    const raw = pages.reduce((acc, d) => acc.concat(d && d.results ? d.results : []), []);
+    list = orderList(raw, { requirePoster: true, skipDates: true, limit: MAX_CANDIDATES });
+  }catch(err){
+    list = [];
+  }
+
+  /* Rete di sicurezza: se discover non restituisce abbastanza titoli si torna
+     all'endpoint classico, che resta la fonte piu' popolata ma meno precisa. */
+  if (list.length < 4){
+    const upcoming = p => `${API_BASE}/movie/upcoming?api_key=${encodeURIComponent(key)}&language=it-IT&region=IT&page=${p}`;
+    const [a, b] = await Promise.all([ fetchJSON(upcoming(1)), fetchJSON(upcoming(2)).catch(() => null) ]);
+    const raw = [...(a && a.results ? a.results : []), ...(b && b.results ? b.results : [])];
+    list = orderList(raw, { tolerance: 3, limit: MAX_CANDIDATES });
+  }
   if (!list.length) throw new Error('Nessun film in uscita restituito da TMDB');
   return list;
+}
+
+/* Le liste riportano la data di uscita principale (spesso quella estera): qui
+   la si sostituisce con la vera data italiana presa da /release_dates. */
+async function inBatches(items, size, fn){
+  for (let i = 0; i < items.length; i += size) await Promise.all(items.slice(i, i + size).map(fn));
+}
+
+async function enrichReleaseDates(key, list){
+  const before = list.map(m => m.release_date).join('|');
+  await inBatches(list, 6, async m => {
+    if (m.__demo) return;
+    try{
+      const data = await fetchJSON(`${API_BASE}/movie/${m.id}/release_dates?api_key=${encodeURIComponent(key)}`, 9000);
+      const it = italianRelease(data, m.release_date);
+      if (it) m.release_date = String(it).slice(0, 10);
+    }catch(err){ /* il film resta con la data della lista */ }
+  });
+  return list.map(m => m.release_date).join('|') !== before;
 }
 
 /* --------- Trailer e data di uscita italiana --------- */
@@ -1033,6 +1104,17 @@ function parseDetails(d, movie){
   };
 }
 
+let persistTimer = 0;
+function persistDetails(){
+  clearTimeout(persistTimer);
+  persistTimer = setTimeout(() => {
+    const keys = Object.keys(state.detailsCache).slice(-60);
+    const persisted = {};
+    keys.forEach(k => { persisted[k] = state.detailsCache[k]; });
+    store.set(STORE.details, persisted);
+  }, 800);
+}
+
 async function getDetails(movie){
   if (!movie) return null;
   if (movie.__demo) return movie.__details;
@@ -1055,9 +1137,7 @@ async function getDetails(movie){
   }
 
   state.detailsCache[movie.id] = { ts: Date.now(), data };
-  const persisted = {};
-  Object.keys(state.detailsCache).slice(-60).forEach(k => { persisted[k] = state.detailsCache[k]; });
-  store.set(STORE.details, persisted);
+  persistDetails();
   return data;
 }
 
@@ -1469,7 +1549,7 @@ function renderCountdown(){
     box.innerHTML = '<span class="cd-msg">Uscita da annunciare</span>';
     return;
   }
-  const diff = target.getTime() - Date.now();
+  const diff = target.getTime() - now();
   if (diff <= 0){
     box.dataset.mode = 'msg';
     box.innerHTML = '<span class="cd-msg live">● Già nelle sale</span>';
@@ -1798,12 +1878,12 @@ async function loadFromAPI(key, opts){
   opts = opts || {};
   if (!opts.silent) showSkeleton(true);
   try{
-    const list = await fetchUpcoming(key);
-    store.set(STORE.list, { ts: Date.now(), data: list });
+    const candidates = await fetchUpcoming(key);
     state.demo = false;
     hideNotice();
-    applyList(list, opts.silent ? state.activeId : null);
+    applyList(candidates.slice(0, MAX_MOVIES), opts.silent ? state.activeId : null);
     if (opts.notify) toast('Uscite aggiornate da TMDB', 'ok');
+    refineDates(key, candidates);
     return true;
   }catch(err){
     if (opts.silent) return false;
@@ -1822,6 +1902,21 @@ async function loadFromAPI(key, opts){
       : 'Non riesco a contattare TMDB in questo momento. Ti mostro dei dati di esempio: riprova con il pulsante Aggiorna.');
     return false;
   }
+}
+
+/* Secondo passaggio: sostituisce le date di listino con quelle italiane reali
+   e riordina il carosello se qualcosa e' cambiato. */
+async function refineDates(key, candidates){
+  try{
+    await enrichReleaseDates(key, candidates);
+    const refined = orderList(candidates, {});
+    if (!refined.length) return;
+    store.set(STORE.list, { ts: now(), data: refined });
+    const current = state.movies;
+    const same = refined.length === current.length && refined.every((m, i) => current[i] && current[i].id === m.id);
+    if (same || state.mode === 'search') return;
+    applyList(refined, state.activeId);
+  }catch(err){ /* si tiene la lista cosi' com'e' */ }
 }
 
 function enterDemo(reason){
@@ -1848,7 +1943,7 @@ async function boot(){
   const hasCache = cached && Array.isArray(cached.data) && cached.data.length;
 
   if (hasCache){
-    const age = Date.now() - (cached.ts || 0);
+    const age = now() - (cached.ts || 0);
     applyList(cached.data, null);                 // avvio istantaneo dalla cache
     if (age > TTL){
       if (key) loadFromAPI(key, { silent: true }).then(ok => { if (ok) toast('Uscite aggiornate', 'ok'); });

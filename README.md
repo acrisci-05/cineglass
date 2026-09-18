@@ -25,8 +25,13 @@ permette di incollare una key dall'interfaccia: in quel caso resta solo nel `loc
 
 ## Cosa fa
 
-- **Dati TMDB** — `/movie/upcoming` (`language=it-IT`, `region=IT`), due pagine unite,
-  deduplicate, filtrate sulle uscite ancora da venire e ordinate per data.
+- **Dati TMDB** — `/discover/movie` con `region=IT`, `with_release_type=3|2` (distribuzione
+  e anteprime) e `release_date.gte` calcolato ogni volta sulla data odierna: restituisce solo
+  i film con un'uscita in sala italiana da oggi in avanti. Le liste TMDB riportano però la
+  data di uscita *principale* (spesso quella estera), quindi ogni candidato viene arricchito
+  con la vera data italiana da `/movie/{id}/release_dates` (richieste a gruppi di 6) e solo
+  allora la lista viene riordinata e ripulita. Se `discover` restituisce meno di 4 titoli si
+  ricade su `/movie/upcoming`.
 - **Dettagli del film al centro** — `/movie/{id}?append_to_response=videos,release_dates`:
   data di uscita ufficiale italiana (tipo *theatrical* con fallback), trailer YouTube
   in italiano (fallback internazionale), budget, durata in ore e minuti, tagline e casa di produzione.
@@ -46,6 +51,12 @@ permette di incollare una key dall'interfaccia: in quel caso resta solo nel `loc
   "Tra N giorni").
 - **Stati di errore** — skeleton screen animato, locandine generate in SVG quando l'immagine
   manca, fallback sulla cache e modalità demo se TMDB non risponde.
+
+## Nota sulle date
+
+Il filtro sulle uscite, il countdown e i badge usano l'orologio del dispositivo: TMDB non
+espone il proprio header `Date` alle richieste cross-origin, quindi se la data del computer
+è sbagliata anche le uscite mostrate lo saranno.
 
 ## Accessibilità e performance
 
