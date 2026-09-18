@@ -45,6 +45,10 @@ permette di incollare una key dall'interfaccia: in quel caso resta solo nel `loc
 - **Countdown live**, **indicatore a riempimento liquido** del gradimento,
   **modal trailer con "Luci spente"**, **link dinamico a Google Calendar** e lista
   **"Non perdertelo"** salvata in `localStorage`.
+- **Due viste** — carosello 3D o lista tabellare (con locandina, uscita IT, genere, voto e
+  trailer diretto), scelta ricordata in `localStorage`.
+- **Nelle sale ora in Italia** — classifica dei film in programmazione, con incassi reali in
+  euro se configurati (vedi sotto).
 - **Ricerca su TMDB** (`/search/movie`) dalla lente nell'header o con il tasto `/`,
   **filtri per genere** generati dai film effettivamente caricati e **badge fluorescente**
   sulle uscite entro 7 giorni ("Da oggi in sala", "Domani in sala", "In uscita questo weekend",
@@ -62,6 +66,43 @@ permette di incollare una key dall'interfaccia: in quel caso resta solo nel `loc
 | Durata, Budget, Incassi | `/movie/{id}` → `runtime`, `budget`, `revenue` | Dati inseriti dalla community: il budget è quasi sempre 0 per le produzioni europee, e in quel caso il riquadro viene sostituito da Paese o Lingua |
 | Produzione, Paese, Lingua | `production_companies`, `production_countries`, `original_language` | Paesi e lingue tradotti in italiano con `Intl.DisplayNames` |
 | Trailer | `/movie/{id}?append_to_response=videos&include_video_language=it,en,null` | Preferito l'italiano; l'etichetta sul pulsante dichiara lingua e qualità |
+| Nelle sale ora | `/movie/now_playing?region=IT` | Programmazione italiana corrente, ordinata per popolarità TMDB |
+
+## Box office italiano
+
+La sezione **Nelle sale ora in Italia** funziona in due modi:
+
+1. **Senza configurazione** usa `/movie/now_playing?region=IT` ordinato per popolarità TMDB.
+   Attenzione: la popolarità TMDB **non è un incasso** — misura visite e interazioni sulla
+   scheda del film. Gli importi mostrati in quel caso sono incassi *mondiali complessivi in
+   dollari* presi da `revenue`, non italiani. L'app lo dichiara esplicitamente sotto la classifica.
+2. **Con incassi reali in euro**, se il repository contiene `data/boxoffice.json` con una
+   classifica compilata. L'app lo carica per primo e, quando c'è, mostra gli importi in euro
+   con la fonte e la settimana di riferimento.
+
+Formato di `data/boxoffice.json`:
+
+```json
+{
+  "fonte": "Cinetel",
+  "settimana": "12-14 settembre 2026",
+  "aggiornato": "2026-09-15",
+  "valuta": "EUR",
+  "classifica": [
+    { "posizione": 1, "titolo": "…", "tmdb_id": 12345, "incasso": 1284500, "incasso_totale": 4120000, "schermi": 431 }
+  ]
+}
+```
+
+Le righe vengono abbinate ai film di TMDB tramite `tmdb_id` (o, in mancanza, per titolo
+normalizzato); un film assente da TMDB viene comunque mostrato con una locandina generata.
+
+`scripts/update-boxoffice.mjs` + `.github/workflows/boxoffice.yml` aggiornano il file ogni
+lunedì leggendo il feed JSON indicato nella variabile di repository `BOXOFFICE_FEED_URL`.
+Senza quella variabile lo script non fa nulla: **non include uno scraper di Cinetel o
+MYmovies**, perché quei dati sono licenziati e lo scraping violerebbe i loro termini d'uso
+oltre a rompersi al primo restyling. Il feed va quindi alimentato da una fonte su cui si
+hanno i diritti, o compilato a mano.
 
 **Serve un'API italiana alternativa?** Non esiste un equivalente pubblico e gratuito: MYmovies
 e ComingSoon non espongono API, i dati Cinetel sono a pagamento. TMDB resta la fonte migliore

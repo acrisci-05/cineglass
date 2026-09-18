@@ -178,6 +178,86 @@ a{color:inherit;text-decoration:none}
 .search-tag button{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.1)}
 .search-tag button svg{width:11px;height:11px}
 
+/* ---------- Selettore di vista ---------- */
+.view-toggle{display:inline-flex;gap:3px;padding:3px;border-radius:999px;
+  background:rgba(255,255,255,.05);border:1px solid var(--stroke-soft);backdrop-filter:blur(12px)}
+.view-toggle button{display:inline-flex;align-items:center;gap:7px;padding:7px 15px;border-radius:999px;
+  font-size:12.5px;color:var(--muted);transition:color .25s, background .25s}
+.view-toggle button svg{width:14px;height:14px}
+.view-toggle button:hover{color:var(--txt)}
+.view-toggle button.on{color:var(--txt);
+  background:linear-gradient(120deg, color-mix(in oklab, var(--c1) 30%, transparent), color-mix(in oklab, var(--c2) 30%, transparent));
+  box-shadow:0 6px 18px -10px color-mix(in oklab, var(--c1) 80%, transparent)}
+
+/* ---------- Vista a lista ---------- */
+.list-view{max-width:1080px;margin:clamp(14px,2.4vw,24px) auto 0}
+.list-view[hidden]{display:none}
+.movie-table{width:100%;border-collapse:separate;border-spacing:0 8px}
+.movie-table th{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);
+  font-weight:500;text-align:left;padding:0 14px 4px;white-space:nowrap}
+.movie-table tr{cursor:pointer}
+.movie-table td{background:rgba(255,255,255,.04);border-top:1px solid var(--stroke-soft);
+  border-bottom:1px solid var(--stroke-soft);padding:9px 14px;vertical-align:middle;
+  transition:background .25s;font-size:13.5px}
+.movie-table td:first-child{border-left:1px solid var(--stroke-soft);border-radius:15px 0 0 15px;width:64px}
+.movie-table td:nth-child(2){width:100%}
+.movie-table td:last-child{border-right:1px solid var(--stroke-soft);border-radius:0 15px 15px 0;text-align:right}
+.movie-table tbody tr:hover td{background:rgba(255,255,255,.085)}
+.movie-table tbody tr.on td{background:linear-gradient(90deg, color-mix(in oklab, var(--c1) 16%, transparent), color-mix(in oklab, var(--c2) 12%, transparent));
+  border-color:color-mix(in oklab, var(--c1) 35%, transparent)}
+.thumb{width:42px;height:63px;border-radius:9px;object-fit:cover;background:rgba(255,255,255,.06)}
+.t-title{font-weight:600;font-size:14px;letter-spacing:-.01em}
+.t-tag{display:inline-block;margin-top:3px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:#7dffc0}
+.t-vote{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:999px;font-size:12.5px;
+  font-weight:600;background:rgba(255,255,255,.07);border:1px solid var(--stroke-soft);white-space:nowrap}
+.t-vote .star{color:#ffcf6a}
+.btn-sm{padding:7px 13px;border-radius:999px;font-size:12px;font-weight:500;white-space:nowrap;
+  background:rgba(255,255,255,.08);border:1px solid var(--stroke);transition:background .25s, transform .25s}
+.btn-sm:hover{background:rgba(255,255,255,.16);transform:translateY(-1px)}
+.btn-sm[disabled]{opacity:.35;pointer-events:none}
+
+/* ---------- Box office / in sala ---------- */
+.section{max-width:1080px;margin:clamp(30px,5vw,58px) auto 0}
+.section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+.section-head h2{font-size:clamp(19px,2.6vw,26px);font-weight:600;letter-spacing:-.025em}
+.section-head p{font-size:12.5px;color:var(--muted);font-weight:300;margin-top:4px;max-width:62ch;line-height:1.55}
+.source-tag{display:inline-flex;align-items:center;gap:7px;padding:6px 13px;border-radius:999px;font-size:11px;
+  color:var(--muted);background:rgba(255,255,255,.05);border:1px solid var(--stroke-soft);white-space:nowrap}
+.bo-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+.bo-row{display:grid;grid-template-columns:44px 46px 1fr auto auto;align-items:center;gap:14px;
+  padding:10px 16px 10px 10px;border-radius:16px;cursor:pointer;
+  background:rgba(255,255,255,.04);border:1px solid var(--stroke-soft);transition:background .25s, transform .25s var(--ease)}
+.bo-row:hover{background:rgba(255,255,255,.085);transform:translateX(3px)}
+.bo-rank{font-size:21px;font-weight:700;text-align:center;letter-spacing:-.04em;
+  background:linear-gradient(140deg, var(--c1), var(--c2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.bo-row:nth-child(n+4) .bo-rank{background:none;color:var(--faint);font-size:17px;-webkit-text-fill-color:currentColor}
+.bo-poster{width:46px;height:69px;border-radius:9px;object-fit:cover;background:rgba(255,255,255,.06)}
+.bo-info{min-width:0}
+.bo-title{font-size:14.5px;font-weight:600;letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bo-meta{font-size:11.5px;color:var(--muted);margin-top:3px;font-weight:300}
+.bo-value{text-align:right}
+.bo-amount{font-size:15px;font-weight:600;font-variant-numeric:tabular-nums}
+.bo-lab{font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin-top:2px}
+.bo-note{margin-top:12px;font-size:11.5px;color:var(--faint);line-height:1.6;font-style:italic}
+
+@media (max-width:720px){
+  .movie-table thead{display:none}
+  .movie-table,.movie-table tbody,.movie-table tr,.movie-table td{display:block;width:auto}
+  .movie-table tr{position:relative;min-height:88px;margin-bottom:9px;padding:12px 12px 12px 72px;
+    border-radius:16px;background:rgba(255,255,255,.04);border:1px solid var(--stroke-soft)}
+  .movie-table tbody tr.on{background:linear-gradient(120deg, color-mix(in oklab, var(--c1) 16%, transparent), transparent)}
+  .movie-table td{background:none!important;border:0!important;padding:2px 0;text-align:left!important;border-radius:0}
+  .movie-table td.c-poster{position:absolute;left:12px;top:12px;width:auto;padding:0}
+  .movie-table td[data-lab]::before{content:attr(data-lab) " · ";color:var(--faint);font-size:10.5px;
+    letter-spacing:.08em;text-transform:uppercase}
+  .movie-table td.c-act{margin-top:8px}
+  .bo-row{grid-template-columns:34px 44px 1fr;gap:11px;padding:10px}
+  .bo-value{grid-column:2 / -1;text-align:left;display:flex;align-items:baseline;gap:7px}
+  .bo-lab{margin-top:0}
+  .bo-row .btn-sm{grid-column:1 / -1;justify-self:start}
+}
+
 /* ---------- Carosello 3D ---------- */
 .carousel{position:relative;margin-top:clamp(10px,2.4vw,26px);touch-action:pan-y}
 .stage{position:relative;height:clamp(380px,54vh,540px);perspective:1700px;perspective-origin:50% 46%;
@@ -586,6 +666,16 @@ footer a{text-decoration:underline;text-underline-offset:3px}
       <button class="btn small" type="button" id="searchClose">Chiudi</button>
     </form>
     <div class="chips" id="chips" role="group" aria-label="Filtra per genere"></div>
+    <div class="view-toggle" role="group" aria-label="Modalità di visualizzazione">
+      <button type="button" id="btnCarousel" class="on" aria-pressed="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="8" y="4" width="8" height="16" rx="2"/><path d="M4.5 7.5v9M19.5 7.5v9"/></svg>
+        Carosello
+      </button>
+      <button type="button" id="btnList" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        Lista
+      </button>
+    </div>
     <div class="search-tag" id="searchTag" hidden>
       <span>Risultati per <b id="searchTagText"></b></span>
       <button type="button" id="searchReset" aria-label="Annulla la ricerca">
@@ -626,6 +716,16 @@ footer a{text-decoration:underline;text-underline-offset:3px}
     </button>
     <div class="dots" id="dots"></div>
   </section>
+
+  <!-- ====================== VISTA A LISTA ====================== -->
+  <div class="list-view" id="listView" hidden>
+    <table class="movie-table">
+      <thead>
+        <tr><th>Locandina</th><th>Titolo</th><th>Uscita IT</th><th>Genere</th><th>Voto</th><th></th></tr>
+      </thead>
+      <tbody id="movieTableBody"></tbody>
+    </table>
+  </div>
 
   </div><!-- /.top -->
 
@@ -715,6 +815,19 @@ footer a{text-decoration:underline;text-underline-offset:3px}
     <button class="btn ghost" id="emptyBtn">Torna a tutte le uscite</button>
   </div>
 
+  <!-- ====================== IN SALA ORA / BOX OFFICE ====================== -->
+  <section class="section" id="boxoffice" hidden>
+    <div class="section-head">
+      <div>
+        <h2>Nelle sale ora in Italia</h2>
+        <p id="boIntro">Film attualmente in programmazione, dal più seguito.</p>
+      </div>
+      <span class="source-tag" id="boSource">—</span>
+    </div>
+    <ol class="bo-list" id="boList"></ol>
+    <p class="bo-note" id="boNote"></p>
+  </section>
+
   <footer>
     <p class="status" id="status"><span class="led"></span><span id="statusText">Caricamento…</span></p>
     <details class="debug" id="debugBox" hidden>
@@ -767,11 +880,13 @@ const IMG_BASE  = 'https://image.tmdb.org/t/p/';
 const TTL       = 6 * 60 * 60 * 1000;        // cache lista: 6 ore
 const TTL_DET   = 24 * 60 * 60 * 1000;       // cache dettagli: 24 ore
 const MAX_MOVIES = 24;       // film mostrati nel carosello
-const MAX_CANDIDATES = 40;   // film interrogati per conoscerne la data italiana
+const MAX_CANDIDATES = 30;   // film interrogati per conoscerne la data italiana
+const BO_TOP = 10;           // righe della classifica "in sala ora"
 const STORE = {
   list:    'cineglass:upcoming:v2',
   details: 'cineglass:details:v2',
   favs:    'cineglass:favs:v1',
+  layout:  'cineglass:layout:v1',
   key:     'cineglass:apikey:v1'
 };
 
@@ -981,6 +1096,7 @@ const DEMO = [
 const state = {
   movies: [], favs: [], favOnly: false, detailsCache: {},
   view: [], genre: null, mode: 'upcoming', searchList: [], searchQuery: '',
+  layout: 'carousel', boxoffice: [], boxofficeLocal: null,
   current: 0, target: 0, activeIndex: 0, activeId: null, activeDetails: null,
   demo: false, raf: 0, drag: null, cardW: 260, spacing: 180, lastRelease: null
 };
@@ -997,6 +1113,10 @@ const el = {
   trailerBtn:$('#trailerBtn'), calBtn:$('#calBtn'), favBtn:$('#favBtn'), favBtnLabel:$('#favBtnLabel'),
   favFilter:$('#favFilter'), favCount:$('#favCount'), refresh:$('#refreshBtn'),
   badge:$('#pBadge'), badgeText:$('#pBadgeText'), chips:$('#chips'),
+  carousel:$('#carousel'), listView:$('#listView'), tableBody:$('#movieTableBody'),
+  btnCarousel:$('#btnCarousel'), btnList:$('#btnList'),
+  boxoffice:$('#boxoffice'), boList:$('#boList'), boSource:$('#boSource'),
+  boIntro:$('#boIntro'), boNote:$('#boNote'),
   searchBtn:$('#searchBtn'), searchBar:$('#searchBar'), searchInput:$('#searchInput'),
   searchClose:$('#searchClose'), searchTag:$('#searchTag'), searchTagText:$('#searchTagText'),
   searchReset:$('#searchReset'), status:$('#status'), statusText:$('#statusText'),
@@ -1090,6 +1210,7 @@ async function fetchJSON(url, timeout){
 function slimMovie(m){
   return {
     __slim: true,
+    popularity: m.popularity || 0,
     id: m.id, title: m.title || m.original_title || 'Senza titolo',
     overview: m.overview || '', poster_path: m.poster_path || null,
     backdrop_path: m.backdrop_path || null, release_date: m.release_date || null,
@@ -1722,6 +1843,7 @@ function selectActive(index){
   const m = list[index];
   if (!m) return;
   state.activeIndex = index;
+  markListRow();
   if (state.activeId === m.id) return;
   state.activeId = m.id;
   state.activeDetails = null;
@@ -1900,6 +2022,167 @@ function setFavOnly(on){
 }
 
 /* =========================================================
+   8-bis. VISTA A LISTA
+   ========================================================= */
+function setLayout(mode){
+  const lista = mode === 'list';
+  state.layout = lista ? 'list' : 'carousel';
+  el.listView.hidden = !lista;
+  el.carousel.hidden = lista;
+  el.btnList.classList.toggle('on', lista);
+  el.btnCarousel.classList.toggle('on', !lista);
+  el.btnList.setAttribute('aria-pressed', lista ? 'true' : 'false');
+  el.btnCarousel.setAttribute('aria-pressed', lista ? 'false' : 'true');
+  store.set(STORE.layout, state.layout);
+  if (lista) renderListView();
+  else { measure(); render(); }
+}
+
+function voteCell(m){
+  const n = Number(m.vote_count) || 0;
+  const v = Number(m.vote_average) || 0;
+  return n >= MIN_VOTES && v > 0
+    ? `<span class="t-vote"><span class="star">★</span>${v.toFixed(1)}</span>`
+    : '<span class="t-vote">N/D</span>';
+}
+
+function renderListView(){
+  const list = movies();
+  el.tableBody.innerHTML = list.map((m, i) => {
+    const badge = m.__demo ? 'Esempio' : releaseBadge(m.release_date);
+    return `<tr data-i="${i}"${i === state.activeIndex ? ' class="on"' : ''}>` +
+      `<td class="c-poster"><img class="thumb" src="${esc(img(m.poster_path, 'w92') || placeholderPoster(m.title))}" alt="" loading="lazy" decoding="async"></td>` +
+      `<td><span class="t-title">${esc(m.title)}</span>${badge ? `<br><span class="t-tag">${esc(badge)}</span>` : ''}</td>` +
+      `<td data-lab="Uscita">${esc(fmtDate(m.release_date))}</td>` +
+      `<td data-lab="Genere">${esc(genreNames(m.genre_ids, 2))}</td>` +
+      `<td data-lab="Voto">${voteCell(m)}</td>` +
+      '<td class="c-act"><button class="btn-sm" type="button" data-act="trailer">Trailer</button></td>' +
+    '</tr>';
+  }).join('');
+}
+
+function markListRow(){
+  if (state.layout !== 'list') return;
+  Array.from(el.tableBody.children).forEach((tr, i) => tr.classList.toggle('on', i === state.activeIndex));
+}
+
+/* Seleziona un film e, se richiesto, ne apre il trailer (serve alla lista
+   e alla classifica, dove i dettagli potrebbero non essere ancora caricati). */
+async function openTrailerFor(movie){
+  const i = movies().findIndex(m => m.id === movie.id);
+  if (i >= 0){ goTo(i); markListRow(); }
+  let d = null;
+  try{ d = await getDetails(movie); }catch(err){ /* si apre comunque il fallback */ }
+  if (i >= 0 && d && state.activeId === movie.id) state.activeDetails = d;
+  openTrailer(movie, d);
+}
+
+el.btnCarousel.addEventListener('click', () => setLayout('carousel'));
+el.btnList.addEventListener('click', () => setLayout('list'));
+el.tableBody.addEventListener('click', e => {
+  const tr = e.target.closest('tr');
+  if (!tr) return;
+  const movie = movies()[Number(tr.dataset.i)];
+  if (!movie) return;
+  if (e.target.closest('[data-act="trailer"]')) openTrailerFor(movie);
+  else { goTo(Number(tr.dataset.i)); markListRow(); }
+});
+
+/* =========================================================
+   8-ter. NELLE SALE ORA (classifica)
+   ========================================================= */
+const euro = n => '€ ' + Math.round(n).toLocaleString('it-IT');
+
+async function loadLocalBoxOffice(){
+  try{
+    const res = await fetch('./data/boxoffice.json', { cache: 'no-cache' });
+    if (!res.ok) return null;
+    const d = await res.json();
+    return (d && Array.isArray(d.classifica) && d.classifica.length) ? d : null;
+  }catch(err){ return null; }   // file assente o aperto da file://
+}
+
+const normTitle = t => String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
+
+async function loadBoxOffice(){
+  const key = resolveKey();
+  if (!key || state.demo){ el.boxoffice.hidden = true; return; }
+  let inSala = [];
+  try{
+    const data = await fetchJSON(`${API_BASE}/movie/now_playing?api_key=${encodeURIComponent(key)}&language=it-IT&region=IT&page=1`);
+    inSala = (data && data.results ? data.results : [])
+      .map(slimMovie)
+      .filter(m => m.poster_path)
+      .sort((a, b) => b.popularity - a.popularity)
+      .slice(0, BO_TOP);
+  }catch(err){
+    el.boxoffice.hidden = true;
+    return;
+  }
+  if (!inSala.length){ el.boxoffice.hidden = true; return; }
+
+  /* Incassi reali in euro, se il repository include data/boxoffice.json */
+  const locale = await loadLocalBoxOffice();
+  let righe;
+  if (locale){
+    const perId = new Map(inSala.map(m => [m.id, m]));
+    const perTitolo = new Map(inSala.map(m => [normTitle(m.title), m]));
+    righe = locale.classifica.slice(0, BO_TOP).map(r => ({
+      movie: perId.get(r.tmdb_id) || perTitolo.get(normTitle(r.titolo)) || null,
+      titolo: r.titolo, incasso: r.incasso, totale: r.incasso_totale, schermi: r.schermi
+    }));
+    el.boSource.textContent = `Fonte: ${locale.fonte || 'file locale'}`;
+    el.boIntro.textContent = locale.settimana
+      ? `Incassi del weekend ${locale.settimana} nelle sale italiane.`
+      : 'Incassi nelle sale italiane.';
+    el.boNote.textContent = `Dati in euro forniti da ${locale.fonte || 'data/boxoffice.json'}` +
+      (locale.aggiornato ? `, aggiornati al ${fmtDate(locale.aggiornato)}.` : '.');
+  } else {
+    await inBatches(inSala, 5, async m => {
+      try{ m.__d = await getDetails(m); }catch(err){ /* si mostra comunque la riga */ }
+    });
+    righe = inSala.map(m => ({ movie: m, titolo: m.title, incasso: null, totale: m.__d ? m.__d.revenue : 0 }));
+    el.boSource.textContent = 'Fonte: TMDB /movie/now_playing (IT)';
+    el.boIntro.textContent = 'Film attualmente in programmazione in Italia, dal più seguito su TMDB.';
+    el.boNote.textContent = 'La popolarità TMDB non è un dato di incasso: misura visite e interazioni ' +
+      'sulla scheda del film. Gli importi indicati sono incassi mondiali complessivi in dollari, non italiani. ' +
+      'Per gli incassi reali in euro l\u2019app legge data/boxoffice.json, se presente nel repository.';
+  }
+  state.boxoffice = righe;
+  renderBoxOffice(righe);
+  el.boxoffice.hidden = false;
+}
+
+function renderBoxOffice(righe){
+  el.boList.innerHTML = righe.map((r, i) => {
+    const m = r.movie;
+    const poster = m ? (img(m.poster_path, 'w92') || placeholderPoster(r.titolo)) : placeholderPoster(r.titolo);
+    let valore = '', etichetta = '';
+    if (r.incasso){ valore = euro(r.incasso); etichetta = 'Incasso weekend'; }
+    else if (r.totale){ valore = fmtBudget(r.totale); etichetta = 'Incasso mondiale'; }
+    else if (m && m.release_date){ valore = fmtDate(m.release_date); etichetta = 'In sala dal'; }
+    const meta = m
+      ? [genreNames(m.genre_ids, 2), m.vote_count >= MIN_VOTES ? '★ ' + (m.vote_average || 0).toFixed(1) : null]
+          .filter(Boolean).join(' · ')
+      : (r.schermi ? r.schermi + ' schermi' : '');
+    return `<li class="bo-row"${m ? ` data-id="${m.id}"` : ''}>` +
+      `<span class="bo-rank">${i + 1}</span>` +
+      `<img class="bo-poster" src="${esc(poster)}" alt="" loading="lazy" decoding="async">` +
+      `<div class="bo-info"><div class="bo-title">${esc(m ? m.title : r.titolo)}</div><div class="bo-meta">${esc(meta)}</div></div>` +
+      `<div class="bo-value"><div class="bo-amount">${esc(valore)}</div><div class="bo-lab">${esc(etichetta)}</div></div>` +
+      (m ? '<button class="btn-sm" type="button" data-act="trailer">Trailer</button>' : '') +
+    '</li>';
+  }).join('');
+}
+
+el.boList.addEventListener('click', e => {
+  const row = e.target.closest('.bo-row');
+  if (!row || !row.dataset.id) return;
+  const entry = state.boxoffice.find(r => r.movie && String(r.movie.id) === row.dataset.id);
+  if (entry && entry.movie) openTrailerFor(entry.movie);
+});
+
+/* =========================================================
    9-bis. RICERCA SU TMDB
    ========================================================= */
 let searchSeq = 0, searchTimer = 0;
@@ -1969,10 +2252,10 @@ async function runSearch(q){
    ========================================================= */
 let lastFocus = null;
 
-function openTrailer(){
-  const movie = movies()[state.activeIndex];
+function openTrailer(movie, details){
+  movie = movie || movies()[state.activeIndex];
   if (!movie) return;
-  const details = state.activeDetails;
+  if (!details) details = (state.activeId === movie.id) ? state.activeDetails : null;
   const trailer = details && details.trailer;
   lastFocus = document.activeElement;
   el.modalTitle.textContent = movie.title + (trailer && trailer.italian ? ' — Trailer ufficiale ITA' : ' — Trailer');
@@ -2118,6 +2401,7 @@ function rebuild(preserveId){
   updateNavState();
   selectActive(idx);
   updateFavUI();
+  if (state.layout === 'list') renderListView();
 }
 
 function applyList(list, preserveId){
@@ -2196,6 +2480,7 @@ async function boot(){
   const dc = store.get(STORE.details);
   state.detailsCache = (dc && typeof dc === 'object') ? dc : {};
   el.favCount.textContent = String(state.favs.length);
+  setLayout(store.get(STORE.layout) === 'list' ? 'list' : 'carousel');
 
   const key = resolveKey();
   const cached = store.get(STORE.list);
@@ -2239,7 +2524,7 @@ el.refresh.addEventListener('click', () => {
   const key = resolveKey();
   if (!key){ enterDemo('Serve una API key TMDB per scaricare le uscite reali.'); return; }
   store.del(STORE.list);
-  loadFromAPI(key, { notify: true });
+  loadFromAPI(key, { notify: true }).then(loadBoxOffice);
 });
 el.noticeClose.addEventListener('click', hideNotice);
 el.keyForm.addEventListener('submit', async e => {
@@ -2312,7 +2597,7 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden) rend
 if (/[?&]debug/.test(location.search)) el.debugBox.hidden = false;
 renderStatus();
 initDrag();
-boot();
+boot().then(() => setTimeout(loadBoxOffice, 500));
 
 })();
 </script>
