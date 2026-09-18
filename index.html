@@ -53,13 +53,14 @@
 html{-webkit-text-size-adjust:100%}
 body{
   font-family:var(--font);
+  padding-top:env(safe-area-inset-top);
   background:var(--bg);
   color:var(--txt);
   min-height:100dvh;
   overflow-x:hidden;
   -webkit-font-smoothing:antialiased;
   text-rendering:optimizeLegibility;
-  padding-bottom:64px;
+  padding-bottom:calc(64px + env(safe-area-inset-bottom));
 }
 body.no-scroll{overflow:hidden}
 img{display:block;max-width:100%}
@@ -74,6 +75,28 @@ a{color:inherit;text-decoration:none}
   radial-gradient(120% 90% at 50% -10%, color-mix(in oklab, var(--c2) 22%, transparent) 0%, transparent 62%),
   linear-gradient(180deg, var(--bg) 0%, var(--bg-soft) 58%, var(--bg) 100%);
   transition:background 1.1s var(--ease)}
+/* Aurora mesh: veli di neon in movimento lentissimo sotto ai blob */
+.aurora{position:absolute;inset:-18%;pointer-events:none;opacity:.55;mix-blend-mode:screen;
+  filter:blur(58px) saturate(1.25);will-change:transform;
+  background:
+    radial-gradient(38% 34% at 22% 28%, rgba(122,60,255,.55), transparent 68%),
+    radial-gradient(34% 30% at 78% 34%, rgba(0,242,254,.4), transparent 66%),
+    radial-gradient(42% 36% at 58% 76%, rgba(255,58,168,.38), transparent 70%),
+    radial-gradient(30% 28% at 12% 74%, rgba(0,180,255,.32), transparent 66%);
+  animation:aurora1 64s ease-in-out infinite alternate}
+.aurora.b{opacity:.4;animation:aurora2 88s ease-in-out infinite alternate;
+  background:
+    radial-gradient(36% 32% at 70% 18%, rgba(255,58,168,.42), transparent 68%),
+    radial-gradient(40% 34% at 26% 60%, rgba(0,242,254,.34), transparent 68%),
+    radial-gradient(32% 30% at 86% 82%, rgba(122,60,255,.45), transparent 70%)}
+@keyframes aurora1{
+  0%{transform:translate3d(0,0,0) scale(1)}
+  50%{transform:translate3d(3.5%,-2.5%,0) scale(1.08) rotate(4deg)}
+  100%{transform:translate3d(-3%,3%,0) scale(1.03) rotate(-3deg)}}
+@keyframes aurora2{
+  0%{transform:translate3d(0,0,0) scale(1.05) rotate(2deg)}
+  50%{transform:translate3d(-4%,3%,0) scale(1) rotate(-4deg)}
+  100%{transform:translate3d(2.5%,-3.5%,0) scale(1.1) rotate(3deg)}}
 .blob{position:absolute;border-radius:50%;filter:blur(80px);opacity:.55;mix-blend-mode:screen;will-change:transform}
 .b1{width:52vmax;height:52vmax;left:-14vmax;top:-12vmax;background:radial-gradient(circle at 35% 35%, var(--c1) 0%, color-mix(in oklab, var(--c1) 35%, transparent) 45%, transparent 70%);animation:drift1 26s var(--ease) infinite alternate}
 .b2{width:46vmax;height:46vmax;right:-12vmax;top:6vmax;background:radial-gradient(circle at 60% 40%, var(--c2) 0%, color-mix(in oklab, var(--c2) 35%, transparent) 48%, transparent 72%);animation:drift2 32s var(--ease) infinite alternate}
@@ -92,12 +115,14 @@ a{color:inherit;text-decoration:none}
 /* ---------- Layout ---------- */
 .shell{position:relative;z-index:1;max-width:1280px;margin:0 auto;padding:0 clamp(14px,3.6vw,34px)}
 /* la prima schermata (hero + filtri + carosello) resta centrata nel viewport */
-.top{min-height:calc(100dvh - 68px);display:flex;flex-direction:column;justify-content:center}
+.top{min-height:calc(100dvh - 68px);display:flex;flex-direction:column;justify-content:center;
+  justify-content:safe center}
 @supports not (height:100dvh){.top{min-height:calc(100vh - 68px)}}
 
 /* ---------- Topbar ---------- */
 .topbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;justify-content:space-between;gap:14px;
-  padding:14px clamp(14px,3.6vw,34px);backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);
+  padding:14px max(clamp(14px,3.6vw,34px), env(safe-area-inset-left)) 14px max(clamp(14px,3.6vw,34px), env(safe-area-inset-right));
+  backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);
   background:linear-gradient(180deg, rgba(8,6,14,.72), rgba(8,6,14,.18));border-bottom:1px solid var(--stroke-soft);
   transition:opacity .4s var(--ease)}
 .brand{display:flex;align-items:center;gap:11px;min-width:0;padding:6px 15px 6px 7px;border-radius:16px;
@@ -164,6 +189,7 @@ a{color:inherit;text-decoration:none}
 @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 
 /* ---------- Toolbar: ricerca + filtri per genere ---------- */
+.toolbar-row{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
 .toolbar{display:flex;flex-direction:column;align-items:center;gap:10px;min-width:0;margin-top:clamp(12px,2.2vw,20px)}
 .search{display:flex;align-items:center;gap:8px;width:min(520px,100%);min-width:0;padding:6px 6px 6px 16px;border-radius:999px;
   background:var(--glass);border:1px solid var(--stroke);backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px);
@@ -307,36 +333,16 @@ a{color:inherit;text-decoration:none}
 .card-sub .sep{opacity:.4}
 .card-sub .star{color:#ffcf6a}
 
-.card-play{position:absolute;left:50%;top:58%;translate:-50% -50%;z-index:4;display:inline-flex;align-items:center;gap:9px;
+.card-play{position:absolute;left:50%;top:58%;translate:-50% -50%;z-index:30;display:inline-flex;align-items:center;gap:9px;
+  min-height:44px;-webkit-tap-highlight-color:transparent;touch-action:manipulation;
   padding:11px 20px;border-radius:999px;font-size:13px;font-weight:500;white-space:nowrap;
   background:rgba(12,9,20,.42);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(14px) saturate(1.6);-webkit-backdrop-filter:blur(14px);
   box-shadow:0 14px 34px -14px rgba(0,0,0,.9);opacity:0;scale:.86;pointer-events:none;
   transition:opacity .4s var(--ease), scale .4s var(--ease), background .3s}
 .card-play svg{width:13px;height:13px}
 .card-play:hover{background:rgba(255,255,255,.18)}
-.card-fav{position:absolute;top:12px;right:12px;z-index:4;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;
-  background:rgba(10,8,16,.42);border:1px solid rgba(255,255,255,.2);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-  opacity:0;scale:.8;pointer-events:none;transition:opacity .35s var(--ease), scale .35s var(--ease), background .25s}
-.card-fav svg{width:16px;height:16px;transition:transform .35s var(--ease)}
-.card-fav:hover{background:rgba(255,255,255,.2)}
-.card-fav:active svg{transform:scale(.8)}
-.card-fav[aria-pressed="true"] svg{fill:#ff5f7e;stroke:#ff5f7e;filter:drop-shadow(0 0 8px rgba(255,95,126,.7))}
-
-.card-badge{position:absolute;top:12px;left:12px;z-index:4;padding:6px 11px;border-radius:999px;
-  font-size:9.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:#052015;white-space:nowrap;
-  background:linear-gradient(120deg,#7dffc0,#4ff0ff);border:1px solid rgba(255,255,255,.55);
-  box-shadow:0 0 18px -2px rgba(90,255,190,.75), 0 6px 18px -8px rgba(0,0,0,.9);animation:neon 2.4s ease-in-out infinite}
-@keyframes neon{0%,100%{box-shadow:0 0 16px -3px rgba(90,255,190,.6), 0 6px 18px -8px rgba(0,0,0,.9)}
-  50%{box-shadow:0 0 26px 1px rgba(90,255,190,.95), 0 6px 18px -8px rgba(0,0,0,.9)}}
-.card:not(.is-active) .card-badge{opacity:.55;animation:none;box-shadow:none}
-.panel-badge{display:none;align-items:center;gap:8px;margin-top:10px;padding:8px 15px;border-radius:999px;
-  font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#052015;width:fit-content;
-  background:linear-gradient(120deg,#7dffc0,#4ff0ff);border:1px solid rgba(255,255,255,.5);animation:neon 2.4s ease-in-out infinite}
-.panel-badge.on{display:inline-flex}
-.panel-badge .pulse{width:7px;height:7px;border-radius:50%;background:#052015;animation:pulse 1.6s ease-in-out infinite}
-
 .card.is-active{z-index:60}
-.card.is-active .card-play,.card.is-active .card-fav{opacity:1;scale:1;pointer-events:auto}
+.card.is-active .card-play{opacity:1;scale:1;pointer-events:auto}
 .card.is-active .card-inner{border-color:transparent;
   box-shadow:0 44px 90px -34px rgba(0,0,0,1), 0 0 70px -22px color-mix(in oklab, var(--c1) 70%, transparent), inset 0 1px 0 rgba(255,255,255,.2)}
 /* Bordo liquido "Mercurio" */
@@ -515,8 +521,6 @@ a{color:inherit;text-decoration:none}
   box-shadow:0 22px 48px -18px color-mix(in oklab, var(--c2) 90%, transparent), inset 0 1px 0 rgba(255,255,255,.3)}
 .btn.small{padding:9px 16px;font-size:13px}
 .btn[disabled]{opacity:.42;pointer-events:none}
-.btn.fav-on{border-color:rgba(255,95,126,.5);
-  background:linear-gradient(160deg, rgba(255,255,255,.18), rgba(255,255,255,0) 48%), linear-gradient(120deg, rgba(255,95,126,.32), rgba(255,140,90,.26))}
 .btn.fav-on svg{fill:#ff5f7e;stroke:#ff5f7e}
 
 /* Stato vuoto */
@@ -751,6 +755,139 @@ body.lights-out .beam{opacity:0}
   .avatar{width:56px;height:56px;font-size:25px}
 }
 
+/* ==========================================================
+   Shimmer, popcorn, promemoria, ricerca, calendario, badge
+   ========================================================== */
+
+/* --- Riflesso diagonale che scorre sul vetro (solo transform: 60fps) --- */
+/* niente position qui: .card-inner e .btn sono gia' posizionati e un
+   position:relative li romperebbe */
+.sweep{overflow:hidden;isolation:isolate}
+.sweep::after{content:'';position:absolute;top:-60%;bottom:-60%;left:-140%;width:65%;z-index:2;pointer-events:none;
+  background:linear-gradient(100deg, transparent, rgba(255,255,255,.02) 28%, rgba(255,255,255,.26) 50%, rgba(255,255,255,.02) 72%, transparent);
+  transform:translate3d(0,0,0) rotate(14deg);will-change:transform;opacity:0}
+@media (hover:hover){ .sweep:hover::after{animation:sweep 1.05s var(--ease)} }
+.sweep.sweep-once::after{animation:sweep 1.4s var(--ease) .15s}
+@keyframes sweep{
+  0%{opacity:0;transform:translate3d(0,0,0) rotate(14deg)}
+  12%{opacity:1}
+  88%{opacity:1}
+  100%{opacity:0;transform:translate3d(420%,0,0) rotate(14deg)}}
+
+/* --- Secchiello di popcorn --- */
+.hype{display:flex;align-items:center;gap:13px;margin-top:4px}
+.bucket{position:relative;width:74px;height:84px;min-width:44px;min-height:44px;flex:0 0 auto;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;z-index:30;pointer-events:auto;
+  transition:transform .22s var(--ease)}
+.bucket:active{transform:scale(.94)}
+.bucket canvas{position:absolute;inset:0;width:100%;height:100%}
+.bucket-count{position:absolute;right:-7px;top:-7px;min-width:24px;height:24px;padding:0 6px;border-radius:999px;
+  display:grid;place-items:center;font-size:11.5px;font-weight:700;color:#3a1205;
+  background:linear-gradient(120deg,#ffd166,#ff8a3d);box-shadow:0 6px 16px -6px rgba(255,150,60,.9);
+  opacity:0;transform:scale(.6);transition:opacity .3s var(--ease), transform .3s var(--ease)}
+.bucket-count.on{opacity:1;transform:scale(1)}
+.hype-txt{min-width:0}
+.hype-lab{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+.hype-val{font-size:14.5px;font-weight:600;margin-top:2px}
+.hype-hint{font-size:11.5px;color:var(--muted);font-weight:300;margin-top:2px}
+.hype-clear{margin-top:6px;min-height:36px;padding:6px 0;font-size:11.5px;color:var(--faint);
+  text-decoration:underline;text-underline-offset:3px;transition:color .25s}
+.hype-clear:hover{color:var(--txt)}
+.hype-clear[hidden]{display:none}
+.card-bucket{position:absolute;top:10px;right:10px;z-index:30;pointer-events:none;width:54px;height:60px;
+  opacity:0;scale:.8;transition:opacity .35s var(--ease), scale .35s var(--ease);
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;cursor:pointer}
+.card.is-active .card-bucket{opacity:1;scale:1;pointer-events:auto}
+.card-bucket canvas{position:absolute;inset:0;width:100%;height:100%}
+
+/* --- Menu "Salva Data" --- */
+.savewrap{position:relative;display:inline-flex}
+.searchwrap{position:relative;width:min(520px,100%);min-width:0}
+.savemenu{position:absolute;left:0;top:calc(100% + 8px);z-index:80;min-width:252px;padding:7px;border-radius:18px;
+  background:linear-gradient(155deg, rgba(255,255,255,.12), rgba(255,255,255,.04));
+  border:1px solid var(--stroke);backdrop-filter:blur(24px) saturate(1.5);-webkit-backdrop-filter:blur(24px) saturate(1.5);
+  box-shadow:0 30px 70px -28px rgba(0,0,0,1);animation:popIn .28s var(--ease)}
+.savemenu[hidden]{display:none}
+.savemenu a,.savemenu button{display:flex;align-items:center;gap:11px;width:100%;min-height:44px;padding:11px 13px;
+  border-radius:13px;font-size:13.5px;text-align:left;transition:background .2s}
+.savemenu a:hover,.savemenu button:hover{background:rgba(255,255,255,.12)}
+.savemenu svg{width:17px;height:17px;flex:0 0 auto;opacity:.85}
+.savemenu small{display:block;font-size:11px;color:var(--faint);margin-top:1px}
+
+/* --- Risultati di ricerca divisi --- */
+.results{position:absolute;left:50%;translate:-50% 0;top:calc(100% + 10px);z-index:75;width:min(560px,94vw);
+  max-height:min(62vh,480px);overflow:auto;padding:8px;border-radius:20px;
+  background:linear-gradient(155deg, rgba(255,255,255,.11), rgba(255,255,255,.035));
+  border:1px solid var(--stroke);backdrop-filter:blur(26px) saturate(1.5);-webkit-backdrop-filter:blur(26px) saturate(1.5);
+  box-shadow:0 34px 80px -30px rgba(0,0,0,1);animation:popIn .26s var(--ease)}
+.results[hidden]{display:none}
+.res-group{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);padding:10px 12px 6px}
+.res-row{display:flex;align-items:center;gap:11px;width:100%;min-height:44px;padding:8px;border-radius:14px;
+  text-align:left;transition:background .2s}
+.res-row:hover{background:rgba(255,255,255,.1)}
+.res-row img{width:34px;height:51px;border-radius:7px;object-fit:cover;flex:0 0 auto;background:rgba(255,255,255,.07)}
+.res-info{min-width:0;flex:1}
+.res-title{font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.res-meta{font-size:11px;color:var(--muted);margin-top:2px}
+.res-badge{font-size:10.5px;padding:4px 9px;border-radius:999px;white-space:nowrap;
+  background:rgba(255,255,255,.08);border:1px solid var(--stroke-soft)}
+.res-empty{padding:18px 12px;text-align:center;font-size:13px;color:var(--muted)}
+.recent{display:flex;flex-wrap:wrap;gap:6px;padding:4px 10px 10px}
+.recent button{min-height:34px;padding:7px 12px;border-radius:999px;font-size:12px;color:var(--muted);
+  background:rgba(255,255,255,.05);border:1px solid var(--stroke-soft)}
+.recent button:hover{color:var(--txt);background:rgba(255,255,255,.1)}
+
+/* --- CineCalendario --- */
+.calendar{max-width:1080px;margin:clamp(14px,2.4vw,24px) auto 0}
+.calendar[hidden]{display:none}
+.cal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.cal-head h3{font-size:clamp(15px,2.2vw,18px);font-weight:600;letter-spacing:-.02em;text-transform:capitalize}
+.cal-nav{display:flex;gap:6px}
+.cal-nav button{min-width:44px;min-height:44px;border-radius:12px;display:grid;place-items:center;
+  background:var(--glass);border:1px solid var(--stroke)}
+.cal-nav svg{width:16px;height:16px}
+.cal-week{margin-bottom:10px;padding:12px 14px;border-radius:18px;
+  background:linear-gradient(150deg, rgba(255,255,255,.07), rgba(255,255,255,.025));
+  border:1px solid var(--stroke-soft);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.cal-week-lab{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);margin-bottom:10px}
+.cal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(122px,1fr));gap:9px}
+.cal-item{display:flex;gap:9px;align-items:center;padding:7px;border-radius:13px;text-align:left;min-height:44px;
+  background:rgba(255,255,255,.05);border:1px solid var(--stroke-soft);transition:background .25s, transform .25s var(--ease)}
+.cal-item:hover{background:rgba(255,255,255,.11);transform:translateY(-2px)}
+.cal-item img{width:30px;height:45px;border-radius:6px;object-fit:cover;flex:0 0 auto}
+.cal-day{font-size:15px;font-weight:700;line-height:1;background:linear-gradient(140deg,var(--c1),var(--c2));
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.cal-title{font-size:11.5px;font-weight:500;line-height:1.25;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.cal-empty{font-size:12.5px;color:var(--faint);font-style:italic}
+
+/* --- Capsule informative --- */
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.tags:empty{display:none}
+.tag-glass{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:999px;font-size:11px;font-weight:500;
+  background:rgba(255,255,255,.07);border:1px solid var(--stroke-soft);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.tag-ita{background:linear-gradient(100deg, rgba(0,166,81,.32), rgba(255,255,255,.16) 50%, rgba(206,43,55,.32));
+  border-color:rgba(255,255,255,.3);box-shadow:0 0 16px -6px rgba(0,200,120,.85)}
+.tag-fest{background:linear-gradient(120deg, rgba(255,209,102,.28), rgba(255,138,61,.22));border-color:rgba(255,209,102,.45)}
+.tag-fmt{background:linear-gradient(120deg, rgba(0,242,254,.22), rgba(122,92,255,.2));border-color:rgba(0,242,254,.38)}
+.tag-post{background:linear-gradient(120deg, rgba(255,138,61,.22), rgba(255,209,102,.18));border-color:rgba(255,180,90,.4)}
+.tag-true{background:linear-gradient(120deg, rgba(122,240,255,.16), rgba(255,255,255,.06));border-color:rgba(122,240,255,.32)}
+.age{display:inline-grid;place-items:center;min-width:36px;height:26px;padding:0 8px;border-radius:9px;
+  font-size:12px;font-weight:700;border:1.5px solid currentColor}
+.age.t{color:#6ee7a8}.age.a6{color:#8be9fd}.age.a12{color:#ffd166}.age.a14{color:#ff9f6b}.age.a18{color:#ff5f7e}
+.date-badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;padding:5px 11px;border-radius:999px;
+  background:rgba(255,255,255,.06);border:1px solid var(--stroke-soft)}
+.date-badge.ok{color:#8df0b8;border-color:rgba(110,231,168,.35);background:rgba(110,231,168,.1)}
+
+/* --- Target tattili e stati hover solo su puntatore --- */
+button,.btn,a.btn,.chip,.frame,.dot-btn{-webkit-tap-highlight-color:transparent}
+@media (hover:none){
+  .btn:hover,.chip:hover,.pill-btn:hover,.icon-btn:hover,.cast-pill:hover,.bo-row:hover,
+  .filmo-row:hover,.cal-item:hover,.res-row:hover{transform:none}
+  .card.is-active:hover .poster{transform:none}
+  .icon-btn:hover{transform:none}
+}
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width:860px){
   .panel-head{gap:16px}
@@ -778,27 +915,27 @@ body.lights-out .beam{opacity:0}
   .actions{gap:8px}
   .actions .btn{flex:1 1 calc(50% - 4px);min-width:0;padding:12px 14px;font-size:13px;
     white-space:normal;line-height:1.25;text-align:center}
-  .trailer-card{flex:1 1 100%;justify-content:flex-start;padding:8px 16px 8px 8px}
+  /* specificità più alta di ".actions .btn", altrimenti il trailer resta a metà riga */
+  .actions .trailer-card{flex:1 1 100%;justify-content:flex-start;padding:8px 16px 8px 8px;white-space:nowrap}
+  .actions .trailer-card .trailer-title{white-space:nowrap}
   .score{width:92px;height:92px}
   .score-num{font-size:22px}
-  .hero{padding-top:12px}
+  .hero{padding-top:10px}
+  .hero p.sub{margin-top:9px}
+  .sub-long{display:none}          /* su telefono il carosello deve restare vicino */
+  .toolbar{gap:7px;margin-top:10px}
+  .toolbar-row{gap:7px}
   .chips{justify-content:flex-start;align-self:stretch}
   .toolbar{align-items:stretch}
   .search{width:100%}
   .top{min-height:0}
 }
 @media (max-width:410px){
-  /* il nome del brand resta: si stringono i controlli */
-  .brand{padding:4px 9px 4px 4px;gap:7px}
-  .brand-text{font-size:15px}
-  .brand-mark{width:25px;height:25px}
-  .icon-btn{width:32px;height:32px}
-  .icon-btn svg{width:15px;height:15px}
-  .pill-btn{padding:7px 9px}
-  .badge{min-width:18px;height:18px;font-size:11px}
-}
-@media (max-width:330px){
+  /* i tasti restano da 44px: a cedere è il nome del brand */
+  .brand{padding:4px;gap:0}
   .brand-text{display:none}
+  .pill-btn{padding:8px 10px}
+  .badge{min-width:19px;height:19px;font-size:11px}
 }
 @media (prefers-reduced-motion:reduce){
   .blob{animation:none}
@@ -807,6 +944,18 @@ body.lights-out .beam{opacity:0}
   .sk-card::after,.sk-panel::after{animation:none}
   *{transition-duration:.01ms!important}
 }
+
+/* Target tattili: in coda, deve vincere sulle regole per schermi stretti */
+@media (pointer:coarse){
+  .btn,.pill-btn,.chip,.btn-sm,.bo-tabs button,.view-toggle button,.savemenu a,.savemenu button,
+  .read-more,.hype-clear,.res-row,.cal-item,.cast-pill{min-height:44px}
+  .pill-btn,.icon-btn{min-width:44px}
+  .icon-btn{width:44px;height:44px}
+  .frame{width:44px;height:62px}
+  /* il carosello rimpicciolisce le card in prospettiva: per avere 44px reali
+     sotto il dito la misura CSS deve essere più generosa */
+  .card-play{min-height:58px;padding:17px 22px;font-size:13.5px}
+  .card-bucket{width:62px;height:68px}
 </style>
 </head>
 <body>
@@ -814,6 +963,8 @@ body.lights-out .beam{opacity:0}
 <!-- ====================== SFONDO LIQUIDO ====================== -->
 <div class="bg" aria-hidden="true">
   <div class="backdrop" id="backdrop"></div>
+  <div class="aurora"></div>
+  <div class="aurora b"></div>
   <div class="blob b1"></div>
   <div class="blob b2"></div>
   <div class="blob b3"></div>
@@ -841,21 +992,14 @@ body.lights-out .beam{opacity:0}
       </svg>
       <span class="lbl">Creatore</span>
     </button>
-    <button id="sfxBtn" class="icon-btn plain sfx-toggle" title="Suoni dell'interfaccia" aria-pressed="true" aria-label="Attiva o disattiva i suoni">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M11 5 6.5 9H3.5v6h3L11 19z"/><path d="M15.5 9.2a4 4 0 0 1 0 5.6"/><path d="M18.2 6.4a8 8 0 0 1 0 11.2"/>
-      </svg>
-    </button>
     <button id="searchBtn" class="icon-btn plain" aria-expanded="false" title="Cerca un film su TMDB" aria-label="Cerca un film">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
         <circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/>
       </svg>
     </button>
     <button id="favFilter" class="pill-btn" aria-pressed="false" title="Mostra solo la tua lista">
-      <svg class="heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">
-        <path d="M12 20.5 4.2 13a4.8 4.8 0 0 1 6.8-6.8l1 1 1-1A4.8 4.8 0 1 1 19.8 13Z"/>
-      </svg>
-      <span class="lbl">Non perdertelo</span>
+      <span aria-hidden="true" style="font-size:14px;line-height:1">🍿</span>
+      <span class="lbl">La mia lista</span>
       <span class="badge" id="favCount">0</span>
     </button>
     <button id="refreshBtn" class="icon-btn" title="Aggiorna i dati da TMDB" aria-label="Aggiorna i dati">
@@ -874,27 +1018,41 @@ body.lights-out .beam{opacity:0}
   <section class="hero">
     <p class="eyebrow"><span class="dot"></span>Uscite italiane · dati TMDB</p>
     <h1>Prossimamente in sala</h1>
-    <p class="sub"><em>Il grande schermo ti sta aspettando.</em> Scorri il carosello, guarda il trailer ufficiale e segna la data sul calendario.</p>
+    <p class="sub"><em>Il grande schermo ti sta aspettando.</em><span class="sub-long"> Scorri il carosello, guarda il trailer ufficiale e segna la data sul calendario.</span></p>
   </section>
 
   <!-- ====================== RICERCA + FILTRI ====================== -->
   <div class="toolbar">
-    <form class="search" id="searchBar" role="search" hidden autocomplete="off">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>
-      <input id="searchInput" type="search" placeholder="Cerca un film su TMDB…" aria-label="Cerca un film su TMDB">
-      <button class="btn small" type="button" id="searchClose">Chiudi</button>
-    </form>
-    <div class="chips" id="chips" role="group" aria-label="Filtra per genere"></div>
-    <div class="view-toggle" role="group" aria-label="Modalità di visualizzazione">
-      <button type="button" id="btnCarousel" class="on" aria-pressed="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="8" y="4" width="8" height="16" rx="2"/><path d="M4.5 7.5v9M19.5 7.5v9"/></svg>
-        Carosello
-      </button>
-      <button type="button" id="btnList" aria-pressed="false">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-        Lista
-      </button>
+    <div class="searchwrap" id="searchWrap" hidden>
+      <form class="search" id="searchBar" role="search" autocomplete="off">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>
+        <input id="searchInput" type="search" placeholder="Cerca un film…  (Ctrl+K)" aria-label="Cerca un film su TMDB">
+        <button class="btn small" type="button" id="searchClose">Chiudi</button>
+      </form>
+      <div class="results" id="results" hidden role="listbox" aria-label="Risultati della ricerca"></div>
     </div>
+    <div class="toolbar-row">
+      <div class="bo-tabs" role="group" aria-label="Periodo di uscita">
+        <button type="button" id="tabSoon" class="on" aria-pressed="true">🎬 Prossimamente</button>
+        <button type="button" id="tabRadar" aria-pressed="false">📡 Hype Radar</button>
+      </div>
+      <div class="view-toggle" role="group" aria-label="Modalità di visualizzazione">
+        <button type="button" id="btnCarousel" class="on" aria-pressed="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="8" y="4" width="8" height="16" rx="2"/><path d="M4.5 7.5v9M19.5 7.5v9"/></svg>
+          Carosello
+        </button>
+        <button type="button" id="btnList" aria-pressed="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+          Lista
+        </button>
+        <button type="button" id="btnCal" aria-pressed="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
+          Calendario
+        </button>
+      </div>
+    </div>
+    <div class="chips" id="chips" role="group" aria-label="Filtra per genere"></div>
+    <div class="chips" id="chipsExtra" role="group" aria-label="Filtra per durata e tipo"></div>
     <div class="search-tag" id="searchTag" hidden>
       <span>Risultati per <b id="searchTagText"></b></span>
       <button type="button" id="searchReset" aria-label="Annulla la ricerca">
@@ -938,6 +1096,18 @@ body.lights-out .beam{opacity:0}
       <div class="strip-track" id="stripTrack"></div>
     </div>
   </section>
+
+  <!-- ====================== CINECALENDARIO ====================== -->
+  <div class="calendar" id="calView" hidden>
+    <div class="cal-head">
+      <h3 id="calTitle">—</h3>
+      <div class="cal-nav">
+        <button type="button" id="calPrev" aria-label="Mese precedente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7"/></svg></button>
+        <button type="button" id="calNext" aria-label="Mese successivo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></button>
+      </div>
+    </div>
+    <div id="calBody"></div>
+  </div>
 
   <!-- ====================== VISTA A LISTA ====================== -->
   <div class="list-view" id="listView" hidden>
@@ -991,6 +1161,7 @@ body.lights-out .beam{opacity:0}
       </button>
       <span class="lang-note" id="langNote"></span>
       <div class="genres" id="pGenres"></div>
+      <div class="tags" id="pTags"></div>
       <div class="cast-wrap" id="castWrap" hidden>
         <div class="cast-lab">Regia e interpreti</div>
         <div class="cast-strip" id="castStrip"></div>
@@ -1002,6 +1173,10 @@ body.lights-out .beam{opacity:0}
         <div>
           <div class="rel-lab">Uscita nelle sale italiane</div>
           <div class="rel-val" id="pDate">—</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px">
+            <span class="date-badge" id="pDateKind">—</span>
+            <span class="age" id="pAge" hidden>T</span>
+          </div>
           <div class="panel-badge" id="pBadge"><span class="pulse"></span><span id="pBadgeText"></span></div>
           <div class="rerelease" id="pRerelease" hidden>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px"><path d="M20 11a8 8 0 1 0-1.6 5.7"/><path d="M20 4v7h-7"/></svg>
@@ -1012,7 +1187,7 @@ body.lights-out .beam{opacity:0}
       </div>
 
       <div class="actions">
-        <button class="btn primary trailer-card no-thumb" id="trailerBtn">
+        <button class="btn primary trailer-card no-thumb sweep" id="trailerBtn">
           <span class="trailer-thumb" id="trailerThumb">
             <img id="trailerImg" alt="" loading="lazy" decoding="async">
             <span class="play"><svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5.2v13.6a1 1 0 0 0 1.53.85l10.6-6.8a1 1 0 0 0 0-1.7L9.53 4.35A1 1 0 0 0 8 5.2Z"/></svg></span>
@@ -1022,17 +1197,25 @@ body.lights-out .beam{opacity:0}
             <span class="trailer-tags" id="trailerTags"></span>
           </span>
         </button>
-        <a class="btn ghost" id="calBtn" target="_blank" rel="noopener noreferrer">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18M12 14v4M10 16h4"/></svg>
-          Aggiungi a Google Calendar
-        </a>
-        <button class="btn ghost" id="favBtn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 20.5 4.2 13a4.8 4.8 0 0 1 6.8-6.8l1 1 1-1A4.8 4.8 0 1 1 19.8 13Z"/></svg>
-          <span id="favBtnLabel">Non perdertelo</span>
-        </button>
-        <button class="btn ghost" id="icsBtn" title="Scarica l'evento per Apple Calendar e Outlook">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v11m0 0 4-4m-4 4-4-4"/><path d="M4 16.5V19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2.5"/></svg>
-          Apple Calendar (.ics)
+        <span class="savewrap">
+          <button class="btn ghost sweep" id="saveBtn" aria-expanded="false" aria-haspopup="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18M12 14v4M10 16h4"/></svg>
+            Salva data
+          </button>
+          <div class="savemenu" id="saveMenu" hidden>
+            <a id="calBtn" target="_blank" rel="noopener noreferrer">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
+              <span>Google Calendar<small>Si apre nel browser</small></span>
+            </a>
+            <button type="button" id="icsBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v11m0 0 4-4m-4 4-4-4"/><path d="M4 16.5V19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2.5"/></svg>
+              <span>Apple Calendar / Outlook<small>Scarica il file .ics</small></span>
+            </button>
+          </div>
+        </span>
+        <button class="btn ghost" id="waBtn" title="Organizza la serata su WhatsApp">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.6 14.2c-.2.6-1.2 1.2-1.7 1.2-.5.1-1 .1-1.6-.1-.4-.1-.9-.3-1.5-.6-2.6-1.1-4.3-3.8-4.4-4-.2-.2-1.1-1.4-1.1-2.7s.7-1.9 1-2.2c.2-.2.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.3 0 .5l-.4.5-.3.3c-.1.1-.2.3 0 .5.1.2.6 1 1.3 1.6.9.8 1.6 1 1.9 1.2.2.1.4.1.5-.1l.7-.9c.2-.2.3-.2.5-.1l2 .9c.2.1.4.2.4.3.1.2.1.6-.1 1Z"/></svg>
+          Invita su WhatsApp
         </button>
         <button class="btn ghost" id="cinemaBtn" title="Cerca i cinema vicino a te">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z"/><circle cx="12" cy="10" r="2.6"/></svg>
@@ -1044,15 +1227,28 @@ body.lights-out .beam{opacity:0}
         </button>
       </div>
 
-      <!-- Biglietto di sala -->
+      <!-- Hype Popcorn -->
+      <div class="hype">
+        <div class="bucket" id="hypeBucket" role="button" tabindex="0"
+             aria-label="Aggiungi popcorn: salva il film e aumenta l'hype">
+          <canvas id="hypeCanvas" width="148" height="168"></canvas>
+          <span class="bucket-count" id="hypeCount">0</span>
+        </div>
+        <div class="hype-txt">
+          <div class="hype-lab">Hype Popcorn</div>
+          <div class="hype-val" id="hypeVal">Tocca il secchiello</div>
+          <div class="hype-hint" id="hypeHint">Al primo popcorn il film entra nella tua lista</div>
+          <button type="button" class="hype-clear" id="hypeClear" hidden>Svuota e togli dalla lista</button>
+        </div>
+      </div>
+
+      <!-- Promemoria -->
       <div class="ticket" id="ticket">
         <div class="ticket-main">
-          <div class="ticket-lab">Biglietto · Sala CineGlass</div>
+          <div class="ticket-lab">Promemoria · CineGlass</div>
           <div class="ticket-title" id="tkTitle">—</div>
           <div class="ticket-row">
-            <div><div class="ticket-lab">Data</div><div class="ticket-val" id="tkDate">—</div></div>
-            <div><div class="ticket-lab">Durata</div><div class="ticket-val" id="tkRuntime">—</div></div>
-            <div><div class="ticket-lab">Posto</div><div class="ticket-val" id="tkSeat">—</div></div>
+            <div><div class="ticket-lab">Uscita in Italia</div><div class="ticket-val" id="tkDate">—</div></div>
           </div>
         </div>
         <div class="ticket-stub">
@@ -1154,6 +1350,13 @@ body.lights-out .beam{opacity:0}
       dentro un'interfaccia in vetro costruita riga per riga, senza framework.</p>
       <p>Se ti è piaciuta e vuoi sostenere lo sviluppo, un caffè è sempre benvenuto.</p>
     </div>
+    <button type="button" class="btn ghost sfx-toggle" id="sfxBtn" aria-pressed="true"
+            style="width:100%;margin-top:14px;justify-content:flex-start;gap:11px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M11 5 6.5 9H3.5v6h3L11 19z"/><path d="M15.5 9.2a4 4 0 0 1 0 5.6"/><path d="M18.2 6.4a8 8 0 0 1 0 11.2"/>
+      </svg>
+      <span id="sfxLabel">Suoni dell'interfaccia attivi</span>
+    </button>
     <a class="revolut" href="https://revolut.me/acrisci05" target="_blank" rel="noopener noreferrer">
       Offrimi un caffè su Revolut ☕
     </a>
@@ -1409,6 +1612,8 @@ const state = {
   movies: [], favs: [], favOnly: false, detailsCache: {},
   view: [], genre: null, mode: 'upcoming', searchList: [], searchQuery: '',
   layout: 'carousel', boxoffice: [], boTab: 'it', credits: {}, custom: null,
+  range: 'soon', radar: [], durata: null, storiaVera: false,
+  calYear: new Date().getFullYear(), calMonth: new Date().getMonth(),
   tiltX: 0, tiltY: 0,
   current: 0, target: 0, activeIndex: 0, activeId: null, activeDetails: null,
   demo: false, raf: 0, drag: null, cardW: 260, spacing: 180, lastRelease: null
@@ -1423,7 +1628,7 @@ const el = {
   langNote:$('#langNote'), rerelease:$('#pRerelease'), rereleaseText:$('#pRereleaseText'),
   trailerThumb:$('#trailerThumb'), trailerImg:$('#trailerImg'), trailerTitle:$('#trailerTitle'),
   trailerTags:$('#trailerTags'), date:$('#pDate'), countdown:$('#countdown'),
-  trailerBtn:$('#trailerBtn'), calBtn:$('#calBtn'), favBtn:$('#favBtn'), favBtnLabel:$('#favBtnLabel'),
+  trailerBtn:$('#trailerBtn'), calBtn:$('#calBtn'),
   favFilter:$('#favFilter'), favCount:$('#favCount'), refresh:$('#refreshBtn'),
   badge:$('#pBadge'), badgeText:$('#pBadgeText'), chips:$('#chips'),
   carousel:$('#carousel'), listView:$('#listView'), tableBody:$('#movieTableBody'),
@@ -1437,9 +1642,17 @@ const el = {
   filmoRole:$('#filmoRole'), filmoList:$('#filmoList'),
   pipBtn:$('#pipBtn'),
   filmstrip:$('#filmstrip'), stripTrack:$('#stripTrack'),
-  ticket:$('#ticket'), tkTitle:$('#tkTitle'), tkDate:$('#tkDate'), tkRuntime:$('#tkRuntime'),
-  tkSeat:$('#tkSeat'), tkQr:$('#tkQr'), tkCode:$('#tkCode'),
+  ticket:$('#ticket'), tkTitle:$('#tkTitle'), tkDate:$('#tkDate'),
+  tkQr:$('#tkQr'), tkCode:$('#tkCode'),
   icsBtn:$('#icsBtn'), cinemaBtn:$('#cinemaBtn'), inviteBtn:$('#inviteBtn'),
+  hypeBucket:$('#hypeBucket'), hypeCount:$('#hypeCount'), hypeVal:$('#hypeVal'), hypeHint:$('#hypeHint'),
+  hypeClear:$('#hypeClear'),
+  pTags:$('#pTags'), pAge:$('#pAge'), pDateKind:$('#pDateKind'),
+  saveBtn:$('#saveBtn'), saveMenu:$('#saveMenu'), waBtn:$('#waBtn'),
+  results:$('#results'), searchWrap:$('#searchWrap'), chipsExtra:$('#chipsExtra'),
+  tabSoon:$('#tabSoon'), tabRadar:$('#tabRadar'), btnCal:$('#btnCal'),
+  calView:$('#calView'), calTitle:$('#calTitle'), calBody:$('#calBody'),
+  calPrev:$('#calPrev'), calNext:$('#calNext'),
   searchBtn:$('#searchBtn'), searchBar:$('#searchBar'), searchInput:$('#searchInput'),
   searchClose:$('#searchClose'), searchTag:$('#searchTag'), searchTagText:$('#searchTagText'),
   searchReset:$('#searchReset'), status:$('#status'), statusText:$('#statusText'),
@@ -1453,14 +1666,19 @@ const el = {
 let cards = [];
 
 /* lista di partenza (uscite, ricerca o preferiti) e vista filtrata per genere */
-const baseList = () => (state.mode === 'search' ? state.searchList : (state.favOnly ? state.favs : state.movies));
+const baseList = () => state.mode === 'search' ? state.searchList
+  : state.favOnly ? state.favs
+  : state.range === 'radar' ? state.radar
+  : state.movies;
 const movies = () => state.view;
 const wrapIndex = (i, n) => ((Math.round(i) % n) + n) % n;
 
 function computeView(){
   const base = baseList();
   if (state.genre && !base.some(m => (m.genre_ids || []).includes(state.genre))) state.genre = null;
-  state.view = state.genre ? base.filter(m => (m.genre_ids || []).includes(state.genre)) : base;
+  let v = state.genre ? base.filter(m => (m.genre_ids || []).includes(state.genre)) : base;
+  if (state.durata || state.storiaVera) v = v.filter(passaFiltriProfondi);
+  state.view = v;
 }
 
 /* Etichetta per le uscite imminenti (entro 7 giorni) */
@@ -1568,11 +1786,34 @@ function orderList(raw, opts){
 
 /* Uscite italiane: /discover filtrato sulle date di uscita IT in sala
    (with_release_type 3 = distribuzione, 2 = anteprime/limitata). */
+const GIORNI_CAROSELLO = 90;   // finestra delle uscite "prossimamente"
+
+function isoTraGiorni(n){
+  const d = new Date(now() + n * 86400000);
+  return d.toISOString().split('T')[0];
+}
+
+/* Hype Radar: uscite oltre la finestra, ordinate per popolarità */
+async function fetchRadar(key){
+  const url = `${API_BASE}/discover/movie?api_key=${encodeURIComponent(key)}&language=it-IT` +
+    `&sort_by=popularity.desc&include_adult=false&include_video=false&page=1` +
+    `&primary_release_date.gte=${isoTraGiorni(GIORNI_CAROSELLO + 1)}`;
+  try{
+    const d = await fetchJSON(url);
+    const lista = (d && d.results ? d.results : []).map(slimMovie)
+      .filter(m => m.poster_path).slice(0, MAX_MOVIES);
+    lista.forEach(m => { m.__radar = true; });
+    state.radar = lista;
+    return lista;
+  }catch(err){ state.radar = []; return []; }
+}
+
 async function fetchUpcoming(key){
   const today = todayISO();
+  const fine = isoTraGiorni(GIORNI_CAROSELLO);
   const discover = p => `${API_BASE}/discover/movie?api_key=${encodeURIComponent(key)}` +
     `&language=it-IT&region=IT&sort_by=primary_release_date.asc` +
-    `&with_release_type=${encodeURIComponent('3|2')}&release_date.gte=${today}` +
+    `&with_release_type=${encodeURIComponent('3|2')}&release_date.gte=${today}&release_date.lte=${fine}` +
     `&include_adult=false&include_video=false&page=${p}`;
 
   let list = [];
@@ -1630,17 +1871,21 @@ async function enrichReleaseDates(key, list){
 }
 
 /* --------- Trailer e data di uscita italiana --------- */
+/* Gerarchia: 1) Trailer IT  2) Teaser/Clip IT  3) Trailer EN  4) qualsiasi altro */
 function pickTrailer(videos){
   const yt = (videos || []).filter(v => v && v.site === 'YouTube' && v.key);
   if (!yt.length) return null;
-  const score = v => {
-    let s = v.type === 'Trailer' ? 100 : v.type === 'Teaser' ? 60 : v.type === 'Clip' ? 20 : 0;
-    if (v.official) s += 25;
-    if (v.iso_639_1 === 'it') s += 200;
-    if (/ufficiale|italiano/i.test(v.name || '')) s += 20;
-    s += (Number(v.size) || 0) / 10000;
-    return s;
+  const livello = v => {
+    const it = v.iso_639_1 === 'it';
+    const tipo = v.type;
+    if (it && tipo === 'Trailer') return 0;
+    if (it && (tipo === 'Teaser' || tipo === 'Clip')) return 1;
+    if (tipo === 'Trailer') return 2;
+    if (tipo === 'Teaser') return 3;
+    return 4;
   };
+  const score = v => -livello(v) * 1000 + (v.official ? 60 : 0) +
+    (/ufficiale|italiano/i.test(v.name || '') ? 25 : 0) + (Number(v.size) || 0) / 10000;
   const best = yt.slice().sort((a, b) => score(b) - score(a))[0];
   const size = Number(best.size) || 0;
   return {
@@ -1675,6 +1920,45 @@ function italianRelease(releaseDates, fallback){
   return fallback ? String(fallback).slice(0, 10) : null;
 }
 
+/* Certificazione italiana (visto censura) dalla lista delle uscite */
+function certificazioneIT(releaseDates){
+  const it = ((releaseDates && releaseDates.results) || []).find(r => r.iso_3166_1 === 'IT');
+  const cert = ((it && it.release_dates) || []).map(r => (r.certification || '').trim()).filter(Boolean)[0] || '';
+  const mappa = { 'T': 't', 'VM6': 'a6', '6': 'a6', 'VM12': 'a12', '12': 'a12',
+                  'VM14': 'a14', '14': 'a14', 'VM18': 'a18', '18': 'a18' };
+  const classe = mappa[cert.toUpperCase()];
+  if (!classe) return null;
+  const etichetta = { t: 'T', a6: '6+', a12: '12+', a14: '14+', a18: '18+' }[classe];
+  return { classe, etichetta };
+}
+
+/* Capsule ricavate dalle keyword TMDB */
+const KW = {
+  festival: /festival|cannes|venice|venezia|berlinale|sundance|locarno|toronto international/i,
+  postcredit: /after the credits|post.?credit|mid.?credit|scena post/i,
+  storiaVera: /based on (a )?(true|real)|true story|biography|biographical|storia vera/i,
+  libro: /based on (a )?(novel|book|short story|memoir|graphic novel|comic)|tratto da un (romanzo|libro)/i,
+  imax: /\bimax\b/i,
+  dolby: /dolby (atmos|cinema)/i,
+  isense: /isense|4dx|screen ?x/i
+};
+
+function analizzaKeywords(d){
+  const parole = (((d.keywords || {}).keywords) || []).map(k => (k.name || '').toLowerCase());
+  const testo = parole.join(' | ') + ' | ' + (d.tagline || '') + ' | ' + (d.title || '');
+  const formati = [];
+  if (KW.imax.test(testo)) formati.push('IMAX');
+  if (KW.isense.test(testo)) formati.push('ISENSE');
+  if (KW.dolby.test(testo)) formati.push('Dolby Atmos');
+  return {
+    festival: KW.festival.test(testo),
+    postcredit: KW.postcredit.test(testo),
+    storiaVera: KW.storiaVera.test(testo),
+    libro: KW.libro.test(testo),
+    formati
+  };
+}
+
 function parseDetails(d, movie){
   const companies = (d.production_companies || []).filter(c => c && c.name);
   const countries = (d.production_countries || []).filter(c => c && c.iso_3166_1);
@@ -1690,6 +1974,9 @@ function parseDetails(d, movie){
     country: countries.length ? countryName(countries[0].iso_3166_1) : '',
     language: langName(d.original_language || ''),
     primaryRelease: d.release_date || movie.release_date || null,
+    italiano: (d.original_language === 'it') || countries.some(c => c.iso_3166_1 === 'IT'),
+    cert: certificazioneIT(d.release_dates),
+    kw: analizzaKeywords(d),
     studio: companies.length ? companies[0].name : '',
     genreIds: (d.genres || []).map(g => g.id),
     vote: d.vote_average || movie.vote_average || 0,
@@ -1722,7 +2009,7 @@ async function getDetails(movie){
   const key = resolveKey();
   if (!key) return null;
   const url = `${API_BASE}/movie/${movie.id}?api_key=${encodeURIComponent(key)}` +
-              `&language=it-IT&append_to_response=videos,release_dates&include_video_language=it,en,null`;
+              `&language=it-IT&append_to_response=videos,release_dates,keywords&include_video_language=it,en,null`;
   const raw = await fetchJSON(url);
   const data = parseDetails(raw, movie);
 
@@ -1794,16 +2081,13 @@ function buildCards(){
     card.className = 'card';
     card.dataset.i = String(i);
     card.dataset.id = String(m.id);
-    const fav = isFav(m.id);
     const badge = m.__demo ? 'Esempio' : releaseBadge(m.release_date);
     card.innerHTML =
-      '<div class="card-inner">' +
+      '<div class="card-inner sweep">' +
         `<img class="poster" alt="Locandina di ${esc(m.title)}" loading="lazy" decoding="async" src="${esc(img(m.poster_path, 'w500') || placeholderPoster(m.title))}">` +
         '<div class="frost"></div><div class="shine"></div><div class="glare"></div><div class="card-grad"></div>' +
         (badge ? `<span class="card-badge${m.__demo ? ' demo' : ''}">${esc(badge)}</span>` : '') +
-        `<button class="card-fav" data-act="fav" aria-pressed="${fav ? 'true' : 'false'}" aria-label="${fav ? 'Rimuovi da' : 'Aggiungi a'} Non perdertelo">` +
-          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 20.5 4.2 13a4.8 4.8 0 0 1 6.8-6.8l1 1 1-1A4.8 4.8 0 1 1 19.8 13Z"/></svg>' +
-        '</button>' +
+
         '<button class="card-play" data-act="play">' +
           '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.2v13.6a1 1 0 0 0 1.53.85l10.6-6.8a1 1 0 0 0 0-1.7L9.53 4.35A1 1 0 0 0 8 5.2Z"/></svg>Guarda Trailer' +
         '</button>' +
@@ -1818,6 +2102,14 @@ function buildCards(){
       '</div>';
     const poster = card.querySelector('.poster');
     poster.addEventListener('error', () => { poster.src = placeholderPoster(m.title); }, { once: true });
+    /* il trailer si apre anche se tilt o swipe sono in ascolto sullo stage */
+    const play = card.querySelector('.card-play');
+    if (play){
+      const apri = e => { e.stopPropagation(); e.preventDefault(); openTrailer(); };
+      play.addEventListener('click', apri);
+      play.addEventListener('touchstart', apri, { passive: false });
+      play.addEventListener('pointerdown', e => e.stopPropagation());
+    }
     el.stage.appendChild(card);
     return card;
   });
@@ -1922,7 +2214,16 @@ function render(){
     card.style.opacity = String(clamp(1 - ca * 0.2, 0, 1).toFixed(3));
     card.style.zIndex = String(120 - Math.round(a * 12));
     card.style.setProperty('--frost', String(clamp((a - 0.15) * 0.6, 0, 0.88).toFixed(3)));
+    const eraAttiva = card.classList.contains('is-active');
     card.classList.toggle('is-active', i === active);
+    if (i === active && cardBucketEl && cardBucketEl.parentNode !== card.firstChild){
+      card.firstChild.appendChild(cardBucketEl);
+      if (!eraAttiva){
+        card.firstChild.classList.remove('sweep-once');
+        void card.firstChild.offsetWidth;
+        card.firstChild.classList.add('sweep-once');
+      }
+    }
   }
 
   const dots = el.dots.children;
@@ -1932,7 +2233,13 @@ function render(){
     const on = i === active;
     if (on !== frames[i].classList.contains('on')){
       frames[i].classList.toggle('on', on);
-      if (on) frames[i].scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth', block: 'nearest', inline: 'center' });
+      /* solo scorrimento interno alla pellicola: scrollIntoView farebbe
+         scorrere l'intera pagina e nasconderebbe il titolo sotto l'header */
+      if (on){
+        const t = el.stripTrack, f = frames[i];
+        t.scrollTo({ left: f.offsetLeft - t.clientWidth / 2 + f.offsetWidth / 2,
+                     behavior: REDUCED ? 'auto' : 'smooth' });
+      }
     }
   }
 }
@@ -2266,6 +2573,9 @@ function renderPanel(movie, details){
   renderCountdown();
   renderTrailerCard(movie, details);
   renderTicket(movie, details);
+  renderTags(movie, details);
+  renderDateKind(movie, iso);
+  renderHype(movie);
 
   /* Google Calendar */
   if (iso){
@@ -2279,7 +2589,6 @@ function renderPanel(movie, details){
     el.calBtn.style.pointerEvents = 'none';
     el.calBtn.style.opacity = '.42';
   }
-  syncFavButton(movie);
 }
 
 async function loadPanelDetails(movie){
@@ -2471,29 +2780,14 @@ function toggleFav(movie){
 
 function updateFavUI(){
   el.favCount.textContent = String(state.favs.length);
-  syncCardHearts();
   const list = movies();
   const active = list[state.activeIndex];
-  if (active) syncFavButton(active);
+  if (active && bucketPanel) renderHype(active);
 }
 
-function syncCardHearts(){
-  cards.forEach(card => {
-    const id = Number(card.dataset.id);
-    const btn = card.querySelector('.card-fav');
-    if (!btn) return;
-    const on = isFav(id);
-    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
-    btn.setAttribute('aria-label', (on ? 'Rimuovi da' : 'Aggiungi a') + ' Non perdertelo');
-  });
-}
 
-function syncFavButton(movie){
-  const on = isFav(movie.id);
-  el.favBtn.classList.toggle('fav-on', on);
-  el.favBtnLabel.textContent = on ? 'Nella tua lista' : 'Non perdertelo';
-  el.favBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
-}
+
+
 
 function setFavOnly(on){
   state.favOnly = on;
@@ -2508,17 +2802,20 @@ function setFavOnly(on){
    8-bis. VISTA A LISTA
    ========================================================= */
 function setLayout(mode){
-  const lista = mode === 'list';
-  state.layout = lista ? 'list' : 'carousel';
+  state.layout = ['list', 'cal'].includes(mode) ? mode : 'carousel';
+  const lista = state.layout === 'list', cal = state.layout === 'cal';
   el.listView.hidden = !lista;
-  el.carousel.hidden = lista;
-  el.btnList.classList.toggle('on', lista);
-  el.btnCarousel.classList.toggle('on', !lista);
-  el.btnList.setAttribute('aria-pressed', lista ? 'true' : 'false');
-  el.btnCarousel.setAttribute('aria-pressed', lista ? 'false' : 'true');
+  el.calView.hidden = !cal;
+  el.carousel.hidden = lista || cal;
+  [[el.btnCarousel, !lista && !cal], [el.btnList, lista], [el.btnCal, cal]].forEach(([b, on]) => {
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
   store.set(STORE.layout, state.layout);
   buzz(15);
+  sfx.play('tap');
   if (lista) renderListView();
+  else if (cal) renderCalendar();
   else { measure(); render(); }
 }
 
@@ -2674,9 +2971,15 @@ el.boList.addEventListener('click', e => {
 let searchSeq = 0, searchTimer = 0;
 
 function openSearch(on){
-  el.searchBar.hidden = !on;
+  el.searchWrap.hidden = !on;
   el.searchBtn.setAttribute('aria-expanded', on ? 'true' : 'false');
-  if (on){ el.searchInput.focus(); el.searchInput.select(); }
+  if (on){
+    el.searchInput.focus();
+    el.searchInput.select();
+    if (!el.searchInput.value.trim()) mostraRecenti();
+  } else {
+    el.results.hidden = true;
+  }
 }
 
 function exitSearch(silent){
@@ -2688,6 +2991,7 @@ function exitSearch(silent){
   state.searchQuery = '';
   el.searchTag.hidden = true;
   el.searchInput.value = '';
+  el.results.hidden = true;
   openSearch(false);
   if (wasSearch && !silent){
     state.genre = null;
@@ -2721,15 +3025,23 @@ async function runSearch(q){
     return;
   }
   if (seq !== searchSeq) return;
+  showSkeleton(false);
+  renderRisultati(list);
+}
+
+/* Dalla tendina al carosello */
+function scegliRisultato(m){
+  salvaRecente(m);
+  el.results.hidden = true;
   state.mode = 'search';
   state.favOnly = false;
   el.favFilter.setAttribute('aria-pressed', 'false');
-  state.searchList = list;
+  state.searchList = [m];
+  state.searchQuery = m.title;
   state.genre = null;
   state.activeId = null;
-  el.searchTagText.textContent = '\u201c' + query + '\u201d';
+  el.searchTagText.textContent = '\u201c' + m.title + '\u201d';
   el.searchTag.hidden = false;
-  showSkeleton(false);
   rebuild(null);
 }
 
@@ -2760,11 +3072,17 @@ function openTrailer(movie, details){
         '<span>Sei in modalità demo: inserisci la tua API key TMDB per caricare i trailer ufficiali.</span>' +
       '</div>';
   } else {
-    /* Livello 3: nessun video sulla scheda TMDB, si cerca direttamente su YouTube */
-    const q = encodeURIComponent(movie.title + ' trailer italiano ufficiale');
-    const src = `https://www.youtube.com/embed?listType=search&list=${q}&autoplay=1&modestbranding=1&playsinline=1`;
-    el.player.innerHTML = `<iframe src="${src}" title="Ricerca trailer di ${esc(movie.title)}" allow="${permessi}" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
-    el.modalTitle.textContent = movie.title + ' — ricerca su YouTube';
+    /* Nessun video incorporabile: scheda in vetro con uscita verso YouTube */
+    const q = encodeURIComponent('trailer italiano ufficiale ' + movie.title);
+    el.player.innerHTML =
+      '<div class="player-fallback">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5h13A2.5 2.5 0 0 1 21 7.5v9a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 16.5Z"/><path d="M10 9.6v4.8l4-2.4Z"/></svg>' +
+        '<strong>Trailer Ufficiale Italiano non ancora incorporabile</strong>' +
+        '<span>TMDB non espone ancora un video per questo titolo.</span>' +
+        `<a class="btn primary sweep" style="margin-top:6px" target="_blank" rel="noopener noreferrer" ` +
+        `href="https://www.youtube.com/results?search_query=${q}">Guarda Trailer su YouTube ↗</a>` +
+      '</div>';
+    el.modalTitle.textContent = movie.title;
   }
   state.pipTitle = movie.title;
   el.modal.hidden = false;
@@ -2908,6 +3226,7 @@ function rebuild(preserveId){
   selectActive(idx);
   updateFavUI();
   if (state.layout === 'list') renderListView();
+  else if (state.layout === 'cal') renderCalendar();
 }
 
 function applyList(list, preserveId){
@@ -2986,7 +3305,7 @@ async function boot(){
   const dc = store.get(STORE.details);
   state.detailsCache = (dc && typeof dc === 'object') ? dc : {};
   el.favCount.textContent = String(state.favs.length);
-  setLayout(store.get(STORE.layout) === 'list' ? 'list' : 'carousel');
+  setLayout(store.get(STORE.layout) || 'carousel');
 
   const key = resolveKey();
   const cached = store.get(STORE.list);
@@ -3121,10 +3440,10 @@ function toAccent(hex){
 function initTilt(){
   const stage = el.stage;
   stage.addEventListener('pointermove', e => {
-    if (state.drag || REDUCED) return;
-    /* sopra i pulsanti della card l'inclinazione si azzera: altrimenti il
-       bersaglio si sposterebbe sotto il dito mentre lo si preme */
-    if (e.target.closest('[data-act]')){ resetTilt(); return; }
+    /* solo mouse/penna: col dito l'inclinazione sposterebbe il bersaglio
+       proprio mentre lo si preme */
+    if (state.drag || REDUCED || e.pointerType === 'touch') return;
+    if (e.target.closest('[data-act], .card-play, .card-bucket')){ resetTilt(); return; }
     const card = cards[wrapIndex(state.current, cards.length || 1)];
     if (!card) return;
     const r = card.getBoundingClientRect();
@@ -3372,9 +3691,7 @@ function renderTicket(movie, details){
   const iso = (details && details.releaseIT) || movie.release_date;
   el.tkTitle.textContent = movie.title;
   el.tkDate.textContent = fmtDate(iso);
-  el.tkRuntime.textContent = details ? fmtRuntime(details.runtime) : '—';
   const id = Math.abs(Number(movie.id) || 0);
-  el.tkSeat.textContent = `Fila ${String.fromCharCode(65 + id % 12)} · Posto ${1 + id % 24}`;
   el.tkCode.textContent = 'CG-' + id.toString(36).toUpperCase().padStart(5, '0');
   const url = movie.__demo ? 'https://github.com/acrisci-05/cineglass'
                            : `https://www.themoviedb.org/movie/${movie.id}`;
@@ -3658,6 +3975,444 @@ function initPWA(){
 }
 
 /* =========================================================
+   12-quinquies. POPCORN HYPE DROP
+   ========================================================= */
+const HYPE_KEY = 'cineglass:hype:v1';
+const hypeAll = () => store.get(HYPE_KEY) || {};
+const hypeOf = id => Number(hypeAll()[id]) || 0;
+function hypeAdd(id, n){
+  const tutti = hypeAll();
+  tutti[id] = (Number(tutti[id]) || 0) + n;
+  store.set(HYPE_KEY, tutti);
+  return tutti[id];
+}
+
+/* Secchiello in vetro con chicchi soggetti a gravità, rimbalzo e collisioni */
+class Bucket {
+  constructor(canvas){
+    this.c = canvas;
+    this.ctx = canvas.getContext('2d');
+    this.k = [];
+    this.raf = 0;
+    this.fermi = 0;
+    const W = this.W = canvas.width, H = this.H = canvas.height;
+    this.cx = W / 2;
+    this.topY = H * 0.24;
+    this.botY = H * 0.94;
+    this.topHalf = W * 0.40;
+    this.botHalf = W * 0.285;
+    this.r = Math.max(4, W * 0.058);
+  }
+  halfAt(y){
+    const t = clamp((y - this.topY) / (this.botY - this.topY), 0, 1);
+    return this.topHalf + (this.botHalf - this.topHalf) * t;
+  }
+  chicco(dallAlto){
+    const a = Math.random() * Math.PI * 2;
+    return {
+      x: this.cx + (Math.random() - .5) * this.topHalf,
+      y: dallAlto ? -this.r - Math.random() * this.H * .3 : this.botY - this.r - Math.random() * this.H * .2,
+      vx: (Math.random() - .5) * 2.2,
+      vy: dallAlto ? Math.random() * 1.5 : 0,
+      rot: a, vr: (Math.random() - .5) * .25,
+      r: this.r * (.85 + Math.random() * .3),
+      tono: Math.random()
+    };
+  }
+  setCount(n){
+    const max = 42;
+    this.k = [];
+    for (let i = 0; i < Math.min(n, max); i++) this.k.push(this.chicco(false));
+    this.assesta(70);
+    this.draw();
+  }
+  pop(n){
+    const max = 42;
+    for (let i = 0; i < n && this.k.length < max; i++) this.k.push(this.chicco(true));
+    if (this.k.length >= max){                  // secchiello pieno: si rimescola
+      this.k.forEach(k => { k.vy -= 2 + Math.random() * 3; k.vx += (Math.random() - .5) * 3; });
+    }
+    this.fermi = 0;
+    this.start();
+  }
+  assesta(passi){ for (let i = 0; i < passi; i++) this.step(); }
+  step(){
+    const G = this.H * 0.0022, rest = .34;
+    for (const k of this.k){
+      k.vy += G;
+      k.x += k.vx; k.y += k.vy; k.rot += k.vr;
+      const hw = this.halfAt(k.y) - k.r;
+      if (k.x < this.cx - hw){ k.x = this.cx - hw; k.vx = Math.abs(k.vx) * .45; }
+      if (k.x > this.cx + hw){ k.x = this.cx + hw; k.vx = -Math.abs(k.vx) * .45; }
+      if (k.y > this.botY - k.r){ k.y = this.botY - k.r; k.vy = -k.vy * rest; k.vx *= .72; k.vr *= .6; }
+      k.vx *= .995;
+    }
+    /* collisioni fra chicchi: pochi elementi, confronto diretto */
+    for (let i = 0; i < this.k.length; i++){
+      for (let j = i + 1; j < this.k.length; j++){
+        const a = this.k[i], b = this.k[j];
+        const dx = b.x - a.x, dy = b.y - a.y;
+        const min = a.r + b.r;
+        const d2 = dx * dx + dy * dy;
+        if (d2 >= min * min || d2 === 0) continue;
+        const d = Math.sqrt(d2);
+        const nx = dx / d, ny = dy / d;
+        const sovr = (min - d) / 2;
+        a.x -= nx * sovr; a.y -= ny * sovr;
+        b.x += nx * sovr; b.y += ny * sovr;
+        const p = (a.vx - b.vx) * nx + (a.vy - b.vy) * ny;
+        if (p > 0){
+          a.vx -= p * nx * .5; a.vy -= p * ny * .5;
+          b.vx += p * nx * .5; b.vy += p * ny * .5;
+        }
+      }
+    }
+    return this.k.every(k => Math.abs(k.vx) < .08 && Math.abs(k.vy) < .3);
+  }
+  start(){
+    if (this.raf || REDUCED){ if (REDUCED){ this.assesta(90); this.draw(); } return; }
+    const loop = () => {
+      const quieto = this.step();
+      this.draw();
+      this.fermi = quieto ? this.fermi + 1 : 0;
+      if (this.fermi > 22){ this.raf = 0; return; }    // tutto fermo: si spegne il loop
+      this.raf = requestAnimationFrame(loop);
+    };
+    this.raf = requestAnimationFrame(loop);
+  }
+  stop(){ if (this.raf) cancelAnimationFrame(this.raf); this.raf = 0; }
+  percorsoSecchiello(ctx, inset){
+    const i = inset || 0;
+    ctx.beginPath();
+    ctx.moveTo(this.cx - this.topHalf + i, this.topY + i);
+    ctx.lineTo(this.cx + this.topHalf - i, this.topY + i);
+    ctx.lineTo(this.cx + this.botHalf - i, this.botY - i);
+    ctx.quadraticCurveTo(this.cx, this.botY - i + this.H * .03, this.cx - this.botHalf + i, this.botY - i);
+    ctx.closePath();
+  }
+  draw(){
+    const ctx = this.ctx, W = this.W, H = this.H;
+    ctx.clearRect(0, 0, W, H);
+
+    /* corpo in vetro */
+    ctx.save();
+    this.percorsoSecchiello(ctx, 0);
+    const g = ctx.createLinearGradient(0, this.topY, 0, this.botY);
+    g.addColorStop(0, 'rgba(255,255,255,.14)');
+    g.addColorStop(1, 'rgba(255,255,255,.05)');
+    ctx.fillStyle = g;
+    ctx.fill();
+    ctx.clip();
+    /* righe alla popcorn, tenui */
+    const passo = W * .155;
+    ctx.fillStyle = 'rgba(255,86,86,.3)';
+    for (let x = -W; x < W * 2; x += passo * 2) ctx.fillRect(x, this.topY - 4, passo, H);
+    ctx.fillStyle = 'rgba(255,255,255,.1)';
+    for (let x = -W + passo; x < W * 2; x += passo * 2) ctx.fillRect(x, this.topY - 4, passo, H);
+    ctx.restore();
+
+    /* secchiello vuoto: tre chicchi appena accennati come invito al tocco */
+    if (!this.k.length){
+      ctx.save();
+      ctx.globalAlpha = .22;
+      [[-.22, .1], [.2, .02], [0, .2]].forEach(([dx, dy]) => {
+        ctx.beginPath();
+        ctx.arc(this.cx + dx * W, this.botY - this.r * 1.6 - dy * H, this.r * .9, 0, 6.283);
+        ctx.fillStyle = '#fff3d6';
+        ctx.fill();
+      });
+      ctx.restore();
+    }
+
+    /* chicchi */
+    for (const k of this.k){
+      ctx.save();
+      ctx.translate(k.x, k.y);
+      ctx.rotate(k.rot);
+      const caldo = 236 - Math.round(k.tono * 26);
+      ctx.fillStyle = `rgb(255, ${caldo}, ${170 - Math.round(k.tono * 30)})`;
+      ctx.beginPath();
+      ctx.arc(-k.r * .34, -k.r * .2, k.r * .62, 0, 6.283);
+      ctx.arc(k.r * .36, -k.r * .3, k.r * .56, 0, 6.283);
+      ctx.arc(0, k.r * .34, k.r * .6, 0, 6.283);
+      ctx.arc(k.r * .1, -k.r * .58, k.r * .42, 0, 6.283);
+      ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,.5)';
+      ctx.beginPath();
+      ctx.arc(-k.r * .3, -k.r * .38, k.r * .2, 0, 6.283);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    /* vetro davanti + bordo */
+    ctx.save();
+    this.percorsoSecchiello(ctx, 0);
+    const f = ctx.createLinearGradient(this.cx - this.topHalf, 0, this.cx + this.topHalf, 0);
+    f.addColorStop(0, 'rgba(255,255,255,.16)');
+    f.addColorStop(.35, 'rgba(255,255,255,.03)');
+    f.addColorStop(1, 'rgba(255,255,255,.1)');
+    ctx.fillStyle = f;
+    ctx.fill();
+    ctx.lineWidth = Math.max(1.4, W * .014);
+    ctx.strokeStyle = 'rgba(255,255,255,.4)';
+    ctx.stroke();
+    ctx.restore();
+
+    /* bordo superiore */
+    ctx.save();
+    ctx.beginPath();
+    ctx.ellipse(this.cx, this.topY, this.topHalf, this.H * .05, 0, 0, 6.283);
+    ctx.fillStyle = 'rgba(255,255,255,.12)';
+    ctx.fill();
+    ctx.lineWidth = Math.max(1.4, W * .014);
+    ctx.strokeStyle = 'rgba(255,255,255,.55)';
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
+let bucketPanel = null, bucketCard = null, cardBucketEl = null;
+
+function initBuckets(){
+  bucketPanel = new Bucket($('#hypeCanvas'));
+  cardBucketEl = document.createElement('div');
+  cardBucketEl.className = 'card-bucket';
+  cardBucketEl.setAttribute('role', 'button');
+  cardBucketEl.setAttribute('aria-label', 'Aggiungi popcorn');
+  const cv = document.createElement('canvas');
+  cv.width = 108; cv.height = 120;
+  cardBucketEl.appendChild(cv);
+  bucketCard = new Bucket(cv);
+  /* i due controlli fermano la propagazione: né tilt né swipe devono rubarli */
+  [[el.hypeBucket, 'panel'], [cardBucketEl, 'card']].forEach(([nodo]) => {
+    const azione = e => { e.stopPropagation(); e.preventDefault(); popcorn(); };
+    nodo.addEventListener('click', azione);
+    nodo.addEventListener('touchstart', azione, { passive: false });
+    nodo.addEventListener('pointerdown', e => e.stopPropagation());
+    nodo.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); popcorn(); }
+    });
+  });
+}
+
+function popcorn(){
+  const movie = movies()[state.activeIndex];
+  if (!movie) return;
+  const primo = hypeOf(movie.id) === 0;
+  const tot = hypeAdd(movie.id, 3);
+  bucketPanel.pop(3);
+  bucketCard.pop(3);
+  sfx.play('tap');
+  buzz(primo ? 30 : 12);
+  if (primo && !isFav(movie.id)){
+    state.favs.unshift(JSON.parse(JSON.stringify(movie)));
+    store.set(STORE.favs, state.favs);
+    updateFavUI();
+    toast('Salvato nella tua lista 🍿', 'ok');
+  }
+  renderHype(movie);
+}
+
+function renderHype(movie){
+  const n = hypeOf(movie.id);
+  el.hypeCount.textContent = n;
+  el.hypeCount.classList.toggle('on', n > 0);
+  el.hypeVal.textContent = n ? `${n} popcorn` : 'Tocca il secchiello';
+  el.hypeHint.textContent = n
+    ? (isFav(movie.id) ? 'Nella tua lista · tocca ancora per alzare l’hype' : 'Tocca ancora per alzare l’hype')
+    : 'Al primo popcorn il film entra nella tua lista';
+  el.hypeClear.hidden = n === 0 && !isFav(movie.id);
+  bucketPanel.setCount(n);
+  bucketCard.setCount(n);
+}
+
+/* Il popcorn aggiunge: serve anche il gesto opposto */
+function svuotaHype(){
+  const movie = movies()[state.activeIndex];
+  if (!movie) return;
+  const tutti = hypeAll();
+  delete tutti[movie.id];
+  store.set(HYPE_KEY, tutti);
+  const i = state.favs.findIndex(f => f.id === movie.id);
+  if (i >= 0){
+    state.favs.splice(i, 1);
+    store.set(STORE.favs, state.favs);
+  }
+  sfx.play('close');
+  buzz(12);
+  updateFavUI();
+  if (state.favOnly) rebuild(state.activeId);
+  else renderHype(movie);
+  toast('Tolto dalla tua lista', 'minus');
+}
+
+/* =========================================================
+   12-sexies. CAPSULE, PROMEMORIA, CALENDARIO, RICERCA
+   ========================================================= */
+function renderTags(movie, details){
+  if (!details){ el.pTags.innerHTML = ''; return; }
+  const t = [];
+  if (details.italiano) t.push('<span class="tag-glass tag-ita">🇮🇹 Cinema italiano</span>');
+  if (details.kw && details.kw.festival) t.push('<span class="tag-glass tag-fest">🏆 Festival</span>');
+  (details.kw ? details.kw.formati : []).forEach(f => t.push(`<span class="tag-glass tag-fmt">${esc(f)}</span>`));
+  if (details.kw && details.kw.postcredit) t.push('<span class="tag-glass tag-post">🍿 Scena post-credit</span>');
+  if (details.kw && details.kw.storiaVera) t.push('<span class="tag-glass tag-true">📖 Tratto da una storia vera</span>');
+  else if (details.kw && details.kw.libro) t.push('<span class="tag-glass tag-true">📚 Tratto da un libro</span>');
+  el.pTags.innerHTML = t.join('');
+  const cert = details.cert;
+  el.pAge.hidden = !cert;
+  if (cert){ el.pAge.className = 'age ' + cert.classe; el.pAge.textContent = cert.etichetta; }
+}
+
+function renderDateKind(movie, iso){
+  const ufficiale = !movie.__radar && !!parseISO(iso);
+  el.pDateKind.className = 'date-badge' + (ufficiale ? ' ok' : '');
+  el.pDateKind.textContent = ufficiale
+    ? '🟢 Data ufficiale IT'
+    : '⚪ Previsto per il ' + (parseISO(iso) ? parseISO(iso).getFullYear() : 'futuro');
+}
+
+/* --- Menu "Salva data" --- */
+function toggleSaveMenu(forza){
+  const apri = forza === undefined ? el.saveMenu.hidden : forza;
+  el.saveMenu.hidden = !apri;
+  el.saveBtn.setAttribute('aria-expanded', apri ? 'true' : 'false');
+  if (apri) sfx.play('tap');
+}
+
+/* --- WhatsApp --- */
+function invitaWhatsApp(){
+  const movie = movies()[state.activeIndex];
+  if (!movie) return;
+  const det = state.activeDetails;
+  const link = det && det.trailer ? `https://www.youtube.com/watch?v=${det.trailer.key}`
+    : `https://www.youtube.com/results?search_query=${encodeURIComponent('trailer italiano ufficiale ' + movie.title)}`;
+  const testo = `🎬 Andiamo al cinema a vedere ${movie.title}? Esce il ${fmtDate(state.lastRelease)}! Guarda il trailer: ${link}`;
+  window.open('https://wa.me/?text=' + encodeURIComponent(testo), '_blank', 'noopener');
+  sfx.play('tap');
+}
+
+/* --- Ricerca: risultati divisi, recenti, scorciatoia --- */
+const RECENT_KEY = 'cineglass:recenti:v1';
+const recenti = () => store.get(RECENT_KEY) || [];
+function salvaRecente(m){
+  const lista = recenti().filter(r => r.id !== m.id);
+  lista.unshift({ id: m.id, title: m.title, poster_path: m.poster_path, release_date: m.release_date,
+                  vote_average: m.vote_average, vote_count: m.vote_count, genre_ids: m.genre_ids });
+  store.set(RECENT_KEY, lista.slice(0, 3));
+}
+
+function renderRisultati(lista){
+  const oggi = startOfToday();
+  const inSala = [], inArrivo = [];
+  lista.forEach(m => {
+    const d = parseISO(m.release_date);
+    (d && d.getTime() <= oggi ? inSala : inArrivo).push(m);
+  });
+  const riga = (m, sala) => {
+    const voto = (Number(m.vote_count) || 0) >= MIN_VOTES && m.vote_average
+      ? `<span class="res-badge">★ ${m.vote_average.toFixed(1)}</span>` : '';
+    const quando = sala ? 'In sala' : (parseISO(m.release_date) ? fmtDate(m.release_date) : 'Data da annunciare');
+    return `<button type="button" class="res-row" data-id="${m.id}">` +
+      `<img src="${esc(img(m.poster_path, 'w92') || placeholderPoster(m.title))}" alt="" loading="lazy">` +
+      `<span class="res-info"><span class="res-title">${esc(m.title)}</span>` +
+      `<span class="res-meta">${esc(fmtYear(m.release_date))} · ${esc(genreNames(m.genre_ids, 2))}</span></span>` +
+      (sala ? voto : `<span class="res-badge">${esc(quando)}</span>`) + '</button>';
+  };
+  let html = '';
+  if (inSala.length) html += '<div class="res-group">🎟️ In sala</div>' + inSala.map(m => riga(m, true)).join('');
+  if (inArrivo.length) html += '<div class="res-group">⏳ In arrivo</div>' + inArrivo.map(m => riga(m, false)).join('');
+  if (!html) html = '<div class="res-empty">Nessun film trovato.</div>';
+  el.results.innerHTML = html;
+  el.results.hidden = false;
+  state.risultati = lista;
+}
+
+function mostraRecenti(){
+  const r = recenti();
+  if (!r.length){ el.results.hidden = true; return; }
+  el.results.innerHTML = '<div class="res-group">Ricerche recenti</div>' +
+    '<div class="recent">' + r.map(m => `<button type="button" data-recent="${m.id}">${esc(m.title)}</button>`).join('') + '</div>';
+  el.results.hidden = false;
+  state.recenti = r;
+}
+
+/* --- CineCalendario --- */
+function renderCalendar(){
+  const base = movies();
+  const anno = state.calYear, mese = state.calMonth;
+  el.calTitle.textContent = `${MONTHS[mese]} ${anno}`;
+  const primo = new Date(anno, mese, 1);
+  const ultimo = new Date(anno, mese + 1, 0);
+  const perGiorno = new Map();
+  base.forEach(m => {
+    const d = parseISO(m.release_date);
+    if (!d || d.getFullYear() !== anno || d.getMonth() !== mese) return;
+    const g = d.getDate();
+    if (!perGiorno.has(g)) perGiorno.set(g, []);
+    perGiorno.get(g).push(m);
+  });
+  const settimane = [];
+  let inizio = 1;
+  while (inizio <= ultimo.getDate()){
+    const d = new Date(anno, mese, inizio);
+    const giornoSett = (d.getDay() + 6) % 7;            // lunedì = 0
+    const fine = Math.min(inizio + (6 - giornoSett), ultimo.getDate());
+    settimane.push([inizio, fine]);
+    inizio = fine + 1;
+  }
+  el.calBody.innerHTML = settimane.map(([a, b], i) => {
+    const film = [];
+    for (let g = a; g <= b; g++) (perGiorno.get(g) || []).forEach(m => film.push([g, m]));
+    const celle = film.length
+      ? film.map(([g, m]) => `<button type="button" class="cal-item" data-id="${m.id}">` +
+          `<span class="cal-day">${g}</span>` +
+          `<img src="${esc(img(m.poster_path, 'w92') || placeholderPoster(m.title))}" alt="" loading="lazy">` +
+          `<span class="cal-title">${esc(m.title)}</span></button>`).join('')
+      : '<div class="cal-empty">Nessuna uscita questa settimana.</div>';
+    return `<div class="cal-week"><div class="cal-week-lab">Settimana ${i + 1} · ${a}–${b} ${MONTHS[mese]}</div>` +
+           `<div class="cal-grid">${celle}</div></div>`;
+  }).join('');
+  if (!settimane.length) el.calBody.innerHTML = '<div class="cal-week"><div class="cal-empty">Nessuna uscita.</div></div>';
+}
+
+/* --- Filtri che richiedono i dettagli (durata, storia vera) --- */
+async function assicuraDettagli(){
+  const base = baseList();
+  const mancanti = base.filter(m => !m.__d);
+  if (!mancanti.length) return;
+  toast('Carico durate e dettagli…', 'ok');
+  await inBatches(mancanti, 6, async m => {
+    try{ m.__d = m.__demo ? m.__details : await getDetails(m); }catch(err){ m.__d = null; }
+  });
+  rebuild(state.activeId);
+}
+
+function passaFiltriProfondi(m){
+  if (state.durata){
+    const r = m.__d ? m.__d.runtime : 0;
+    if (!r) return false;
+    if (state.durata === 'corto' && r >= 90) return false;
+    if (state.durata === 'medio' && (r < 90 || r > 120)) return false;
+    if (state.durata === 'lungo' && r <= 150) return false;
+  }
+  if (state.storiaVera){
+    const k = m.__d && m.__d.kw;
+    if (!k || !(k.storiaVera || k.libro)) return false;
+  }
+  return true;
+}
+
+function buildChipsExtra(){
+  const durate = [['corto', '< 90 min'], ['medio', '90-120 min'], ['lungo', '> 150 min']];
+  el.chipsExtra.innerHTML =
+    durate.map(([k, lab]) =>
+      `<button type="button" class="chip${state.durata === k ? ' on' : ''}" data-durata="${k}">${lab}</button>`).join('') +
+    `<button type="button" class="chip${state.storiaVera ? ' on' : ''}" data-vera="1">📖 Storia vera / libro</button>`;
+  el.chipsExtra.hidden = false;
+}
+
+/* =========================================================
    13. EVENTI
    ========================================================= */
 el.next.addEventListener('click', () => { next(); buzz(12); sfx.play('swipe'); });
@@ -3672,6 +4427,7 @@ el.sfxBtn.addEventListener('click', () => {
   const on = sfx.toggle();
   el.sfxBtn.classList.toggle('off', !on);
   el.sfxBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  $('#sfxLabel').textContent = on ? 'Suoni dell\'interfaccia attivi' : 'Suoni dell\'interfaccia disattivati';
   toast(on ? 'Suoni attivi' : 'Suoni disattivati', 'ok');
 });
 el.pipBtn.addEventListener('click', togglePip);
@@ -3711,10 +4467,7 @@ setInterval(() => {
   });
 }, 60000);
 el.trailerBtn.addEventListener('click', () => openTrailer());
-el.favBtn.addEventListener('click', () => {
-  const m = movies()[state.activeIndex];
-  if (m) toggleFav(m);
-});
+
 el.favFilter.addEventListener('click', () => setFavOnly(!state.favOnly));
 el.emptyBtn.addEventListener('click', () => {
   const act = el.emptyBtn.dataset.act;
@@ -3753,12 +4506,135 @@ el.searchBar.addEventListener('submit', e => {
 el.searchInput.addEventListener('input', () => {
   clearTimeout(searchTimer);
   const v = el.searchInput.value.trim();
-  if (v.length < 2) return;
-  searchTimer = setTimeout(() => runSearch(v), 420);
+  if (v.length < 2){ mostraRecenti(); return; }
+  searchTimer = setTimeout(() => runSearch(v), 300);
 });
 el.searchInput.addEventListener('keydown', e => {
   if (e.key === 'Escape'){ e.preventDefault(); exitSearch(); }
 });
+
+/* --- Jingle "apertura sala": sub-bass con riverbero sintetico --- */
+function impulso(ctx, sec, decay){
+  const rate = ctx.sampleRate, len = Math.max(1, Math.floor(rate * sec));
+  const buf = ctx.createBuffer(2, len, rate);
+  for (let ch = 0; ch < 2; ch++){
+    const d = buf.getChannelData(ch);
+    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay);
+  }
+  return buf;
+}
+
+sfx.jingle = function(){
+  if (!this.on) return;
+  this.init();
+  const ctx = this.ctx;
+  if (!ctx) return;
+  if (ctx.state === 'suspended') ctx.resume();
+  const t = ctx.currentTime;
+  const out = ctx.createGain();
+  out.gain.setValueAtTime(0.0001, t);
+  out.gain.exponentialRampToValueAtTime(.12, t + .5);
+  out.gain.exponentialRampToValueAtTime(.0001, t + 3.2);
+  let coda = out;
+  try{
+    const rev = ctx.createConvolver();
+    rev.buffer = impulso(ctx, 2.2, 2.6);
+    const wet = ctx.createGain();
+    wet.gain.value = .5;
+    out.connect(rev).connect(wet).connect(ctx.destination);
+    coda = out;
+  }catch(err){ /* senza riverbero resta il solo tono */ }
+  out.connect(ctx.destination);
+  const sub = ctx.createOscillator();
+  sub.type = 'sine';
+  sub.frequency.setValueAtTime(26, t);
+  sub.frequency.exponentialRampToValueAtTime(58, t + 1.8);
+  const arm = ctx.createOscillator();
+  arm.type = 'triangle';
+  arm.frequency.setValueAtTime(104, t);
+  arm.frequency.exponentialRampToValueAtTime(208, t + 2.4);
+  const gArm = ctx.createGain();
+  gArm.gain.value = .18;
+  sub.connect(coda);
+  arm.connect(gArm).connect(coda);
+  sub.start(t); arm.start(t);
+  sub.stop(t + 3.3); arm.stop(t + 3.3);
+};
+
+/* --- Risultati della ricerca --- */
+el.hypeClear.addEventListener('click', svuotaHype);
+el.results.addEventListener('click', e => {
+  const rec = e.target.closest('[data-recent]');
+  if (rec){
+    const m = (state.recenti || []).find(x => String(x.id) === rec.dataset.recent);
+    if (m) scegliRisultato(m);
+    return;
+  }
+  const row = e.target.closest('.res-row');
+  if (!row) return;
+  const m = (state.risultati || []).find(x => String(x.id) === row.dataset.id);
+  if (m) scegliRisultato(m);
+});
+
+/* --- Menu Salva data --- */
+el.saveBtn.addEventListener('click', e => { e.stopPropagation(); toggleSaveMenu(); });
+document.addEventListener('click', e => {
+  if (!el.saveMenu.hidden && !e.target.closest('.savewrap')) toggleSaveMenu(false);
+  if (!el.results.hidden && !e.target.closest('.searchwrap') && !e.target.closest('#searchBtn')) el.results.hidden = true;
+});
+el.icsBtn.addEventListener('click', () => toggleSaveMenu(false));
+el.calBtn.addEventListener('click', () => toggleSaveMenu(false));
+el.waBtn.addEventListener('click', invitaWhatsApp);
+
+/* --- Periodo: prossimamente / hype radar --- */
+async function setRange(r){
+  if (state.range === r) return;
+  state.range = r;
+  el.tabSoon.classList.toggle('on', r === 'soon');
+  el.tabRadar.classList.toggle('on', r === 'radar');
+  el.tabSoon.setAttribute('aria-pressed', r === 'soon' ? 'true' : 'false');
+  el.tabRadar.setAttribute('aria-pressed', r === 'radar' ? 'true' : 'false');
+  sfx.play('tap');
+  state.genre = null;
+  state.activeId = null;
+  if (r === 'radar' && !state.radar.length){
+    const key = resolveKey();
+    if (key){ showSkeleton(true); await fetchRadar(key); showSkeleton(false); }
+  }
+  rebuild(null);
+}
+el.tabSoon.addEventListener('click', () => setRange('soon'));
+el.tabRadar.addEventListener('click', () => setRange('radar'));
+
+/* --- Filtri durata e storia vera --- */
+el.chipsExtra.addEventListener('click', async e => {
+  const chip = e.target.closest('.chip');
+  if (!chip) return;
+  sfx.play('tap');
+  if (chip.dataset.durata) state.durata = state.durata === chip.dataset.durata ? null : chip.dataset.durata;
+  else if (chip.dataset.vera) state.storiaVera = !state.storiaVera;
+  if (state.durata || state.storiaVera) await assicuraDettagli();
+  rebuild(state.activeId);
+});
+
+/* --- CineCalendario --- */
+el.calPrev.addEventListener('click', () => {
+  state.calMonth--;
+  if (state.calMonth < 0){ state.calMonth = 11; state.calYear--; }
+  renderCalendar();
+});
+el.calNext.addEventListener('click', () => {
+  state.calMonth++;
+  if (state.calMonth > 11){ state.calMonth = 0; state.calYear++; }
+  renderCalendar();
+});
+el.calBody.addEventListener('click', e => {
+  const it = e.target.closest('.cal-item');
+  if (!it) return;
+  const i = movies().findIndex(m => String(m.id) === it.dataset.id);
+  if (i >= 0){ goTo(i); setLayout('carousel'); el.panel.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+});
+el.btnCal.addEventListener('click', () => setLayout('cal'));
 
 el.readMore.addEventListener('click', () => {
   const aperta = !el.overview.classList.toggle('clamped');
@@ -3772,6 +4648,7 @@ el.lightsBtn.addEventListener('click', toggleLights);
 el.modal.addEventListener('click', e => { if (e.target.closest('[data-close]')) closeTrailer(); });
 
 document.addEventListener('keydown', e => {
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k'){ e.preventDefault(); openSearch(true); return; }
   const sheetAperto = !el.creatorSheet.hidden ? el.creatorSheet : (!el.filmoSheet.hidden ? el.filmoSheet : null);
   if (sheetAperto){
     if (e.key === 'Escape'){ e.preventDefault(); closeSheet(sheetAperto); }
@@ -3785,6 +4662,7 @@ document.addEventListener('keydown', e => {
   const tag = (e.target && e.target.tagName ? e.target.tagName : '').toLowerCase();
   if (tag === 'input' || tag === 'textarea') return;
   if (e.key === '/'){ e.preventDefault(); openSearch(true); return; }
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k'){ e.preventDefault(); openSearch(true); return; }
   if (e.key === 'ArrowRight'){ e.preventDefault(); next(); buzz(12); }
   else if (e.key === 'ArrowLeft'){ e.preventDefault(); prev(); buzz(12); }
   else if (e.key === 'Home'){ e.preventDefault(); goTo(0); }
@@ -3804,8 +4682,13 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden) rend
    ========================================================= */
 el.sfxBtn.classList.toggle('off', !sfx.on);
 el.sfxBtn.setAttribute('aria-pressed', sfx.on ? 'true' : 'false');
+$('#sfxLabel').textContent = sfx.on ? 'Suoni dell\'interfaccia attivi' : 'Suoni dell\'interfaccia disattivati';
 initTilt();
 initPWA();
+initBuckets();
+buildChipsExtra();
+/* il jingle parte al primo gesto: i browser bloccano l'audio prima */
+document.addEventListener('pointerdown', () => sfx.jingle(), { once: true });
 if (/[?&]debug/.test(location.search)){
   el.debugBox.hidden = false;
   /* ganci per i test automatici */

@@ -126,10 +126,33 @@ Il filtro sulle uscite, il countdown e i badge usano l'orologio del dispositivo:
 espone il proprio header `Date` alle richieste cross-origin, quindi se la data del computer
 è sbagliata anche le uscite mostrate lo saranno.
 
+## Gamification e gestione del tempo
+
+**Popcorn Hype Drop** sostituisce il cuore "Non perdertelo": un secchiello in vetro disegnato su
+`<canvas>` con fisica 2D scritta a mano (gravità, rimbalzo sulle pareti trapezoidali, collisioni
+fra chicchi). Ogni tocco lancia tre chicchi, alza il contatore hype e — al primo — salva il film
+nella watchlist locale. Il loop `requestAnimationFrame` si spegne da solo quando i chicchi si
+fermano, quindi a riposo non consuma CPU.
+
+**Finestra temporale** — il carosello mostra solo le uscite italiane dei prossimi 90 giorni
+(`release_date.lte`), con badge 🟢 *Data ufficiale IT*. Tutto ciò che sta oltre finisce nella tab
+**📡 Hype Radar**, ordinata per popolarità e marcata ⚪ *Previsto per il [anno]*.
+
+**Ricerca divisa** — debounce di 300 ms, apertura con `Ctrl/Cmd+K`, risultati in una tendina di
+vetro separati in 🎟️ *In sala* (già uscito) e ⏳ *In arrivo*, con le ultime 3 ricerche in
+`localStorage`.
+
+**Nove capsule informative** — cinema italiano (tricolore), festival, IMAX/ISENSE/Dolby Atmos,
+scena post-credit, tratto da una storia vera o da un libro (tutte dalle keyword TMDB),
+classificazione italiana (`T`, `6+`, `12+`, `14+`, `18+`) dal visto censura in `/release_dates`,
+più filtri rapidi per durata e un **CineCalendario** che dispone le uscite del mese per settimana.
+
 ## Funzioni avanzate
 
-**Trailer a tre livelli** — trailer ufficiale italiano da TMDB; se manca, quello internazionale;
-se manca anche quello, un embed di ricerca YouTube (`listType=search`) con il titolo del film.
+**Trailer, gerarchia stretta** — 1) Trailer ufficiale italiano, 2) teaser o clip italiani,
+3) trailer internazionale. L'`<iframe>` usa sempre `youtube-nocookie.com`; se TMDB non espone
+alcun video si mostra una card in vetro con il link "Guarda Trailer su YouTube ↗" che apre la
+ricerca in una nuova scheda (nessun `listType=search` incorporato).
 Il **mini player** rimpicciolisce la finestra del trailer in basso a destra senza spostare
 l'`<iframe>` nel DOM: la riproduzione non si interrompe e il sito resta navigabile.
 
@@ -142,8 +165,9 @@ generato dall'app** (codificatore QR scritto da zero: modalità byte, correzione
 mascheratura scelta per penalità). Nessuna libreria esterna; la leggibilità è verificata nei
 test decodificando l'output con `jsQR`.
 
-**Esportazioni** — evento `.ics` con promemoria a un giorno per Apple Calendar e Outlook, link
-dinamico a Google Calendar e **invito 9:16 disegnato su Canvas** (locandina, data, "Andiamo al
+**Esportazioni** — un unico pulsante **📅 Salva data** apre un menu traslucido con Google
+Calendar e il download `.ics` (Apple Calendar e Outlook) con promemoria a un giorno; c'è anche
+l'invito precompilato su WhatsApp e **invito 9:16 disegnato su Canvas** (locandina, data, "Andiamo al
 cinema?") condiviso con `navigator.share` o scaricato come PNG.
 
 **Effetti** — colore dominante estratto dalla locandina che ridefinisce l'accento dell'interfaccia,
