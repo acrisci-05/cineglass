@@ -1,0 +1,10 @@
+{
+  "_formato": "Correzioni e aggiunte locali che hanno la precedenza sui dati TMDB.",
+  "_campi": {
+    "tmdb_id": "id del film su TMDB (obbligatorio per l'abbinamento)",
+    "titolo": "solo indicativo, per rileggere il file",
+    "uscita_it": "data di uscita italiana in formato AAAA-MM-GG: sovrascrive quella di TMDB",
+    "trailer_youtube": "id del video YouTube da usare al posto di quello TMDB"
+  },
+  "film": []
+}
