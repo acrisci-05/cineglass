@@ -52,6 +52,22 @@ permette di incollare una key dall'interfaccia: in quel caso resta solo nel `loc
 - **Stati di errore** — skeleton screen animato, locandine generate in SVG quando l'immagine
   manca, fallback sulla cache e modalità demo se TMDB non risponde.
 
+## Da dove arriva ogni dato
+
+| Campo | Endpoint TMDB | Note |
+|---|---|---|
+| Data di uscita IT | `/movie/{id}/release_dates` → `IT`, tipi 3 (distribuzione) e 2 (limitata) | Si sceglie la **prossima** proiezione futura: per le riedizioni TMDB aggiunge la nuova data alla scheda originale invece di crearne una nuova |
+| Trama | `/movie/{id}?language=it-IT` → `overview` | Se la traduzione italiana manca si usa quella inglese, dichiarandolo sotto al testo |
+| Gradimento | `/movie/{id}` → `vote_average` × 10 | Media dei voti degli **utenti TMDB**, non della critica e non del botteghino. Sotto i 10 voti mostra `N/D`: su un film non ancora uscito una percentuale basata su 3 voti non significa nulla |
+| Durata, Budget, Incassi | `/movie/{id}` → `runtime`, `budget`, `revenue` | Dati inseriti dalla community: il budget è quasi sempre 0 per le produzioni europee, e in quel caso il riquadro viene sostituito da Paese o Lingua |
+| Produzione, Paese, Lingua | `production_companies`, `production_countries`, `original_language` | Paesi e lingue tradotti in italiano con `Intl.DisplayNames` |
+| Trailer | `/movie/{id}?append_to_response=videos&include_video_language=it,en,null` | Preferito l'italiano; l'etichetta sul pulsante dichiara lingua e qualità |
+
+**Serve un'API italiana alternativa?** Non esiste un equivalente pubblico e gratuito: MYmovies
+e ComingSoon non espongono API, i dati Cinetel sono a pagamento. TMDB resta la fonte migliore
+perché mantiene le date di uscita **per singolo paese**: il punto non è cambiare fonte, è
+leggerla per bene (`region=IT` + `release_dates`, come fa questa app).
+
 ## Capire cosa si sta guardando
 
 In fondo alla pagina una riga di stato dichiara sempre la sorgente dei film mostrati:

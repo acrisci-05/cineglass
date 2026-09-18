@@ -311,32 +311,54 @@ a{color:inherit;text-decoration:none}
   color:rgba(255,255,255,.88);max-width:56ch;
   text-shadow:0 0 26px color-mix(in oklab, var(--c1) 45%, transparent), 0 2px 10px rgba(0,0,0,.5)}
 .tagline:empty{display:none}
-.overview{margin-top:16px;font-size:14.2px;font-weight:300;line-height:1.72;color:var(--muted);max-width:74ch}
+.overview{margin-top:16px;font-size:14.6px;font-weight:400;line-height:1.7;color:rgba(244,241,250,.8);max-width:74ch}
+.overview.clamped{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.read-more{margin-top:9px;display:none;align-items:center;gap:6px;font-size:12.5px;font-weight:500;
+  color:color-mix(in oklab, var(--c3) 55%, #fff);transition:opacity .25s}
+.read-more.on{display:inline-flex}
+.read-more:hover{opacity:.75}
+.read-more svg{width:12px;height:12px;transition:transform .35s var(--ease)}
+.read-more.open svg{transform:rotate(180deg)}
+.lang-note{display:block;margin-top:9px;font-size:11.5px;font-style:italic;color:var(--faint)}
+.lang-note:empty{display:none}
+.rerelease{display:inline-flex;align-items:center;gap:7px;margin-top:7px;padding:5px 12px;border-radius:999px;
+  font-size:11px;letter-spacing:.06em;color:#ffd9a0;background:rgba(255,176,60,.12);border:1px solid rgba(255,176,60,.3)}
+.rerelease[hidden]{display:none}
 
-/* Capsula liquida voto */
+/* Voto: anello di progresso con dentro il livello liquido */
 .rating-wrap{display:flex;flex-direction:column;align-items:center;gap:8px;flex:0 0 auto}
-.liquid{position:relative;width:132px;height:50px;border-radius:999px;overflow:hidden;
-  background:linear-gradient(160deg, rgba(255,255,255,.10), rgba(255,255,255,.02));
-  border:1px solid rgba(255,255,255,.2);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-  box-shadow:inset 0 3px 12px rgba(0,0,0,.55), inset 0 -2px 6px rgba(255,255,255,.08), 0 12px 30px -16px rgba(0,0,0,.9)}
-.liquid-fill{position:absolute;left:0;top:0;bottom:0;width:var(--fill,0%);
+.score{position:relative;width:106px;height:106px;border-radius:50%;overflow:hidden;
+  background:linear-gradient(160deg, rgba(255,255,255,.1), rgba(255,255,255,.02));
+  border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  box-shadow:inset 0 4px 18px rgba(0,0,0,.5), 0 16px 36px -20px rgba(0,0,0,.95)}
+.score-fill{position:absolute;left:-12%;right:-12%;bottom:0;height:var(--fill,0%);opacity:.5;
   background:linear-gradient(180deg, var(--lq1,#4ade80), var(--lq2,#16a34a));
-  box-shadow:inset 0 -10px 18px -10px rgba(0,0,0,.45);
-  transition:width 1.1s var(--ease), background .7s var(--ease)}
-.liquid-fill::after{content:'';position:absolute;right:-13px;top:0;width:26px;height:100%;
-  background:linear-gradient(180deg, var(--lq1,#4ade80), var(--lq2,#16a34a));
-  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='40'%3E%3Cpath d='M0 0 C 14 5, 14 15, 0 20 C 14 25, 14 35, 0 40 Z' fill='%23fff'/%3E%3C/svg%3E") repeat-y;
-  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='40'%3E%3Cpath d='M0 0 C 14 5, 14 15, 0 20 C 14 25, 14 35, 0 40 Z' fill='%23fff'/%3E%3C/svg%3E") repeat-y;
-  -webkit-mask-size:26px 40px;mask-size:26px 40px;animation:ripple 2.6s linear infinite;transition:background .7s var(--ease)}
-@keyframes ripple{to{-webkit-mask-position:0 -40px;mask-position:0 -40px}}
-.liquid-gloss{position:absolute;left:8px;right:8px;top:5px;height:14px;border-radius:999px;pointer-events:none;
-  background:linear-gradient(180deg, rgba(255,255,255,.34), rgba(255,255,255,0))}
-.liquid-label{position:absolute;inset:0;display:grid;place-items:center;font-size:17px;font-weight:700;letter-spacing:-.01em;
-  text-shadow:0 2px 10px rgba(0,0,0,.65)}
-.rating-cap{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)}
+  transition:height 1.1s var(--ease), background .7s var(--ease)}
+.score-fill::before{content:'';position:absolute;left:0;right:0;top:-9px;height:10px;background:inherit;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='10'%3E%3Cpath d='M0 5 C 11 0, 11 10, 22 5 C 33 0, 33 10, 44 5 L44 10 L0 10 Z' fill='%23fff'/%3E%3C/svg%3E") repeat-x;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='10'%3E%3Cpath d='M0 5 C 11 0, 11 10, 22 5 C 33 0, 33 10, 44 5 L44 10 L0 10 Z' fill='%23fff'/%3E%3C/svg%3E") repeat-x;-webkit-mask-size:44px 10px;mask-size:44px 10px;
+  animation:waveX 3.2s linear infinite}
+@keyframes waveX{to{-webkit-mask-position:44px 0;mask-position:44px 0}}
+.score-ring{position:absolute;inset:0;transform:rotate(-90deg)}
+.score-ring circle{fill:none;stroke-width:6;stroke-linecap:round}
+.score-ring .track{stroke:rgba(255,255,255,.12)}
+.score-ring .prog{stroke:var(--lq1,#4ade80);stroke-dasharray:264;
+  stroke-dashoffset:calc(264 - 264 * var(--p, 0));transition:stroke-dashoffset 1.1s var(--ease), stroke .7s var(--ease);
+  filter:drop-shadow(0 0 6px color-mix(in oklab, var(--lq1, #4ade80) 70%, transparent))}
+.score-core{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
+.score-core svg{width:14px;height:14px;opacity:.9;filter:drop-shadow(0 1px 4px rgba(0,0,0,.6))}
+.score-num{font-size:25px;font-weight:700;letter-spacing:-.03em;line-height:1;text-shadow:0 2px 12px rgba(0,0,0,.7)}
+.score-num small{font-size:13px;font-weight:500;opacity:.75;margin-left:1px}
+.rating-cap{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);text-align:center;max-width:150px;line-height:1.5}
+
+/* Generi come pillole: nessun testo troncato */
+.genres{display:flex;flex-wrap:wrap;gap:7px;margin-top:15px}
+.gpill{padding:6px 13px;border-radius:999px;font-size:12px;font-weight:400;color:var(--muted);
+  background:rgba(255,255,255,.05);border:1px solid var(--stroke-soft);transition:color .25s, background .25s}
+.gpill:hover{color:var(--txt);background:rgba(255,255,255,.09)}
 
 /* Fatti / curiosità */
 .facts{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:10px;margin-top:22px}
+.facts.few{grid-template-columns:repeat(auto-fit,minmax(168px,260px));justify-content:start}
 .fact{display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:var(--radius-sm);
   background:rgba(255,255,255,.045);border:1px solid var(--stroke-soft);transition:background .3s, transform .3s var(--ease)}
 .fact:hover{background:rgba(255,255,255,.08);transform:translateY(-2px)}
@@ -365,7 +387,23 @@ a{color:inherit;text-decoration:none}
 .cd-msg.live{color:#6ee7a8}
 
 /* Azioni */
-.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px;align-items:stretch}
+.trailer-card{padding:8px 22px 8px 8px;border-radius:20px;gap:14px}
+.trailer-thumb{position:relative;width:108px;height:61px;border-radius:13px;overflow:hidden;flex:0 0 auto;
+  background:#0a0712;box-shadow:0 6px 18px -8px rgba(0,0,0,.9)}
+.trailer-thumb img{width:100%;height:100%;object-fit:cover}
+.trailer-thumb .play{position:absolute;inset:0;display:grid;place-items:center;background:rgba(6,4,12,.3);
+  transition:background .3s}
+.trailer-card:hover .trailer-thumb .play{background:rgba(6,4,12,.12)}
+.trailer-thumb .play svg{width:26px;height:26px;filter:drop-shadow(0 2px 8px rgba(0,0,0,.9))}
+.trailer-meta{display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-width:0}
+.trailer-title{font-size:14px;font-weight:600;letter-spacing:-.01em}
+.trailer-tags{display:flex;gap:5px}
+.tag{padding:2px 7px;border-radius:7px;font-size:9.5px;font-weight:700;letter-spacing:.09em;
+  background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.14);color:rgba(255,255,255,.9)}
+.tag.ita{background:linear-gradient(120deg, rgba(0,140,69,.55), rgba(206,43,55,.5));border-color:rgba(255,255,255,.3)}
+.trailer-card.no-thumb .trailer-thumb{display:none}
+.trailer-card.no-thumb{padding:13px 22px}
 .btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:13px 22px;border-radius:999px;
   font-size:14px;font-weight:500;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;
   background:linear-gradient(160deg, rgba(255,255,255,.16), rgba(255,255,255,0) 48%), var(--glass);
@@ -467,6 +505,9 @@ footer a{text-decoration:underline;text-underline-offset:3px}
   .pill-btn{padding:8px 12px;font-size:12.5px}
   .pill-btn .lbl{display:none}
   .actions .btn{flex:1}
+  .trailer-card{flex-basis:100%;justify-content:flex-start}
+  .score{width:92px;height:92px}
+  .score-num{font-size:22px}
   .hero{padding-top:12px}
   .chips{justify-content:flex-start;align-self:stretch}
   .toolbar{align-items:stretch}
@@ -606,49 +647,54 @@ footer a{text-decoration:underline;text-underline-offset:3px}
           <p class="tagline" id="pTagline"></p>
         </div>
         <div class="rating-wrap">
-          <div class="liquid" id="liquid" role="img" aria-label="Gradimento del pubblico">
-            <div class="liquid-fill" id="liquidFill"></div>
-            <div class="liquid-gloss"></div>
-            <span class="liquid-label" id="pVote">—</span>
+          <div class="score" id="score" role="img" aria-label="Gradimento del pubblico">
+            <div class="score-fill" id="scoreFill"></div>
+            <svg class="score-ring" viewBox="0 0 100 100" aria-hidden="true">
+              <circle class="track" cx="50" cy="50" r="42"></circle>
+              <circle class="prog" id="scoreProg" cx="50" cy="50" r="42"></circle>
+            </svg>
+            <div class="score-core">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 3.6 2.5 5.3 5.8.8-4.2 4.1 1 5.8-5.1-2.8-5.1 2.8 1-5.8L3.7 9.7l5.8-.8z"/></svg>
+              <span class="score-num" id="pVote">—</span>
+            </div>
           </div>
-          <span class="rating-cap">Gradimento</span>
+          <span class="rating-cap" id="voteMeta">Gradimento</span>
         </div>
       </div>
 
-      <p class="overview" id="pOverview"></p>
+      <p class="overview clamped" id="pOverview"></p>
+      <button class="read-more" id="readMore" type="button" aria-expanded="false">
+        <span id="readMoreLabel">Leggi tutto</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+      <span class="lang-note" id="langNote"></span>
+      <div class="genres" id="pGenres"></div>
 
-      <ul class="facts" id="pFacts">
-        <li class="fact">
-          <span class="fact-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2.5"/><circle cx="12" cy="12" r="2.6"/><path d="M6 10v4M18 10v4"/></svg></span>
-          <span class="fact-txt"><span class="fact-lab">Budget</span><span class="fact-val" id="fBudget">—</span></span>
-        </li>
-        <li class="fact">
-          <span class="fact-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg></span>
-          <span class="fact-txt"><span class="fact-lab">Durata</span><span class="fact-val" id="fRuntime">—</span></span>
-        </li>
-        <li class="fact">
-          <span class="fact-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 21h17"/><path d="M5.5 21V5.5a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2V21"/><path d="M14.5 10h3a2 2 0 0 1 2 2v9"/><path d="M8.5 7.5h3M8.5 11h3M8.5 14.5h3"/></svg></span>
-          <span class="fact-txt"><span class="fact-lab">Produzione</span><span class="fact-val" id="fStudio">—</span></span>
-        </li>
-        <li class="fact">
-          <span class="fact-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h11A2.5 2.5 0 0 1 20 8.5v1a2 2 0 0 0 0 4v1a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 14.5v-1a2 2 0 0 0 0-4Z"/><path d="M13 6v12" stroke-dasharray="2 2.6"/></svg></span>
-          <span class="fact-txt"><span class="fact-lab">Generi</span><span class="fact-val" id="fGenres">—</span></span>
-        </li>
-      </ul>
+      <ul class="facts" id="pFacts"></ul>
 
       <div class="release-row">
         <div>
           <div class="rel-lab">Uscita nelle sale italiane</div>
           <div class="rel-val" id="pDate">—</div>
           <div class="panel-badge" id="pBadge"><span class="pulse"></span><span id="pBadgeText"></span></div>
+          <div class="rerelease" id="pRerelease" hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px"><path d="M20 11a8 8 0 1 0-1.6 5.7"/><path d="M20 4v7h-7"/></svg>
+            <span id="pRereleaseText"></span>
+          </div>
         </div>
         <div class="countdown" id="countdown"></div>
       </div>
 
       <div class="actions">
-        <button class="btn primary" id="trailerBtn">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.2v13.6a1 1 0 0 0 1.53.85l10.6-6.8a1 1 0 0 0 0-1.7L9.53 4.35A1 1 0 0 0 8 5.2Z"/></svg>
-          Guarda Trailer
+        <button class="btn primary trailer-card no-thumb" id="trailerBtn">
+          <span class="trailer-thumb" id="trailerThumb">
+            <img id="trailerImg" alt="" loading="lazy" decoding="async">
+            <span class="play"><svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5.2v13.6a1 1 0 0 0 1.53.85l10.6-6.8a1 1 0 0 0 0-1.7L9.53 4.35A1 1 0 0 0 8 5.2Z"/></svg></span>
+          </span>
+          <span class="trailer-meta">
+            <span class="trailer-title" id="trailerTitle">Guarda il trailer</span>
+            <span class="trailer-tags" id="trailerTags"></span>
+          </span>
         </button>
         <a class="btn ghost" id="calBtn" target="_blank" rel="noopener noreferrer">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18M12 14v4M10 16h4"/></svg>
@@ -861,6 +907,23 @@ function fmtRuntime(m){
   const h = Math.floor(v / 60), mm = v % 60;
   return h ? `${h}h ${String(mm).padStart(2, '0')}m` : `${mm}m`;
 }
+let dnRegion = null, dnLang = null;
+function countryName(code){
+  if (!code) return '';
+  try{
+    if (!dnRegion) dnRegion = new Intl.DisplayNames(['it'], { type: 'region' });
+    return dnRegion.of(code) || code;
+  }catch(err){ return code; }
+}
+function langName(code){
+  if (!code) return '';
+  try{
+    if (!dnLang) dnLang = new Intl.DisplayNames(['it'], { type: 'language' });
+    const n = dnLang.of(code) || code;
+    return n.charAt(0).toUpperCase() + n.slice(1);
+  }catch(err){ return String(code).toUpperCase(); }
+}
+
 function genreNames(ids, max){
   const list = (ids || []).map(id => GENRES[id]).filter(Boolean);
   return list.length ? list.slice(0, max || 3).join(' · ') : 'Non classificato';
@@ -926,8 +989,11 @@ const el = {
   stage:$('#stage'), skeleton:$('#skeleton'), skPanel:$('#skPanel'), dots:$('#dots'),
   prev:$('#prevBtn'), next:$('#nextBtn'), panel:$('#panel'), panelInner:$('#panelInner'),
   title:$('#pTitle'), tagline:$('#pTagline'), overview:$('#pOverview'), vote:$('#pVote'),
-  liquidFill:$('#liquidFill'), liquid:$('#liquid'), budget:$('#fBudget'), runtime:$('#fRuntime'),
-  studio:$('#fStudio'), genres:$('#fGenres'), date:$('#pDate'), countdown:$('#countdown'),
+  scoreFill:$('#scoreFill'), score:$('#score'), scoreProg:$('#scoreProg'), voteMeta:$('#voteMeta'),
+  facts:$('#pFacts'), genres:$('#pGenres'), readMore:$('#readMore'), readMoreLabel:$('#readMoreLabel'),
+  langNote:$('#langNote'), rerelease:$('#pRerelease'), rereleaseText:$('#pRereleaseText'),
+  trailerThumb:$('#trailerThumb'), trailerImg:$('#trailerImg'), trailerTitle:$('#trailerTitle'),
+  trailerTags:$('#trailerTags'), date:$('#pDate'), countdown:$('#countdown'),
   trailerBtn:$('#trailerBtn'), calBtn:$('#calBtn'), favBtn:$('#favBtn'), favBtnLabel:$('#favBtnLabel'),
   favFilter:$('#favFilter'), favCount:$('#favCount'), refresh:$('#refreshBtn'),
   badge:$('#pBadge'), badgeText:$('#pBadgeText'), chips:$('#chips'),
@@ -1076,14 +1142,21 @@ async function fetchUpcoming(key){
     setDiag({ note: 'discover non riuscito: ' + err.message });
   }
 
-  /* Rete di sicurezza: se discover non restituisce abbastanza titoli si torna
-     all'endpoint classico, che resta la fonte piu' popolata ma meno precisa. */
+  /* Rete di sicurezza: se discover restituisce pochi titoli si aggiungono quelli
+     dell'endpoint classico (piu' popolato ma meno preciso) senza scartare i primi. */
   if (list.length < 4){
-    const upcoming = p => `${API_BASE}/movie/upcoming?api_key=${encodeURIComponent(key)}&language=it-IT&region=IT&page=${p}`;
-    const [a, b] = await Promise.all([ fetchJSON(upcoming(1)), fetchJSON(upcoming(2)).catch(() => null) ]);
-    const raw = [...(a && a.results ? a.results : []), ...(b && b.results ? b.results : [])];
-    list = orderList(raw, { tolerance: 3, limit: MAX_CANDIDATES });
-    setDiag({ source: 'upcoming', label: 'TMDB /movie/upcoming (ripiego)', filterDate: today });
+    try{
+      const upcoming = p => `${API_BASE}/movie/upcoming?api_key=${encodeURIComponent(key)}&language=it-IT&region=IT&page=${p}`;
+      const [a, b] = await Promise.all([ fetchJSON(upcoming(1)), fetchJSON(upcoming(2)).catch(() => null) ]);
+      const raw = [...(a && a.results ? a.results : []), ...(b && b.results ? b.results : [])];
+      const extra = orderList(raw, { tolerance: 3, limit: MAX_CANDIDATES });
+      const visti = new Set(list.map(m => m.id));
+      list = list.concat(extra.filter(m => !visti.has(m.id))).slice(0, MAX_CANDIDATES);
+      setDiag({ source: list.length ? 'misto' : 'upcoming',
+                label: 'TMDB /discover + /movie/upcoming', filterDate: today });
+    }catch(err){
+      if (!list.length) throw err;   // senza nulla in mano l'errore va propagato
+    }
   }
   if (!list.length) throw new Error('Nessun film in uscita restituito da TMDB');
   return list;
@@ -1121,33 +1194,55 @@ function pickTrailer(videos){
     return s;
   };
   const best = yt.slice().sort((a, b) => score(b) - score(a))[0];
-  return { key: best.key, name: best.name || 'Trailer', italian: best.iso_639_1 === 'it' };
+  const size = Number(best.size) || 0;
+  return {
+    key: best.key,
+    name: best.name || 'Trailer',
+    italian: best.iso_639_1 === 'it',
+    lang: best.iso_639_1 || '',
+    quality: size >= 2160 ? '4K' : size >= 1080 ? 'HD' : ''
+  };
 }
 
+/* Data di uscita italiana in sala.
+   Un film puo' avere piu' date IT (anteprima, distribuzione, riedizioni): per una
+   riedizione come "Avengers: Endgame" TMDB aggiunge la nuova data alla scheda del
+   2019 invece di crearne una nuova. Si sceglie quindi la PROSSIMA proiezione futura;
+   solo se non ce ne sono si ripiega sull'ultima data passata. */
 function italianRelease(releaseDates, fallback){
   const it = ((releaseDates && releaseDates.results) || []).find(r => r.iso_3166_1 === 'IT');
-  if (it && Array.isArray(it.release_dates) && it.release_dates.length){
-    const rank = { 3:0, 2:1, 1:2, 4:3, 5:4, 6:5 };
-    const sorted = it.release_dates.slice().sort((a, b) => {
-      const ra = rank[a.type] === undefined ? 9 : rank[a.type];
-      const rb = rank[b.type] === undefined ? 9 : rank[b.type];
-      return ra - rb || (parseISO(a.release_date) - parseISO(b.release_date));
-    });
-    if (sorted[0] && sorted[0].release_date) return String(sorted[0].release_date).slice(0, 10);
+  const dates = (it && Array.isArray(it.release_dates) ? it.release_dates : [])
+    .filter(r => r && r.release_date && (r.type === 3 || r.type === 2 || r.type === 1))
+    .map(r => ({ iso: String(r.release_date).slice(0, 10), t: parseISO(r.release_date), type: r.type }))
+    .filter(r => r.t);
+  if (dates.length){
+    const today = startOfToday();
+    const rank = { 3: 0, 2: 1, 1: 2 };
+    const future = dates.filter(r => r.t.getTime() >= today)
+      .sort((a, b) => a.t - b.t || rank[a.type] - rank[b.type]);
+    if (future.length) return future[0].iso;
+    const past = dates.slice().sort((a, b) => b.t - a.t || rank[a.type] - rank[b.type]);
+    return past[0].iso;
   }
-  return fallback || null;
+  return fallback ? String(fallback).slice(0, 10) : null;
 }
 
 function parseDetails(d, movie){
   const companies = (d.production_companies || []).filter(c => c && c.name);
+  const countries = (d.production_countries || []).filter(c => c && c.iso_3166_1);
   return {
     id: d.id,
     title: d.title || movie.title,
     tagline: (d.tagline || '').trim(),
     overview: (d.overview || movie.overview || '').trim(),
+    overviewLang: 'it',
     runtime: d.runtime || 0,
     budget: d.budget || 0,
-    studio: companies.length ? companies[0].name : 'Non dichiarata',
+    revenue: d.revenue || 0,
+    country: countries.length ? countryName(countries[0].iso_3166_1) : '',
+    language: langName(d.original_language || ''),
+    primaryRelease: d.release_date || movie.release_date || null,
+    studio: companies.length ? companies[0].name : '',
     genreIds: (d.genres || []).map(g => g.id),
     vote: d.vote_average || movie.vote_average || 0,
     votes: d.vote_count || movie.vote_count || 0,
@@ -1182,6 +1277,16 @@ async function getDetails(movie){
               `&language=it-IT&append_to_response=videos,release_dates&include_video_language=it,en,null`;
   const raw = await fetchJSON(url);
   const data = parseDetails(raw, movie);
+
+  /* Molte schede non hanno ancora la traduzione italiana di sinossi e tagline:
+     in quel caso si recupera la versione inglese, segnalandolo poi a schermo. */
+  if (!data.overview || !data.tagline){
+    try{
+      const en = await fetchJSON(`${API_BASE}/movie/${movie.id}?api_key=${encodeURIComponent(key)}&language=en-US`);
+      if (!data.overview && en && en.overview){ data.overview = en.overview.trim(); data.overviewLang = 'en'; }
+      if (!data.tagline && en && en.tagline) data.tagline = en.tagline.trim();
+    }catch(err){ /* si resta senza sinossi */ }
+  }
 
   /* Fallback: trailer internazionale se la richiesta localizzata non ne ha */
   if (!data.trailer){
@@ -1501,15 +1606,115 @@ function liquidColors(pct){
   return ['#8f8fa8', '#4a4a5e'];
 }
 
-function setLiquid(vote){
-  const v = Number(vote) || 0;
-  const pct = clamp(Math.round(v * 10), 0, 100);
-  const [a, b] = liquidColors(pct);
-  el.liquidFill.style.setProperty('--lq1', a);
-  el.liquidFill.style.setProperty('--lq2', b);
-  el.liquidFill.style.width = pct + '%';
-  el.vote.textContent = pct > 0 ? pct + '%' : 'N/D';
-  el.liquid.setAttribute('aria-label', pct > 0 ? `Gradimento del pubblico: ${pct} per cento` : 'Gradimento non ancora disponibile');
+/* Gradimento: media dei voti degli utenti TMDB (non della critica, non del botteghino).
+   Sotto i 10 voti il dato non e' significativo e viene dichiarato tale invece di
+   mostrare una percentuale che sembrerebbe attendibile. */
+const MIN_VOTES = 10;
+
+function setScore(vote, votes){
+  const pct = clamp(Math.round((Number(vote) || 0) * 10), 0, 100);
+  const n = Number(votes) || 0;
+  const enough = n >= MIN_VOTES && pct > 0;
+  const [a, b] = enough ? liquidColors(pct) : ['#9a9ab4', '#4a4a5e'];
+  el.score.style.setProperty('--lq1', a);
+  el.score.style.setProperty('--lq2', b);
+  el.score.style.setProperty('--p', enough ? pct / 100 : 0);
+  el.scoreFill.style.height = (enough ? pct : 0) + '%';
+  el.vote.innerHTML = enough ? `${pct}<small>%</small>` : 'N/D';
+  el.voteMeta.textContent = enough
+    ? `TMDB · ${n.toLocaleString('it-IT')} voti`
+    : (n > 0 ? `Solo ${n} voti su TMDB: dato non significativo` : 'Non ancora votato su TMDB');
+  el.score.setAttribute('aria-label', enough
+    ? `Gradimento ${pct} per cento su TMDB, ${n} voti`
+    : 'Gradimento non ancora disponibile');
+  el.score.title = 'Media dei voti degli utenti TMDB, non della critica';
+}
+
+/* --------- Scheda: fatti, generi, trama, trailer --------- */
+const FACT_ICONS = {
+  durata: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/>',
+  soldi:  '<rect x="2.5" y="6" width="19" height="12" rx="2.5"/><circle cx="12" cy="12" r="2.6"/><path d="M6 10v4M18 10v4"/>',
+  studio: '<path d="M3.5 21h17"/><path d="M5.5 21V5.5a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2V21"/><path d="M14.5 10h3a2 2 0 0 1 2 2v9"/><path d="M8.5 7.5h3M8.5 11h3M8.5 14.5h3"/>',
+  paese:  '<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.6 2.4 4 5.6 4 9s-1.4 6.6-4 9c-2.6-2.4-4-5.6-4-9s1.4-6.6 4-9Z"/>',
+  lingua: '<path d="M3.5 6h9M8 4.2V6c0 3.8-1.8 6.9-4.5 8.8"/><path d="M6 11.2c1.5 2.4 3.5 4.2 5.6 5.2"/><path d="m12.6 20 4.2-9 4.2 9M14.6 17.2h4.8"/>'
+};
+
+function renderFacts(details){
+  let items;
+  if (!details){
+    items = [['Durata', '…', 'durata'], ['Budget', '…', 'soldi'], ['Produzione', '…', 'studio'], ['Paese', '…', 'paese']];
+  } else {
+    items = [];
+    if (details.runtime) items.push(['Durata', fmtRuntime(details.runtime), 'durata']);
+    /* Il budget manca su quasi tutte le produzioni europee: al suo posto
+       si mostrano incassi, paese o lingua invece di un box vuoto. */
+    if (details.budget) items.push(['Budget', fmtBudget(details.budget), 'soldi']);
+    else if (details.revenue) items.push(['Incassi', fmtBudget(details.revenue), 'soldi']);
+    if (details.studio) items.push(['Produzione', details.studio, 'studio']);
+    if (details.country) items.push(['Paese', details.country, 'paese']);
+    if (details.language) items.push(['Lingua originale', details.language, 'lingua']);
+    if (!items.length) items = [['Dati', 'Non ancora disponibili', 'durata']];
+  }
+  el.facts.classList.toggle('few', items.length < 3);
+  el.facts.innerHTML = items.slice(0, 4).map(([lab, val, ico]) =>
+    '<li class="fact">' +
+      `<span class="fact-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${FACT_ICONS[ico]}</svg></span>` +
+      `<span class="fact-txt"><span class="fact-lab">${esc(lab)}</span><span class="fact-val" title="${esc(val)}">${esc(val)}</span></span>` +
+    '</li>'
+  ).join('');
+}
+
+function renderGenres(ids){
+  const list = (ids || []).map(id => GENRES[id]).filter(Boolean);
+  el.genres.innerHTML = list.map(g => `<span class="gpill">${esc(g)}</span>`).join('');
+}
+
+function renderOverview(text, lang){
+  el.overview.textContent = text;
+  el.overview.classList.add('clamped');
+  el.readMore.classList.remove('open');
+  el.readMoreLabel.textContent = 'Leggi tutto';
+  el.readMore.setAttribute('aria-expanded', 'false');
+  el.langNote.textContent = lang === 'en'
+    ? 'Sinossi in inglese: TMDB non ha ancora la traduzione italiana.' : '';
+  requestAnimationFrame(() => {
+    const troppoLunga = el.overview.scrollHeight > el.overview.clientHeight + 2;
+    el.readMore.classList.toggle('on', troppoLunga);
+    if (!troppoLunga) el.overview.classList.remove('clamped');
+  });
+}
+
+function renderTrailerCard(movie, details){
+  const trailer = details ? details.trailer : null;
+  const loading = !details;
+  const demo = !!movie.__demo;
+  el.trailerBtn.disabled = !loading && !trailer && !demo;
+  if (trailer && trailer.key){
+    el.trailerBtn.classList.remove('no-thumb');
+    el.trailerImg.src = `https://img.youtube.com/vi/${encodeURIComponent(trailer.key)}/mqdefault.jpg`;
+    el.trailerImg.alt = 'Anteprima del trailer di ' + movie.title;
+    el.trailerTitle.textContent = 'Guarda il trailer';
+    const tags = [trailer.italian
+      ? '<span class="tag ita">ITA</span>'
+      : `<span class="tag">${esc((trailer.lang || 'en').toUpperCase())}</span>`];
+    if (trailer.quality) tags.push(`<span class="tag">${trailer.quality}</span>`);
+    el.trailerTags.innerHTML = tags.join('');
+  } else {
+    el.trailerBtn.classList.add('no-thumb');
+    el.trailerImg.removeAttribute('src');
+    el.trailerTags.innerHTML = '';
+    el.trailerTitle.textContent = loading ? 'Cerco il trailer…'
+      : (demo ? 'Guarda il trailer' : 'Trailer non ancora disponibile');
+  }
+}
+
+function renderRerelease(details, iso){
+  const primary = details && details.primaryRelease ? parseISO(details.primaryRelease) : null;
+  const it = parseISO(iso);
+  const anni = primary && it ? (it.getTime() - primary.getTime()) / (365.25 * 86400000) : 0;
+  const mostra = anni >= 2;
+  el.rerelease.hidden = !mostra;
+  if (mostra) el.rereleaseText.textContent = `Riedizione · uscita originale ${primary.getFullYear()}`;
 }
 
 function selectActive(index){
@@ -1534,15 +1739,11 @@ function renderPanel(movie, details){
 
   el.title.textContent = movie.title;
   el.tagline.textContent = details && details.tagline ? details.tagline : '';
-  el.overview.textContent = (details && details.overview) || movie.overview || 'Sinossi non ancora disponibile per questo titolo.';
-  setLiquid(details ? details.vote : movie.vote_average);
-
-  el.budget.textContent  = details ? fmtBudget(details.budget) : '…';
-  el.runtime.textContent = details ? fmtRuntime(details.runtime) : '…';
-  el.studio.textContent  = details ? details.studio : '…';
-  el.genres.textContent  = genreNames(details && details.genreIds && details.genreIds.length ? details.genreIds : movie.genre_ids, 3);
-  el.studio.title = el.studio.textContent;
-  el.genres.title = el.genres.textContent;
+  renderOverview((details && details.overview) || movie.overview || 'Sinossi non ancora disponibile per questo titolo.',
+                 details ? details.overviewLang : 'it');
+  setScore(details ? details.vote : movie.vote_average, details ? details.votes : movie.vote_count);
+  renderFacts(details);
+  renderGenres(details && details.genreIds && details.genreIds.length ? details.genreIds : movie.genre_ids);
 
   const iso = (details && details.releaseIT) || movie.release_date || null;
   state.lastRelease = iso;
@@ -1551,13 +1752,9 @@ function renderPanel(movie, details){
   const badge = releaseBadge(iso);
   el.badge.classList.toggle('on', !!badge);
   el.badgeText.textContent = badge || '';
+  renderRerelease(details, iso);
   renderCountdown();
-
-  /* Trailer */
-  const trailer = details ? details.trailer : null;
-  const demo = !!movie.__demo;
-  el.trailerBtn.disabled = !!details && !trailer && !demo;
-  el.trailerBtn.lastChild.textContent = trailer && trailer.italian ? ' Trailer ufficiale IT' : ' Guarda Trailer';
+  renderTrailerCard(movie, details);
 
   /* Google Calendar */
   if (iso){
@@ -1587,9 +1784,8 @@ async function loadPanelDetails(movie){
     renderPanel(movie, details);
   }catch(err){
     if (state.activeId !== movie.id) return;
-    el.budget.textContent = 'Non disponibile';
-    el.runtime.textContent = 'Non disponibile';
-    el.studio.textContent = 'Non disponibile';
+    el.facts.innerHTML = '<li class="fact"><span class="fact-txt"><span class="fact-lab">Dettagli</span>' +
+      '<span class="fact-val">Non raggiungibili</span></span></li>';
     el.trailerBtn.disabled = false;
   }
 }
@@ -2075,6 +2271,14 @@ el.searchInput.addEventListener('input', () => {
 el.searchInput.addEventListener('keydown', e => {
   if (e.key === 'Escape'){ e.preventDefault(); exitSearch(); }
 });
+
+el.readMore.addEventListener('click', () => {
+  const aperta = !el.overview.classList.toggle('clamped');
+  el.readMore.classList.toggle('open', aperta);
+  el.readMoreLabel.textContent = aperta ? 'Mostra meno' : 'Leggi tutto';
+  el.readMore.setAttribute('aria-expanded', aperta ? 'true' : 'false');
+});
+el.trailerImg.addEventListener('error', () => el.trailerBtn.classList.add('no-thumb'));
 
 el.lightsBtn.addEventListener('click', toggleLights);
 el.modal.addEventListener('click', e => { if (e.target.closest('[data-close]')) closeTrailer(); });
