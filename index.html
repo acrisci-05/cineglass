@@ -38,6 +38,8 @@
   --radius:26px;
   --radius-sm:16px;
   --ease:cubic-bezier(.22,.85,.28,1);
+  --elastic:cubic-bezier(0.175,0.885,0.32,1.275);
+  --nav-h:76px;
   --shadow:0 30px 80px -30px rgba(0,0,0,.9);
   --font:'Outfit','Segoe UI',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif;
   --serif:'Instrument Serif',Georgia,'Times New Roman',serif;
@@ -46,10 +48,12 @@
 
 *{box-sizing:border-box;margin:0;padding:0}
 [hidden]{display:none!important}
-html{-webkit-text-size-adjust:100%}
+html{-webkit-text-size-adjust:100%;
+  /* la navbar e' fissa: ogni scrollIntoView deve fermarsi sotto di lei */
+  scroll-padding-top:calc(var(--nav-h) + 14px + env(safe-area-inset-top))}
 body{
   font-family:var(--font);
-  padding-top:env(safe-area-inset-top);
+  padding-top:calc(var(--nav-h) + env(safe-area-inset-top));
   background:var(--bg);
   color:var(--txt);
   min-height:100dvh;
@@ -116,11 +120,18 @@ a{color:inherit;text-decoration:none}
 @supports not (height:100dvh){.top{min-height:calc(100vh - 68px)}}
 
 /* ---------- Topbar ---------- */
-.topbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;justify-content:space-between;gap:14px;
-  padding:14px max(clamp(14px,3.6vw,34px), env(safe-area-inset-left)) 14px max(clamp(14px,3.6vw,34px), env(safe-area-inset-right));
-  backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);
-  background:linear-gradient(180deg, rgba(8,6,14,.72), rgba(8,6,14,.18));border-bottom:1px solid var(--stroke-soft);
+.topbar{position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:12px;
+  padding:calc(12px + env(safe-area-inset-top)) max(clamp(12px,3.2vw,30px), env(safe-area-inset-left)) 12px max(clamp(12px,3.2vw,30px), env(safe-area-inset-right));
+  backdrop-filter:blur(20px) saturate(1.5);-webkit-backdrop-filter:blur(20px) saturate(1.5);
+  background:linear-gradient(180deg, rgba(8,6,14,.82), rgba(8,6,14,.42));
+  border-bottom:1px solid var(--stroke-soft);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.14), 0 22px 60px -42px #000;
   transition:opacity .4s var(--ease)}
+/* bordo frosted luminescente sul filo inferiore della pillola */
+.topbar::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:1px;pointer-events:none;
+  background:linear-gradient(90deg, transparent, rgba(0,242,254,.5) 22%, rgba(255,95,224,.45) 72%, transparent);
+  opacity:.75}
 .brand{display:flex;align-items:center;gap:11px;min-width:0;padding:6px 15px 6px 7px;border-radius:16px;
   background:linear-gradient(150deg, rgba(255,255,255,.12), rgba(255,255,255,.03));
   border:1px solid rgba(0,242,254,.28);backdrop-filter:blur(18px) saturate(1.5);-webkit-backdrop-filter:blur(18px) saturate(1.5);
@@ -187,14 +198,6 @@ a{color:inherit;text-decoration:none}
 /* ---------- Toolbar: ricerca + filtri per genere ---------- */
 .toolbar-row{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
 .toolbar{display:flex;flex-direction:column;align-items:center;gap:10px;min-width:0;margin-top:clamp(12px,2.2vw,20px)}
-.search{display:flex;align-items:center;gap:8px;width:min(520px,100%);min-width:0;padding:6px 6px 6px 16px;border-radius:999px;
-  background:var(--glass);border:1px solid var(--stroke);backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px);
-  box-shadow:0 14px 34px -22px rgba(0,0,0,.9);animation:fadeUp .35s var(--ease) both}
-.search[hidden]{display:none}
-.search svg{width:16px;height:16px;flex:0 0 auto;opacity:.6}
-.search input{flex:1;min-width:0;background:none;border:0;outline:none;font-size:14.5px;font-weight:300;padding:8px 0}
-.search input::placeholder{color:var(--faint)}
-.search .btn{padding:9px 18px}
 .chips{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-width:0;max-width:100%;
   overflow-x:auto;overscroll-behavior-x:contain;padding:2px 4px 6px;scrollbar-width:none}
 .chips::-webkit-scrollbar{display:none}
@@ -294,9 +297,13 @@ a{color:inherit;text-decoration:none}
 }
 
 /* ---------- Carosello 3D ---------- */
-.carousel{position:relative;margin-top:clamp(10px,2.4vw,26px);touch-action:pan-y}
+.carousel{position:relative;margin-top:clamp(10px,2.4vw,26px);touch-action:pan-y;
+  /* le card in prospettiva escono dai lati: si ritagliano senza creare
+     una barra di scorrimento (e senza allargare la pagina, che altrimenti
+     spingerebbe fuori schermo anche la navbar fissa) */
+  overflow-x:clip;overflow-y:visible;overflow-clip-margin:24px}
 .stage{position:relative;height:clamp(380px,54vh,540px);perspective:1700px;perspective-origin:50% 46%;
-  transform-style:preserve-3d;cursor:grab;user-select:none;-webkit-user-select:none}
+  cursor:grab;user-select:none;-webkit-user-select:none}
 .stage.dragging{cursor:grabbing}
 .stage::after{content:'';position:absolute;left:50%;bottom:2%;translate:-50% 0;width:min(78%,760px);height:90px;
   background:radial-gradient(60% 100% at 50% 50%, color-mix(in oklab, var(--c2) 40%, transparent), transparent 70%);
@@ -541,7 +548,23 @@ a{color:inherit;text-decoration:none}
   border-bottom:1px solid var(--stroke-soft);transition:opacity .45s var(--ease)}
 .modal-head h3{font-size:15.5px;font-weight:500;letter-spacing:-.015em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .modal-tools{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+.player-wrap{position:relative;background:#000}
+.player-wrap:fullscreen{display:grid;place-items:center;width:100vw;height:100vh}
+.player-wrap:fullscreen .player{width:100vw;height:100vh;max-height:100vh;aspect-ratio:auto}
 .player{position:relative;aspect-ratio:16/9;background:#000}
+/* tasto tutto schermo: in basso a destra, sopra al player */
+.fs-btn{position:absolute;z-index:4;right:12px;bottom:12px;display:inline-flex;align-items:center;gap:8px;
+  min-height:38px;padding:9px 14px;border-radius:999px;font-size:12.5px;font-weight:500;
+  background:linear-gradient(140deg, rgba(255,255,255,.18), rgba(255,255,255,.06));
+  border:1px solid rgba(255,255,255,.24);backdrop-filter:blur(16px) saturate(1.5);-webkit-backdrop-filter:blur(16px) saturate(1.5);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.34), 0 14px 32px -20px #000;opacity:.85;
+  transition:opacity .3s, transform .4s var(--elastic), border-color .3s}
+.fs-btn[hidden]{display:none}
+.fs-btn svg{width:16px;height:16px}
+.fs-btn:hover{opacity:1;transform:translateY(-1px) scale(1.04);border-color:rgba(0,242,254,.5)}
+.fs-btn:active{transform:scale(.94)}
+.fs-btn.on{border-color:rgba(0,242,254,.55)}
+body.pip-mode .fs-btn{display:none}
 .player iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 .player-fallback{position:absolute;inset:0;display:grid;place-content:center;justify-items:center;gap:12px;text-align:center;padding:24px;
   background:radial-gradient(90% 90% at 50% 40%, color-mix(in oklab, var(--c2) 26%, #0b0814), #07050e)}
@@ -673,9 +696,9 @@ body.lights-out .beam{opacity:0}
   background:rgba(255,255,255,.04);border:1px solid var(--stroke-soft);transition:background .25s, transform .25s var(--ease)}
 .filmo-row:hover{background:rgba(255,255,255,.1);transform:translateX(3px)}
 .filmo-row img{width:38px;height:57px;border-radius:8px;object-fit:cover;flex:0 0 auto;background:rgba(255,255,255,.06)}
-.filmo-info{min-width:0;flex:1}
-.filmo-title{font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.filmo-meta{font-size:11px;color:var(--muted);margin-top:2px}
+.filmo-info{min-width:0;flex:1;display:flex;flex-direction:column;gap:2px}
+.filmo-title{display:block;font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.filmo-meta{display:block;font-size:11px;color:var(--muted)}
 .filmo-empty{font-size:13px;color:var(--muted);text-align:center;padding:20px 0}
 
 /* --- Tab box office --- */
@@ -730,8 +753,33 @@ body.lights-out .beam{opacity:0}
   background-image:radial-gradient(circle at 1px 6px, rgba(6,5,12,.9) 0 2.6px, transparent 2.8px);
   background-size:2px 13px}
 .ticket:hover .ticket-stub{transform:translateX(4px) rotate(1.2deg)}
-.ticket-qr{width:92px;height:92px;border-radius:9px;background:#fff;padding:6px;image-rendering:pixelated}
-.ticket-code{font-size:9px;letter-spacing:.14em;color:var(--faint);text-transform:uppercase}
+.ticket-qr{display:block;width:92px;height:92px;border-radius:9px;background:#fff;padding:6px;image-rendering:pixelated}
+.ticket-code{display:block;font-size:9px;letter-spacing:.14em;color:var(--faint);text-transform:uppercase}
+/* il QR e' cliccabile: copia il link e apre la condivisione nativa */
+.qr-btn{display:block;padding:0;border-radius:11px;line-height:0;
+  transition:transform .4s var(--elastic), box-shadow .3s}
+.qr-btn:hover{transform:scale(1.05);box-shadow:0 0 26px -6px rgba(0,242,254,.8)}
+.qr-btn:active{transform:scale(.95)}
+.qr-cta{display:block;max-width:108px;text-align:center;font-size:9px;line-height:1.35;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--muted)}
+/* forbici sulla perforazione: si trascinano o si toccano */
+.scissors{position:absolute;z-index:6;top:7px;right:132px;translate:50% 0;width:44px;height:44px;border-radius:50%;
+  display:grid;place-items:center;color:#0a0812;
+  background:linear-gradient(150deg, #ffffff, #cfe9ff);
+  border:1px solid rgba(255,255,255,.7);
+  box-shadow:0 10px 26px -10px #000, inset 0 1px 0 #fff, 0 0 22px -6px rgba(0,242,254,.7);
+  cursor:grab;touch-action:none;
+  transition:transform .4s var(--elastic), box-shadow .3s, translate .25s var(--ease)}
+.scissors svg{width:21px;height:21px}
+.scissors:hover{transform:scale(1.12) rotate(-12deg)}
+.scissors:active{cursor:grabbing;transform:scale(.94)}
+.scissors::after{content:'';position:absolute;top:100%;left:50%;width:2px;height:0;translate:-50% 0;
+  background:linear-gradient(180deg, rgba(0,242,254,.85), transparent);transition:height .3s var(--ease)}
+.scissors:active::after{height:70px}
+.ticket.strappato .scissors{opacity:0;transform:scale(.6) rotate(25deg);transition:opacity .4s, transform .4s}
+/* tela delle micro-schegge di vetro */
+.shards{position:absolute;inset:0;z-index:7;width:100%;height:100%;pointer-events:none;opacity:0}
+.shards.on{opacity:1}
 
 /* --- Riflesso specchiato sulla card attiva --- */
 .glare{position:absolute;inset:0;pointer-events:none;z-index:6;opacity:0;border-radius:inherit;
@@ -744,7 +792,12 @@ body.lights-out .beam{opacity:0}
 
 @media (max-width:640px){
   .ticket{grid-template-columns:1fr}
-  .ticket-stub{flex-direction:row;justify-content:space-between;padding:12px 18px}
+  .ticket-stub{flex-direction:row;justify-content:space-between;padding:12px 18px;flex-wrap:wrap}
+  .qr-cta{max-width:none;flex:1 0 100%;text-align:left;order:3;margin-top:2px}
+  /* qui la perforazione e' orizzontale: le forbici la seguono da sinistra */
+  .scissors{right:auto;left:18px;top:auto;bottom:calc(100% - 22px);translate:0 0}
+  .scissors::after{top:auto;bottom:100%;background:linear-gradient(0deg, rgba(0,242,254,.85), transparent)}
+  .scissors:active::after{height:44px}
   .ticket-stub::before{left:0;right:0;top:0;bottom:auto;width:auto;height:2px;
     background-image:radial-gradient(circle at 6px 1px, rgba(6,5,12,.9) 0 2.6px, transparent 2.8px);background-size:13px 2px}
   .creator-head{gap:12px}
@@ -798,7 +851,6 @@ body.lights-out .beam{opacity:0}
 
 /* --- Menu "Salva Data" --- */
 .savewrap{position:relative;display:inline-flex}
-.searchwrap{position:relative;width:min(520px,100%);min-width:0}
 .savemenu{position:absolute;left:0;top:calc(100% + 8px);z-index:80;min-width:252px;padding:7px;border-radius:18px;
   background:linear-gradient(155deg, rgba(255,255,255,.12), rgba(255,255,255,.04));
   border:1px solid var(--stroke);backdrop-filter:blur(24px) saturate(1.5);-webkit-backdrop-filter:blur(24px) saturate(1.5);
@@ -810,13 +862,6 @@ body.lights-out .beam{opacity:0}
 .savemenu svg{width:17px;height:17px;flex:0 0 auto;opacity:.85}
 .savemenu small{display:block;font-size:11px;color:var(--faint);margin-top:1px}
 
-/* --- Risultati di ricerca divisi --- */
-.results{position:absolute;left:50%;translate:-50% 0;top:calc(100% + 10px);z-index:75;width:min(560px,94vw);
-  max-height:min(62vh,480px);overflow:auto;padding:8px;border-radius:20px;
-  background:linear-gradient(155deg, rgba(255,255,255,.11), rgba(255,255,255,.035));
-  border:1px solid var(--stroke);backdrop-filter:blur(26px) saturate(1.5);-webkit-backdrop-filter:blur(26px) saturate(1.5);
-  box-shadow:0 34px 80px -30px rgba(0,0,0,1);animation:popIn .26s var(--ease)}
-.results[hidden]{display:none}
 .res-group{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);padding:10px 12px 6px}
 .res-row{display:flex;align-items:center;gap:11px;width:100%;min-height:44px;padding:8px;border-radius:14px;
   text-align:left;transition:background .2s}
@@ -862,7 +907,7 @@ button,.btn,a.btn,.chip,.frame,.dot-btn{-webkit-tap-highlight-color:transparent}
 }
 
 /* ==========================================================
-   Timeline, drawer, CineMatch, spoiler, biglietto strappabile
+   Timeline, drawer, spoiler, biglietto strappabile
    ========================================================== */
 
 /* --- CineTimeline verticale --- */
@@ -936,34 +981,6 @@ button,.btn,a.btn,.chip,.frame,.dot-btn{-webkit-tap-highlight-color:transparent}
 .ticket.strappato .ticket-stub{transform:translate(18px,10px) rotate(7deg);opacity:.55}
 .ticket-hint{grid-column:1 / -1;padding:0 20px 12px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
 
-/* --- CineMatch --- */
-.match{position:fixed;inset:0;z-index:240;display:flex;background:rgba(4,3,9,.86);
-  backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px)}
-.match[hidden]{display:none}
-.match-side{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
-  padding:clamp(12px,3vw,26px);position:relative}
-.match-side:first-child{border-right:1px solid var(--stroke)}
-.match-side.b{transform:rotate(180deg)}
-.match-lab{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)}
-.match-poster{width:min(34vw,180px);aspect-ratio:2/3;border-radius:16px;object-fit:cover;
-  border:1px solid var(--stroke);box-shadow:0 20px 50px -22px #000}
-.match-title{font-size:clamp(13px,2.4vw,17px);font-weight:600;text-align:center;max-width:90%;line-height:1.25}
-.match-btns{display:flex;gap:12px}
-.match-btns button{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;font-size:22px;
-  background:var(--glass);border:1px solid var(--stroke);backdrop-filter:blur(14px);transition:transform .2s var(--ease)}
-.match-btns button:active{transform:scale(.92)}
-.match-btns .si{border-color:rgba(110,231,168,.5);box-shadow:0 0 20px -8px rgba(110,231,168,.9)}
-.match-btns .no{border-color:rgba(255,95,126,.45)}
-.match-side.fatto .match-btns{opacity:.35;pointer-events:none}
-.match-esito{position:absolute;left:50%;top:50%;translate:-50% -50%;z-index:2;padding:22px 30px;border-radius:24px;
-  text-align:center;background:linear-gradient(150deg, rgba(255,255,255,.14), rgba(255,255,255,.05));
-  border:1px solid rgba(110,231,168,.5);backdrop-filter:blur(24px);box-shadow:0 0 60px -18px rgba(110,231,168,.8)}
-.match-esito[hidden]{display:none}
-.match-esito strong{display:block;font-size:22px;font-weight:700;margin-bottom:6px}
-.match-x{position:absolute;top:calc(12px + env(safe-area-inset-top));right:12px;z-index:3;width:44px;height:44px;
-  border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.1);border:1px solid var(--stroke)}
-.match-x svg{width:16px;height:16px}
-
 /* --- Locandina a schermo intero --- */
 .lightbox{position:fixed;inset:0;z-index:230;display:grid;place-items:center;padding:clamp(14px,4vw,40px);
   background:rgba(4,3,9,.72);backdrop-filter:blur(26px);-webkit-backdrop-filter:blur(26px);animation:fadeIn .3s var(--ease)}
@@ -977,11 +994,412 @@ body.dim .panel-inner,body.dim .topbar{background-color:rgba(6,5,12,.72)}
 body.dim .card.is-active .card-inner{box-shadow:0 44px 90px -30px #000, 0 0 90px -18px color-mix(in oklab, var(--c1) 85%, transparent)}
 #dimBtn.on{background:linear-gradient(135deg, rgba(255,214,120,.3), rgba(255,160,60,.22));border-color:rgba(255,206,110,.5)}
 
-@media (max-width:640px){
-  .match{flex-direction:column}
-  .match-side:first-child{border-right:0;border-bottom:1px solid var(--stroke)}
-  .match-poster{width:min(42vw,150px)}
+
+/* ==========================================================
+   v10 — Navbar flottante, Spotlight, drawer, countdown OLED
+   ========================================================== */
+
+/* ---------- Segmented control della navbar ---------- */
+.navseg{position:relative;display:flex;align-items:center;gap:2px;padding:4px;border-radius:999px;isolation:isolate;
+  background:linear-gradient(150deg, rgba(255,255,255,.11), rgba(255,255,255,.028));
+  border:1px solid var(--stroke);backdrop-filter:blur(20px) saturate(1.5);-webkit-backdrop-filter:blur(20px) saturate(1.5);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.24), 0 18px 44px -30px #000}
+.navseg button{position:relative;z-index:2;display:inline-flex;align-items:center;gap:7px;
+  min-height:38px;padding:8px 15px;border-radius:999px;font-size:13.5px;font-weight:500;color:var(--muted);
+  white-space:nowrap;transition:color .3s var(--ease), transform .4s var(--elastic)}
+.navseg button .ic{font-size:14px;line-height:1}
+.navseg button.on{color:var(--txt)}
+.navseg button:active{transform:scale(.93)}
+/* indicatore liquido: si allunga come una goccia e poi ritrova la forma */
+.navseg-slider{position:absolute;z-index:1;top:4px;bottom:4px;left:0;width:0;border-radius:999px;opacity:0;
+  background:linear-gradient(135deg, color-mix(in oklab, var(--c1) 42%, transparent), color-mix(in oklab, var(--c2) 42%, transparent));
+  border:1px solid rgba(255,255,255,.26);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.42), 0 0 28px -8px color-mix(in oklab, var(--c1) 90%, transparent);
+  transition:translate .5s var(--elastic), width .5s var(--elastic), scale .5s var(--elastic), opacity .3s}
+.navseg-slider.show{opacity:1}
+.navseg-slider.stretch{scale:1.16 .84}
+
+/* ---------- Lente di ricerca ---------- */
+.lens{position:relative;display:inline-flex;align-items:center;gap:8px;min-height:38px;padding:9px 16px;border-radius:999px;
+  font-size:13.5px;font-weight:500;color:var(--txt);white-space:nowrap;
+  background:linear-gradient(140deg, rgba(255,255,255,.17), rgba(255,255,255,.05));
+  border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(18px) saturate(1.6);-webkit-backdrop-filter:blur(18px) saturate(1.6);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.34), 0 14px 32px -22px #000;
+  transition:transform .42s var(--elastic), box-shadow .35s, border-color .35s}
+.lens svg{width:18px;height:18px;flex:0 0 auto;filter:drop-shadow(0 0 4px rgba(0,242,254,.6))}
+.lens::after{content:'';position:absolute;inset:-3px;border-radius:inherit;pointer-events:none;opacity:0;z-index:-1;
+  background:conic-gradient(from 0deg, rgba(0,242,254,.65), rgba(255,95,224,.65), rgba(0,242,254,.65));
+  filter:blur(10px);transition:opacity .35s}
+.lens:hover{transform:translateY(-1px) scale(1.04);border-color:rgba(0,242,254,.5)}
+.lens:hover::after{opacity:.75}
+.lens:active{transform:scale(.92)}
+
+/* ---------- Micro-selettore di impaginazione ---------- */
+.layout-mini{display:inline-flex;gap:3px;padding:3px;border-radius:999px;
+  background:rgba(255,255,255,.045);border:1px solid var(--stroke-soft);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.layout-mini[hidden]{display:none}
+.layout-mini button{display:inline-flex;align-items:center;gap:7px;min-height:34px;padding:7px 14px;border-radius:999px;
+  font-size:12px;color:var(--muted);transition:color .25s, background .25s, transform .35s var(--elastic)}
+.layout-mini button svg{width:15px;height:15px}
+.layout-mini button.on{color:var(--txt);background:rgba(255,255,255,.12);box-shadow:inset 0 1px 0 rgba(255,255,255,.26)}
+.layout-mini button:active{transform:scale(.94)}
+
+/* ---------- Spotlight ---------- */
+.spot{position:fixed;inset:0;z-index:1200;display:grid;place-items:start center;
+  padding:clamp(66px,13vh,150px) 16px calc(24px + env(safe-area-inset-bottom))}
+.spot[hidden]{display:none}
+.spot-bd{position:absolute;inset:0;background:rgba(4,3,9,.58);
+  backdrop-filter:blur(30px) saturate(1.3);-webkit-backdrop-filter:blur(30px) saturate(1.3);animation:fadeIn .26s var(--ease)}
+.spot-box{position:relative;width:min(620px,100%);border-radius:24px;overflow:hidden;
+  background:linear-gradient(160deg, rgba(255,255,255,.14), rgba(255,255,255,.04));
+  border:1px solid var(--stroke);box-shadow:0 46px 110px -42px #000, inset 0 1px 0 rgba(255,255,255,.28);
+  animation:spotIn .44s var(--elastic) both}
+@keyframes spotIn{from{opacity:0;transform:translateY(-20px) scale(.95)}to{opacity:1;transform:none}}
+.spot-field{display:flex;align-items:center;gap:12px;padding:16px 18px;border-bottom:1px solid var(--stroke-soft)}
+.spot-field svg{width:21px;height:21px;flex:0 0 auto;opacity:.75}
+.spot-field input{flex:1;min-width:0;min-height:44px;font-size:17px;font-weight:300;background:none;border:0;outline:none}
+.spot-field input::placeholder{color:var(--faint)}
+.spot-field kbd{flex:0 0 auto;font-size:10.5px;letter-spacing:.1em;padding:5px 8px;border-radius:7px;color:var(--faint);
+  background:rgba(255,255,255,.07);border:1px solid var(--stroke-soft)}
+.spot-res{max-height:min(54vh,440px);overflow:auto;padding:8px}
+.spot-res[hidden]{display:none}
+
+/* ---------- Drawer watchlist ---------- */
+.wdrawer{position:fixed;inset:0;z-index:1150}
+.wdrawer[hidden]{display:none}
+.wdrawer-bd{position:absolute;inset:0;background:rgba(4,3,9,.6);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);animation:fadeIn .3s var(--ease)}
+.wdrawer-box{position:absolute;top:0;right:0;bottom:0;width:min(420px,92vw);display:flex;flex-direction:column;
+  padding:calc(18px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));
+  background:linear-gradient(200deg, rgba(255,255,255,.13), rgba(255,255,255,.035));
+  border-left:1px solid var(--stroke);backdrop-filter:blur(28px) saturate(1.5);-webkit-backdrop-filter:blur(28px) saturate(1.5);
+  box-shadow:-44px 0 110px -46px #000, inset 1px 0 0 rgba(255,255,255,.18);
+  animation:wdIn .52s var(--elastic) both}
+@keyframes wdIn{from{transform:translateX(100%)}to{transform:none}}
+.wdrawer-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+  padding-bottom:13px;border-bottom:1px solid var(--stroke-soft)}
+.wdrawer-head h3{font-size:19px;font-weight:600}
+.wdrawer-head #wLevel{display:block;margin-top:4px;font-size:12px;color:var(--muted)}
+.wdrawer-head .sheet-x{position:static;flex:0 0 auto}
+.w-only{display:inline-block;margin-top:9px;min-height:34px;padding:7px 13px;border-radius:999px;font-size:11.5px;
+  color:var(--muted);background:rgba(255,255,255,.05);border:1px solid var(--stroke-soft);transition:color .25s, background .25s}
+.w-only:hover{color:var(--txt);background:rgba(255,255,255,.1)}
+.w-only[aria-pressed="true"]{color:var(--txt);
+  background:linear-gradient(120deg, color-mix(in oklab, var(--c1) 30%, transparent), color-mix(in oklab, var(--c2) 30%, transparent));
+  border-color:color-mix(in oklab, var(--c1) 45%, transparent)}
+.wdrawer-list{flex:1;overflow:auto;margin:11px -4px;padding:0 4px;display:flex;flex-direction:column;gap:8px}
+.w-row{display:flex;align-items:center;gap:11px;width:100%;min-height:44px;padding:8px;border-radius:15px;text-align:left;
+  background:rgba(255,255,255,.05);border:1px solid var(--stroke-soft);
+  transition:background .25s, transform .4s var(--elastic)}
+.w-row:hover{background:rgba(255,255,255,.1);transform:translateX(-3px)}
+.w-row img{width:40px;height:60px;border-radius:9px;object-fit:cover;flex:0 0 auto;background:rgba(255,255,255,.07)}
+.w-info{min-width:0;flex:1;display:flex;flex-direction:column;gap:3px}
+.w-title{display:block;font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.w-meta{display:block;font-size:11px;color:var(--muted)}
+.w-hype{flex:0 0 auto;font-size:11px;padding:5px 10px;border-radius:999px;white-space:nowrap;
+  background:rgba(255,255,255,.08);border:1px solid var(--stroke-soft)}
+/* vetro satinato per gli stati vuoti */
+.w-empty{margin:auto;text-align:center;padding:26px 16px;border-radius:20px;color:var(--muted);font-size:13.5px;line-height:1.5;
+  background:rgba(255,255,255,.04);border:1px solid var(--stroke-soft);
+  backdrop-filter:blur(25px) saturate(.9);-webkit-backdrop-filter:blur(25px) saturate(.9);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22), inset 0 -1px 0 rgba(0,0,0,.4)}
+.wdrawer-foot{display:flex;gap:9px;padding-top:12px;border-top:1px solid var(--stroke-soft)}
+.wdrawer-foot .btn{flex:1;justify-content:center;font-size:12.5px;padding:12px 10px}
+
+/* ---------- Countdown a schermo intero (modalita' comodino) ---------- */
+.oled{position:fixed;inset:0;z-index:1400;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+  padding:clamp(20px,6vw,48px);background:#000;color:#fff;text-align:center;animation:fadeIn .4s var(--ease)}
+.oled[hidden]{display:none}
+.oled-title{font-size:13px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.42);
+  max-width:90vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.oled-time{font-size:clamp(30px,10.5vw,86px);font-weight:200;letter-spacing:.01em;line-height:1.04;
+  font-variant-numeric:tabular-nums;text-shadow:0 0 44px rgba(0,242,254,.3)}
+.oled-sub{font-size:12.5px;color:rgba(255,255,255,.38)}
+.oled-x{position:absolute;top:max(16px,env(safe-area-inset-top));right:16px;width:44px;height:44px;border-radius:50%;
+  display:grid;place-items:center;color:rgba(255,255,255,.55);
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.16);transition:background .25s, transform .3s var(--ease)}
+.oled-x:hover{background:rgba(255,255,255,.14);transform:rotate(90deg)}
+.oled-x svg{width:16px;height:16px}
+
+/* ---------- Increspatura fluida al click ---------- */
+.ripple{position:relative;overflow:hidden}
+.rip{position:absolute;border-radius:50%;pointer-events:none;transform:translate(-50%,-50%) scale(0);
+  background:radial-gradient(circle, rgba(255,255,255,.5), rgba(255,255,255,.14) 55%, transparent 72%);
+  backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);animation:rip .62s var(--ease) forwards}
+@keyframes rip{to{transform:translate(-50%,-50%) scale(1);opacity:0}}
+
+/* ---------- Alto contrasto ---------- */
+body.hc{--muted:rgba(255,255,255,.9);--faint:rgba(255,255,255,.72);
+  --stroke:rgba(255,255,255,.42);--stroke-soft:rgba(255,255,255,.28);
+  --glass:rgba(10,8,18,.88);--glass-strong:rgba(16,12,26,.94)}
+body.hc .bg{filter:brightness(.26) saturate(.6)}
+body.hc .topbar,body.hc .navseg,body.hc .panel-inner,body.hc .spot-box,body.hc .wdrawer-box,
+body.hc .card-inner,body.hc .sheet-box,body.hc .bo-wrap{
+  background:rgba(6,5,12,.94)!important;backdrop-filter:blur(8px)!important;-webkit-backdrop-filter:blur(8px)!important}
+body.hc .tagline,body.hc .overview,body.hc .rel-val{color:#fff}
+#contrastBtn.on{background:#fff;color:#07060d;border-color:#fff}
+#sfxBtn.off{opacity:.55}
+
+/* ---------- Badge piattaforme streaming ---------- */
+.provs{margin-top:11px}
+.provs:empty{display:none}
+.prov-row{display:flex;flex-wrap:wrap;align-items:center;gap:7px;padding:9px 12px;border-radius:16px;
+  background:rgba(255,255,255,.045);border:1px solid var(--stroke-soft);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);transition:background .25s, border-color .25s}
+a.prov-row:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.22)}
+.prov-lab{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-right:2px}
+.prov{display:inline-flex;align-items:center;gap:7px;padding:5px 11px 5px 5px;border-radius:999px;font-size:11.5px;font-weight:500;
+  background:linear-gradient(150deg, rgba(255,255,255,.16), rgba(255,255,255,.05));
+  border:1px solid rgba(255,255,255,.2);box-shadow:inset 0 1px 0 rgba(255,255,255,.34)}
+.prov img{width:20px;height:20px;border-radius:6px;object-fit:cover;flex:0 0 auto;background:rgba(255,255,255,.1)}
+.prov-name{white-space:nowrap}
+.prov-solo{display:inline-flex;align-items:center;gap:7px;padding:7px 13px;border-radius:999px;font-size:11.5px;font-weight:500;
+  background:linear-gradient(120deg, rgba(0,242,254,.2), rgba(122,92,255,.18));
+  border:1px solid rgba(0,242,254,.38);box-shadow:inset 0 1px 0 rgba(255,255,255,.3), 0 0 22px -8px rgba(0,242,254,.8)}
+
+/* ---------- Timeline: pillole anno e stato vuoto ---------- */
+.tl-empty{margin:18px auto;max-width:440px;text-align:center;padding:26px 18px;border-radius:20px;
+  color:var(--muted);font-size:13.5px;line-height:1.55;
+  background:rgba(255,255,255,.04);border:1px solid var(--stroke-soft);
+  backdrop-filter:blur(25px) saturate(.9);-webkit-backdrop-filter:blur(25px) saturate(.9);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22), inset 0 -1px 0 rgba(0,0,0,.4)}
+
+/* ---------- Tripla valutazione: TMDB + IMDb + Rotten Tomatoes ---------- */
+.rat-row{display:flex;justify-content:center;gap:7px;width:100%;min-width:184px}
+.rat-row:empty{display:none}
+.rat{display:inline-flex;flex:1 1 0;flex-direction:column;align-items:center;gap:1px;min-width:0;min-height:44px;
+  padding:7px 8px;border-radius:14px;text-align:center;
+  background:linear-gradient(150deg, rgba(255,255,255,.14), rgba(255,255,255,.04));
+  border:1px solid rgba(255,255,255,.2);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.3);
+  transition:transform .4s var(--elastic), border-color .3s, box-shadow .3s}
+.rat:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.34);box-shadow:inset 0 1px 0 rgba(255,255,255,.4), 0 12px 26px -18px #000}
+.rat-ico{display:block;font-size:9.5px;font-weight:700;letter-spacing:.08em}
+.rat-imdb .rat-ico{color:#f5c518}
+.rat-rt .rat-ico{font-size:12px;letter-spacing:0}
+.rat-val{display:block;font-size:14px;font-weight:600;line-height:1.1}
+.rat-val small{font-size:9.5px;font-weight:400;color:var(--faint)}
+.rat-note{display:block;font-size:8.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--faint)}
+
+/* ---------- Quick score sotto la locandina ---------- */
+.qscore{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+.qs{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;
+  font-size:10.5px;font-weight:600;line-height:1.4;
+  background:linear-gradient(150deg, rgba(255,255,255,.2), rgba(255,255,255,.06));
+  border:1px solid rgba(255,255,255,.22);box-shadow:inset 0 1px 0 rgba(255,255,255,.34)}
+.qs-rt{color:#ffd9cf}
+.qs-pop{color:#fff0c9}
+
+/* ---------- Play al volo sulle locandine ---------- */
+.card-quick{position:absolute;left:50%;top:44%;translate:-50% -50%;z-index:28;
+  width:52px;height:52px;border-radius:50%;display:grid;place-items:center;
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+  background:rgba(12,9,20,.46);border:1px solid rgba(255,255,255,.3);
+  backdrop-filter:blur(14px) saturate(1.6);-webkit-backdrop-filter:blur(14px) saturate(1.6);
+  box-shadow:0 14px 34px -14px #000, inset 0 1px 0 rgba(255,255,255,.34);
+  opacity:0;scale:.72;pointer-events:none;
+  transition:opacity .35s var(--ease), scale .45s var(--elastic), background .3s}
+.card-quick svg{width:19px;height:19px;margin-left:2px}
+.card-quick:hover{background:rgba(255,255,255,.2)}
+/* la card sfiorata sale sopra le vicine: cosi' il play resta raggiungibile */
+.card:hover{z-index:59}
+.card:hover .card-quick{opacity:1;scale:1;pointer-events:auto}
+/* sulla card in primo piano comanda il pulsante largo "Guarda Trailer" */
+.card.is-active .card-quick{opacity:0!important;pointer-events:none!important}
+
+/* ---------- Evidenziazione della classifica ---------- */
+.section.evidenzia{animation:evidenzia 1.6s var(--ease)}
+@keyframes evidenzia{
+  0%{box-shadow:0 0 0 0 color-mix(in oklab, var(--c1) 0%, transparent)}
+  22%{box-shadow:0 0 42px -6px color-mix(in oklab, var(--c1) 85%, transparent)}
+  100%{box-shadow:0 0 0 0 color-mix(in oklab, var(--c1) 0%, transparent)}
 }
+.chip-bo{background:linear-gradient(120deg, rgba(255,209,102,.18), rgba(255,138,61,.12));
+  border-color:rgba(255,209,102,.35)}
+.chip-bo:hover{background:linear-gradient(120deg, rgba(255,209,102,.28), rgba(255,138,61,.2))}
+
+/* ==========================================================
+   v10 — Vetro avanzato: alone ambientale, bolle, magnetismo
+   ========================================================== */
+
+/* ---------- Ambient Glass Glow: l'alone prende i colori del poster ---------- */
+.card.ambient.is-active .card-inner{
+  box-shadow:0 44px 90px -34px rgba(0,0,0,1),
+             0 0 74px -20px color-mix(in oklab, var(--amb, var(--c1)) 78%, transparent),
+             0 0 130px -34px color-mix(in oklab, var(--amb, var(--c2)) 60%, transparent),
+             inset 0 1px 0 rgba(255,255,255,.2)}
+.card.ambient .card-inner{transition:box-shadow .7s var(--ease), border-color .5s var(--ease)}
+.panel-inner.ambient{box-shadow:var(--shadow), 0 0 120px -50px color-mix(in oklab, var(--amb, var(--c1)) 70%, transparent)}
+
+/* ---------- Micro-badge a bolla di vetro ---------- */
+.card-badge,.badge,.dstate,.dist,.tag-glass,.res-badge,.w-hype,.qs,.prov,.prov-solo,.rat,.age,.date-badge,.t-tag{
+  position:relative;isolation:isolate;
+  border:1px solid rgba(255,255,255,.2);
+  background-image:radial-gradient(120% 130% at 50% -25%, rgba(255,255,255,.34), rgba(255,255,255,.05) 55%, transparent 78%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.34), inset 0 -1px 0 rgba(0,0,0,.28), 0 4px 12px -8px rgba(0,0,0,.9)}
+/* punto luce in alto: la goccia di vetro in rilievo */
+.card-badge::before,.dstate::before,.tag-glass::before,.w-hype::before,.qs::before,
+.prov::before,.prov-solo::before,.rat::before,.date-badge::before{
+  content:'';position:absolute;z-index:-1;left:12%;right:12%;top:2px;height:38%;border-radius:999px;pointer-events:none;
+  background:linear-gradient(180deg, rgba(255,255,255,.4), rgba(255,255,255,0));opacity:.75}
+
+/* ---------- Badge a goccia organica: i punteggi respirano ---------- */
+.qs,.rat{animation:goccia 9s ease-in-out infinite}
+.qs-pop,.rat-rt{animation-delay:-4.5s}
+@keyframes goccia{
+  0%,100%{border-radius:46% 54% 52% 48% / 55% 48% 52% 45%}
+  25%{border-radius:56% 44% 47% 53% / 46% 56% 44% 54%}
+  50%{border-radius:50% 50% 55% 45% / 52% 44% 56% 48%}
+  75%{border-radius:44% 56% 46% 54% / 48% 54% 46% 52%}
+}
+
+/* ---------- Refrazione prismatica sui bordi in vetro ---------- */
+.panel-inner,.spot-box,.wdrawer-box,.sheet-box,.navseg,.ticket,.bo-wrap,.modal-box{position:relative}
+.panel-inner::after,.spot-box::after,.wdrawer-box::after,.sheet-box::after,
+.navseg::after,.ticket::after,.modal-box::after{
+  content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:1;
+  padding:1px;opacity:.55;
+  background:linear-gradient(135deg, rgba(122,244,255,.85), rgba(255,255,255,0) 32%,
+             rgba(255,255,255,0) 66%, rgba(255,95,224,.75));
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite:exclude}
+
+/* ---------- Glossy lens streak: lampo diagonale sulle card ---------- */
+.shine::after{content:'';position:absolute;z-index:4;top:-40%;bottom:-40%;left:-60%;width:36%;pointer-events:none;
+  background:linear-gradient(100deg, transparent, rgba(255,255,255,.06) 24%, rgba(255,255,255,.42) 50%, rgba(255,255,255,.06) 76%, transparent);
+  transform:rotate(16deg);opacity:0}
+.card.is-active .shine::after{animation:streak 6.5s var(--ease) 1.1s infinite}
+@keyframes streak{
+  0%{opacity:0;transform:translate3d(0,0,0) rotate(16deg)}
+  6%{opacity:.9}
+  22%{opacity:.9}
+  30%{opacity:0;transform:translate3d(520%,0,0) rotate(16deg)}
+  100%{opacity:0;transform:translate3d(520%,0,0) rotate(16deg)}
+}
+
+/* ---------- Attrazione magnetica ---------- */
+.magnetic{transition:translate .45s var(--elastic), transform .3s var(--ease), background .25s, border-color .25s, box-shadow .25s}
+.magnetic.pulled{translate:var(--mx,0) var(--my,0)}
+
+/* ---------- Transizioni elastiche per i pannelli traslucidi ---------- */
+.sheet-box{animation:sheetIn .5s var(--elastic) both}
+@keyframes sheetIn{from{opacity:0;transform:translateY(22px) scale(.95)}to{opacity:1;transform:none}}
+.drawer .sheet-box{animation:drawerIn .55s var(--elastic) both}
+@keyframes drawerIn{from{transform:translateY(100%)}to{transform:none}}
+
+/* ---------- Vetro satinato anche per lo stato vuoto principale ---------- */
+.empty{backdrop-filter:blur(25px) saturate(.9);-webkit-backdrop-filter:blur(25px) saturate(.9);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22), inset 0 -1px 0 rgba(0,0,0,.45), var(--shadow)}
+
+/* ---------- View Transitions ----------
+   La pagina e' piena di backdrop-filter: fotografare l'intera radice costa
+   troppo e ritarda l'apertura. Si rinuncia allo scatto della radice e si
+   anima solo cio' che ha davvero un nome, cioe' la locandina. */
+:root{view-transition-name:none}
+@media (prefers-reduced-motion:no-preference){
+  ::view-transition-group(locandina){animation-duration:.42s;animation-timing-function:var(--elastic)}
+  ::view-transition-old(locandina),::view-transition-new(locandina){mix-blend-mode:normal}
+}
+
+/* ---------- Adattamento prestazionale: meno sfocatura, stessi 60 fps ---------- */
+.perf-bassa .topbar,.perf-bassa .navseg,.perf-bassa .panel-inner,.perf-bassa .spot-bd,
+.perf-bassa .spot-box,.perf-bassa .wdrawer-box,.perf-bassa .sheet-bd,.perf-bassa .sheet-box,
+.perf-bassa .lens,.perf-bassa .ticket,.perf-bassa .frost,.perf-bassa .card-play,
+.perf-bassa .card-quick,.perf-bassa .modal-backdrop,.perf-bassa .lightbox,.perf-bassa .rip{
+  backdrop-filter:blur(8px)!important;-webkit-backdrop-filter:blur(8px)!important}
+.perf-bassa .grain,.perf-bassa .dust{display:none}
+.perf-bassa .blob{filter:blur(40px)}
+.perf-bassa .shine::after{animation:none;opacity:0}
+.perf-bassa .qs,.perf-bassa .rat{animation:none;border-radius:999px}
+
+/* ---------- Social e donazioni ---------- */
+.social{display:flex;gap:9px;margin-top:14px;flex-wrap:wrap}
+.social-btn{flex:1 1 150px;display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  min-height:46px;padding:12px 14px;border-radius:15px;font-size:13px;font-weight:500;white-space:nowrap;
+  background:linear-gradient(145deg, rgba(255,255,255,.16), rgba(255,255,255,.05));
+  border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(16px) saturate(1.5);-webkit-backdrop-filter:blur(16px) saturate(1.5);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.34), 0 14px 32px -22px #000;
+  transition:transform .42s var(--elastic), box-shadow .3s, border-color .3s}
+.social-btn svg{width:18px;height:18px;flex:0 0 auto}
+.social-btn:hover{transform:translateY(-2px)}
+.social-btn.ig:hover{border-color:rgba(226,88,169,.6);box-shadow:inset 0 1px 0 rgba(255,255,255,.4), 0 16px 34px -18px rgba(226,88,169,.9)}
+.social-btn.ig svg{color:#e258a9}
+.social-btn.pp:hover{border-color:rgba(0,158,255,.6);box-shadow:inset 0 1px 0 rgba(255,255,255,.4), 0 16px 34px -18px rgba(0,158,255,.9)}
+.social-btn.pp svg{color:#59b2ff}
+
+/* ---------- Anteprima colonna sonora: disco in vetro ---------- */
+.ost{display:flex;align-items:center;gap:14px;margin-top:13px;padding:11px 14px;border-radius:18px;
+  background:rgba(255,255,255,.045);border:1px solid var(--stroke-soft);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.ost[hidden]{display:none}
+.ost-disc{position:relative;flex:0 0 auto;width:62px;height:62px;border-radius:50%;overflow:hidden;
+  border:1px solid rgba(255,255,255,.26);
+  background:radial-gradient(circle at 50% 50%, #141122 0 22%, #0b0912 23% 100%);
+  box-shadow:0 12px 28px -14px #000, inset 0 1px 0 rgba(255,255,255,.3);
+  transition:transform .4s var(--elastic)}
+.ost-disc img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%;opacity:.9}
+.ost-disc::after{content:'';position:absolute;left:50%;top:50%;translate:-50% -50%;width:16%;height:16%;border-radius:50%;
+  background:#07060d;border:1px solid rgba(255,255,255,.28)}
+.ost-play{position:absolute;inset:0;display:grid;place-items:center;border-radius:50%;
+  background:rgba(8,6,14,.5);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);transition:opacity .3s}
+.ost-play svg{width:18px;height:18px;margin-left:2px;filter:drop-shadow(0 0 6px rgba(0,0,0,.9))}
+.ost-disc:hover{transform:scale(1.06)}
+.ost.suona .ost-disc{animation:giradisco 3.4s linear infinite}
+.ost.suona .ost-play{opacity:0}
+@keyframes giradisco{to{transform:rotate(360deg)}}
+.ost-txt{min-width:0;flex:1;display:flex;flex-direction:column;gap:2px}
+.ost-lab{display:block;font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+.ost-title{display:block;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ost-art{display:block;font-size:11.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ost-src{display:block;font-size:9.5px;color:var(--faint);margin-top:1px}
+
+/* ---------- Lente convessa cromatica sulle locandine ---------- */
+.card.is-active .glare{opacity:calc(.55 * var(--gi, 1))}
+.card-lens{position:absolute;inset:0;z-index:5;pointer-events:none;border-radius:inherit;opacity:0;
+  background:
+    radial-gradient(38% 30% at var(--gx,50%) var(--gy,50%), rgba(255,255,255,.26), rgba(255,255,255,.06) 52%, transparent 70%),
+    radial-gradient(40% 32% at calc(var(--gx,50%) - 2.2%) var(--gy,50%), rgba(122,244,255,.3), transparent 62%),
+    radial-gradient(40% 32% at calc(var(--gx,50%) + 2.2%) var(--gy,50%), rgba(255,95,224,.3), transparent 62%);
+  mix-blend-mode:screen;transition:opacity .4s var(--ease)}
+.card.is-active .card-lens{opacity:calc(.8 * var(--gi, 1))}
+/* al tocco la lente vive solo col giroscopio acceso */
+@media (hover:none){ .card-lens{opacity:0} body.giro .card.is-active .card-lens{opacity:calc(.75 * var(--gi, 1))} }
+
+/* ---------- Navbar flottante su schermi stretti ---------- */
+@media (max-width:860px){
+  .topbar{gap:9px}
+  /* il segmented control scende su una riga tutta sua */
+  .navseg{order:3;flex:1 0 100%;justify-content:center}
+  .topbar-actions{flex-wrap:wrap;justify-content:flex-end;gap:6px;min-width:0}
+}
+@media (max-width:640px){
+  .navseg{padding:3px;gap:1px;width:100%}
+  .navseg button{flex:1 1 0;justify-content:center;padding:9px 8px;font-size:12.5px;gap:6px}
+  .navseg-slider{top:3px;bottom:3px}
+  .lens{padding:9px 12px}
+  .lens .lbl{display:none}
+  .layout-mini{align-self:center}
+  .layout-mini button .lbl{display:none}
+  .layout-mini button{padding:7px 12px}
+}
+@media (max-width:430px){
+  /* sette tasti non ci stanno: il creatore resta nel piè di pagina */
+  #creatorBtn{display:none}
+  .topbar-actions{gap:5px}
+  .navseg button{font-size:11.5px;padding:9px 6px;gap:4px}
+  .navseg button .ic{font-size:13px}
+}
+
+/* ---------- Collegamenti del piè di pagina ---------- */
+.foot-links{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:12px}
+.foot-links button,.foot-links a{display:inline-flex;align-items:center;min-height:38px;padding:9px 14px;border-radius:999px;
+  font-size:12.5px;color:var(--muted);
+  background:rgba(255,255,255,.05);border:1px solid var(--stroke-soft);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  transition:color .25s, background .25s, transform .35s var(--elastic)}
+.foot-links button:hover,.foot-links a:hover{color:var(--txt);background:rgba(255,255,255,.1);transform:translateY(-1px)}
 
 /* ---------- Responsive ---------- */
 @media (max-width:860px){
@@ -1014,6 +1432,8 @@ body.dim .card.is-active .card-inner{box-shadow:0 44px 90px -30px #000, 0 0 90px
   .actions .trailer-card{flex:1 1 100%;justify-content:flex-start;padding:8px 16px 8px 8px;white-space:nowrap}
   .actions .trailer-card .trailer-title{white-space:nowrap}
   .score{width:92px;height:92px}
+  .rat-row{min-width:168px}
+  .rat{padding:6px}
   .score-num{font-size:22px}
   .hero{padding-top:10px}
   .hero p.sub{margin-top:9px}
@@ -1034,6 +1454,8 @@ body.dim .card.is-active .card-inner{box-shadow:0 44px 90px -30px #000, 0 0 90px
 }
 @media (prefers-reduced-motion:reduce){
   .blob{animation:none}
+  .qs,.rat{animation:none;border-radius:999px}
+  .card.is-active .shine::after{animation:none;opacity:0}
   .card.is-active .card-inner::before,.card.is-active .card-inner::after{animation:none}
   .liquid-fill::after{animation:none}
   .sk-card::after,.sk-panel::after{animation:none}
@@ -1042,14 +1464,28 @@ body.dim .card.is-active .card-inner{box-shadow:0 44px 90px -30px #000, 0 0 90px
 
 /* Target tattili: in coda, deve vincere sulle regole per schermi stretti */
 @media (pointer:coarse){
-  .btn,.pill-btn,.chip,.btn-sm,.bo-tabs button,.view-toggle button,.savemenu a,.savemenu button,
-  .read-more,.hype-clear,.res-row,.cal-item,.cast-pill{min-height:44px}
+  .btn,.pill-btn,.chip,.btn-sm,.bo-tabs button,.savemenu a,.savemenu button,
+  .read-more,.hype-clear,.res-row,.cast-pill,.fs-btn,.lens,.navseg button,
+  .layout-mini button,.w-row,.w-only,.wdrawer-foot .btn,
+  .foot-links button,.foot-links a,.social-btn,.rat{min-height:44px}
+  .scissors,.oled-x{width:48px;height:48px}
+  .qr-btn{min-height:44px}
   .pill-btn,.icon-btn{min-width:44px}
   .icon-btn{width:44px;height:44px}
   .frame{width:44px;height:62px}
   /* il carosello rimpicciolisce le card in prospettiva: per avere 44px reali
      sotto il dito la misura CSS deve essere più generosa */
   .card-play{min-height:58px;padding:17px 22px;font-size:13.5px}
+  /* Al tocco non esiste l'hover. La prospettiva rimpicciolisce le card
+     laterali, quindi la misura CSS e' generosa e il play compare solo sulle
+     due locandine accanto a quella centrale: piu' lontano resterebbe sotto
+     i 44px reali, e li' si tocca la locandina per portarla al centro. */
+  .card-quick{width:78px;height:78px;opacity:0;scale:1;pointer-events:none}
+  .card.vicina .card-quick{opacity:.92;pointer-events:auto}
+  .card.is-active .card-quick{opacity:0!important;pointer-events:none!important}
+  .layout-mini button{min-width:44px;justify-content:center}
+  .sheet-x{width:44px;height:44px}
+  .wdrawer-head .sheet-x{width:44px;height:44px}
   .card-bucket{width:62px;height:68px}
 </style>
 </head>
@@ -1090,31 +1526,44 @@ body.dim .card.is-active .card-inner{box-shadow:0 44px 90px -30px #000, 0 0 90px
     </span>
     <span class="brand-text">Cine<em>Glass</em></span>
   </div>
+
+  <nav class="navseg" id="navSeg" role="group" aria-label="Vista principale">
+    <span class="navseg-slider" id="navSlider" aria-hidden="true"></span>
+    <button type="button" data-nav="now" aria-pressed="false"><span class="ic">🎟️</span><span class="lbl">Ora in sala</span></button>
+    <button type="button" data-nav="soon" class="on" aria-pressed="true"><span class="ic">⏳</span><span class="lbl">In arrivo</span></button>
+    <button type="button" data-nav="timeline" aria-pressed="false"><span class="ic">🗓️</span><span class="lbl">Timeline</span></button>
+  </nav>
+
   <div class="topbar-actions">
-    <button id="matchBtn" class="pill-btn" title="Scegliete insieme cosa vedere">
-      <span aria-hidden="true" style="font-size:14px;line-height:1">👥</span>
-      <span class="lbl">CineMatch</span>
+    <button id="searchBtn" class="lens ripple magnetic" aria-expanded="false" title="Cerca un film  (Ctrl+K)" aria-label="Cerca un film">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="6.6"/><path d="m16.2 16.2 4.6 4.6"/><path d="M8.6 8.4a3.6 3.6 0 0 1 2.6-1.5" opacity=".65"/>
+      </svg>
+      <span class="lbl">Cerca</span>
     </button>
     <button id="dimBtn" class="icon-btn plain" title="Luci in sala" aria-pressed="false" aria-label="Abbassa le luci">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 1 3.6 10.8c-.6.5-.9 1.1-.9 1.8H9.3c0-.7-.3-1.3-.9-1.8A6 6 0 0 1 12 3Z"/>
       </svg>
     </button>
+    <button id="sfxBtn" class="icon-btn plain sfx-toggle" aria-pressed="true" title="Suoni e vibrazione" aria-label="Suoni e vibrazione">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M11 5 6.5 9H3.5v6h3L11 19z"/><path d="M15.5 9.2a4 4 0 0 1 0 5.6"/><path d="M18.2 6.4a8 8 0 0 1 0 11.2"/>
+      </svg>
+    </button>
+    <button id="contrastBtn" class="icon-btn plain" aria-pressed="false" title="Alto contrasto" aria-label="Alto contrasto">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17a8.5 8.5 0 0 0 0-17Z" fill="currentColor"/></svg>
+    </button>
+    <button id="favFilter" class="pill-btn ripple magnetic" title="Apri la watchlist">
+      <span aria-hidden="true" style="font-size:14px;line-height:1">🍿</span>
+      <span class="lbl">Watchlist</span>
+      <span class="badge" id="favCount">0</span>
+    </button>
     <button id="creatorBtn" class="pill-btn" title="Chi ha fatto CineGlass">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px">
         <circle cx="12" cy="8.5" r="3.6"/><path d="M4.8 20a7.4 7.4 0 0 1 14.4 0"/>
       </svg>
       <span class="lbl">Creatore</span>
-    </button>
-    <button id="searchBtn" class="icon-btn plain" aria-expanded="false" title="Cerca un film su TMDB" aria-label="Cerca un film">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
-        <circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/>
-      </svg>
-    </button>
-    <button id="favFilter" class="pill-btn" aria-pressed="false" title="Mostra solo la tua lista">
-      <span aria-hidden="true" style="font-size:14px;line-height:1">🍿</span>
-      <span class="lbl">La mia lista</span>
-      <span class="badge" id="favCount">0</span>
     </button>
     <button id="refreshBtn" class="icon-btn" title="Aggiorna i dati da TMDB" aria-label="Aggiorna i dati">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
@@ -1137,36 +1586,19 @@ body.dim .card.is-active .card-inner{box-shadow:0 44px 90px -30px #000, 0 0 90px
 
   <!-- ====================== RICERCA + FILTRI ====================== -->
   <div class="toolbar">
-    <div class="searchwrap" id="searchWrap" hidden>
-      <form class="search" id="searchBar" role="search" autocomplete="off">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>
-        <input id="searchInput" type="search" placeholder="Cerca un film…  (Ctrl+K)" aria-label="Cerca un film su TMDB">
-        <button class="btn small" type="button" id="searchClose">Chiudi</button>
-      </form>
-      <div class="results" id="results" hidden role="listbox" aria-label="Risultati della ricerca"></div>
-    </div>
-    <div class="toolbar-row">
-      <div class="bo-tabs" role="group" aria-label="Periodo di uscita">
-        <button type="button" id="tabSoon" class="on" aria-pressed="true">⏳ In arrivo</button>
-        <button type="button" id="tabNow" aria-pressed="false">🎟️ Ora in sala</button>
-      </div>
-      <div class="view-toggle" role="group" aria-label="Modalità di visualizzazione">
-        <button type="button" id="btnCarousel" class="on" aria-pressed="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="8" y="4" width="8" height="16" rx="2"/><path d="M4.5 7.5v9M19.5 7.5v9"/></svg>
-          Carosello
-        </button>
-        <button type="button" id="btnList" aria-pressed="false">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-          Lista
-        </button>
-        <button type="button" id="btnTimeline" aria-pressed="false">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><circle cx="12" cy="7" r="2.4"/><circle cx="12" cy="17" r="2.4"/><path d="M15 7h5M15 17h5M4 12h4"/></svg>
-          Timeline
-        </button>
-      </div>
-    </div>
     <div class="chips" id="chips" role="group" aria-label="Filtra per genere"></div>
+    <div class="chips" id="chipsYear" role="group" aria-label="Filtra per anno" hidden></div>
     <div class="chips" id="chipsExtra" role="group" aria-label="Filtra per durata e tipo"></div>
+    <div class="layout-mini" id="layoutMini" role="group" aria-label="Impaginazione">
+      <button type="button" id="btnCarousel" class="on" aria-pressed="true" title="Carosello 3D">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="8.5" y="4" width="7" height="16" rx="2"/><path d="M4.5 7.5v9M19.5 7.5v9"/></svg>
+        <span class="lbl">Carosello</span>
+      </button>
+      <button type="button" id="btnList" aria-pressed="false" title="Vista a lista">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        <span class="lbl">Lista</span>
+      </button>
+    </div>
     <div class="search-tag" id="searchTag" hidden>
       <span>Risultati per <b id="searchTagText"></b></span>
       <button type="button" id="searchReset" aria-label="Annulla la ricerca">
@@ -1258,6 +1690,7 @@ body.dim .card.is-active .card-inner{box-shadow:0 44px 90px -30px #000, 0 0 90px
             </div>
           </div>
           <span class="rating-cap" id="voteMeta">Gradimento</span>
+          <div class="rat-row" id="ratRow"></div>
         </div>
       </div>
 
@@ -1269,6 +1702,8 @@ body.dim .card.is-active .card-inner{box-shadow:0 44px 90px -30px #000, 0 0 90px
       <span class="lang-note" id="langNote"></span>
       <div class="genres" id="pGenres"></div>
       <div class="tags" id="pTags"></div>
+      <div class="provs" id="pProvs" aria-live="polite"></div>
+      <div class="ost" id="pOst" hidden></div>
       <div class="spoiler" id="pSpoiler" hidden>
         <div class="spoiler-txt">🍿 <span>Questo film ha una scena dopo i titoli di coda: resta in sala.</span></div>
         <div class="spoiler-glass" id="spoilerGlass">Strofina per scoprire · spoiler</div>
@@ -1301,7 +1736,7 @@ body.dim .card.is-active .card-inner{box-shadow:0 44px 90px -30px #000, 0 0 90px
       </div>
 
       <div class="actions">
-        <button class="btn primary trailer-card no-thumb sweep" id="trailerBtn">
+        <button class="btn primary trailer-card no-thumb sweep ripple magnetic" id="trailerBtn">
           <span class="trailer-thumb" id="trailerThumb">
             <img id="trailerImg" alt="" loading="lazy" decoding="async">
             <span class="play"><svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5.2v13.6a1 1 0 0 0 1.53.85l10.6-6.8a1 1 0 0 0 0-1.7L9.53 4.35A1 1 0 0 0 8 5.2Z"/></svg></span>
@@ -1312,7 +1747,7 @@ body.dim .card.is-active .card-inner{box-shadow:0 44px 90px -30px #000, 0 0 90px
           </span>
         </button>
         <span class="savewrap">
-          <button class="btn ghost sweep" id="saveBtn" aria-expanded="false" aria-haspopup="true">
+          <button class="btn ghost sweep ripple magnetic" id="saveBtn" aria-expanded="false" aria-haspopup="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18M12 14v4M10 16h4"/></svg>
             Salva data
           </button>
@@ -1327,13 +1762,17 @@ body.dim .card.is-active .card-inner{box-shadow:0 44px 90px -30px #000, 0 0 90px
             </button>
           </div>
         </span>
-        <button class="btn ghost sweep" id="inviteBtn" title="Condividi con gli amici">
+        <button class="btn ghost sweep ripple magnetic" id="inviteBtn" title="Condividi con gli amici">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12a4 4 0 1 0-4-4"/><path d="M4 8a4 4 0 0 0 4 4"/><circle cx="18" cy="6" r="2.6"/><circle cx="18" cy="18" r="2.6"/><circle cx="6" cy="12" r="2.6"/><path d="m8.3 10.7 7.4-3.9M8.3 13.3l7.4 3.9"/></svg>
           Invita amici
         </button>
-        <button class="btn ghost" id="cinemaBtn" title="Cerca i cinema vicino a te">
+        <button class="btn ghost ripple magnetic" id="oledBtn" title="Countdown a schermo intero" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9.5V13l2.4 1.6M9.5 2.5h5"/></svg>
+          Countdown schermo intero
+        </button>
+        <button class="btn ghost ripple magnetic" id="cinemaBtn" title="Orari delle proiezioni e biglietti nella tua città">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z"/><circle cx="12" cy="10" r="2.6"/></svg>
-          Trova in sala
+          📍 Orari e Biglietti
         </button>
       </div>
 
@@ -1364,11 +1803,22 @@ body.dim .card.is-active .card-inner{box-shadow:0 44px 90px -30px #000, 0 0 90px
             <div><div class="ticket-lab">Uscita in Italia</div><div class="ticket-val" id="tkDate">—</div></div>
           </div>
         </div>
+        <button type="button" class="scissors" id="tkCut" aria-label="Taglia il biglietto e salvalo in watchlist"
+                title="Trascina o tocca per tagliare">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="6.2" cy="17.4" r="2.6"/><circle cx="6.2" cy="6.6" r="2.6"/>
+            <path d="M8.4 15.9 19.5 5.2M8.4 8.1 19.5 18.8"/><path d="m12.4 12 1.6-1.5"/>
+          </svg>
+        </button>
         <div class="ticket-stub">
-          <canvas class="ticket-qr" id="tkQr" width="92" height="92" aria-label="Codice QR della scheda del film"></canvas>
+          <button type="button" class="qr-btn" id="tkQrBtn" aria-label="Condividi il link del film">
+            <canvas class="ticket-qr" id="tkQr" width="92" height="92" aria-label="Codice QR della scheda del film"></canvas>
+          </button>
           <span class="ticket-code" id="tkCode">—</span>
+          <span class="qr-cta">📱 Scansiona o tap per condividere</span>
         </div>
-        <div class="ticket-hint">Trascina lungo la perforazione per strappare e salvare</div>
+        <canvas class="shards" id="tkShards" aria-hidden="true"></canvas>
+        <div class="ticket-hint">Trascina le forbici ✂️ (o fai tap) per tagliare e salvare in Watchlist</div>
       </div>
     </div>
   </section>
@@ -1409,6 +1859,12 @@ body.dim .card.is-active .card-inner{box-shadow:0 44px 90px -30px #000, 0 0 90px
       Dati e immagini forniti da <a href="https://www.themoviedb.org" target="_blank" rel="noopener noreferrer">TMDB</a>.
       Questo prodotto usa le API di TMDB ma non è approvato né certificato da TMDB.
     </p>
+    <p class="foot-links">
+      <button type="button" id="creatorLink">👤 Chi ha fatto CineGlass</button>
+      <a href="https://instagram.com/acrisci05" target="_blank" rel="noopener noreferrer">📸 @acrisci05</a>
+      <a href="https://paypal.me/acrisci05" target="_blank" rel="noopener noreferrer"
+         title="Sostieni lo sviluppo di CineGlass (anche solo 0,50€ ☕)">☕ Sostieni il Progetto</a>
+    </p>
   </footer>
 </div>
 
@@ -1440,7 +1896,15 @@ body.dim .card.is-active .card-inner{box-shadow:0 44px 90px -30px #000, 0 0 90px
       </div>
     </div>
     <div class="beam" aria-hidden="true"></div>
-    <div class="player" id="player"></div>
+    <div class="player-wrap" id="playerWrap">
+      <div class="player" id="player"></div>
+      <button type="button" class="fs-btn" id="fsBtn" title="Guarda a tutto schermo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M8.5 3.5h-5v5M15.5 3.5h5v5M8.5 20.5h-5v-5M15.5 20.5h5v-5"/>
+        </svg>
+        <span class="lbl">Tutto schermo</span>
+      </button>
+    </div>
   </div>
 </div>
 
@@ -1467,13 +1931,24 @@ body.dim .card.is-active .card-inner{box-shadow:0 44px 90px -30px #000, 0 0 90px
       dentro un'interfaccia in vetro costruita riga per riga, senza framework.</p>
       <p>Se ti è piaciuta e vuoi sostenere lo sviluppo, un caffè è sempre benvenuto.</p>
     </div>
-    <button type="button" class="btn ghost sfx-toggle" id="sfxBtn" aria-pressed="true"
-            style="width:100%;margin-top:14px;justify-content:flex-start;gap:11px">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M11 5 6.5 9H3.5v6h3L11 19z"/><path d="M15.5 9.2a4 4 0 0 1 0 5.6"/><path d="M18.2 6.4a8 8 0 0 1 0 11.2"/>
-      </svg>
-      <span id="sfxLabel">Suoni dell'interfaccia attivi</span>
-    </button>
+    <div class="social">
+      <a class="social-btn ig" href="https://instagram.com/acrisci05" target="_blank" rel="noopener noreferrer"
+         title="Seguimi su Instagram">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3.2" y="3.2" width="17.6" height="17.6" rx="5.2"/>
+          <circle cx="12" cy="12" r="4.1"/><circle cx="17.2" cy="6.8" r="1.15" fill="currentColor" stroke="none"/>
+        </svg>
+        <span>@acrisci05</span>
+      </a>
+      <a class="social-btn pp" href="https://paypal.me/acrisci05" target="_blank" rel="noopener noreferrer"
+         title="Sostieni lo sviluppo di CineGlass (anche solo 0,50€ ☕)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6.4 20.5 9 3.6h5.4c2.9 0 4.6 1.6 4.2 4.3-.4 2.8-2.5 4.4-5.5 4.4h-2.4l-1.3 8.2Z"/>
+          <path d="M4.2 17.2 6.6 2.9" opacity=".55"/>
+        </svg>
+        <span>☕ Sostieni il Progetto</span>
+      </a>
+    </div>
     <a class="revolut" href="https://revolut.me/acrisci05" target="_blank" rel="noopener noreferrer">
       Offrimi un caffè su Revolut ☕
     </a>
@@ -1495,27 +1970,49 @@ body.dim .card.is-active .card-inner{box-shadow:0 44px 90px -30px #000, 0 0 90px
   </div>
 </div>
 
-<!-- ====================== CINEMATCH ====================== -->
-<div class="match" id="matchView" hidden>
-  <button class="match-x" id="matchClose" aria-label="Chiudi CineMatch">
+<!-- ====================== SPOTLIGHT ====================== -->
+<div class="spot" id="spot" hidden>
+  <div class="spot-bd" data-close></div>
+  <div class="spot-box" role="dialog" aria-modal="true" aria-label="Cerca un film">
+    <form class="spot-field" id="spotForm" autocomplete="off">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.6"/><path d="m16.2 16.2 4.6 4.6"/></svg>
+      <input id="spotInput" type="search" placeholder="Cerca un film…" aria-label="Cerca un film su TMDB">
+      <kbd>ESC</kbd>
+    </form>
+    <div class="spot-res" id="spotRes"></div>
+  </div>
+</div>
+
+<!-- ====================== DRAWER WATCHLIST ====================== -->
+<div class="wdrawer" id="wDrawer" hidden>
+  <div class="wdrawer-bd" data-close></div>
+  <aside class="wdrawer-box" role="dialog" aria-modal="true" aria-label="La tua watchlist">
+    <div class="wdrawer-head">
+      <div>
+        <h3>🍿 Watchlist</h3>
+        <span id="wLevel">Nessun film salvato</span>
+        <button type="button" class="w-only" id="wOnly" aria-pressed="false">Mostra solo questi nel carosello</button>
+      </div>
+      <button class="sheet-x" data-close aria-label="Chiudi">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+    <div class="wdrawer-list" id="wList"></div>
+    <div class="wdrawer-foot">
+      <button class="btn ghost ripple" id="wShare">🔗 Condividi lista</button>
+      <button class="btn ghost ripple" id="wClear">🗑️ Svuota</button>
+    </div>
+  </aside>
+</div>
+
+<!-- ====================== COUNTDOWN COMODINO ====================== -->
+<div class="oled" id="oled" hidden>
+  <button class="oled-x" id="oledClose" aria-label="Chiudi">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
   </button>
-  <div class="match-side b" data-player="b">
-    <span class="match-lab">Giocatore B</span>
-    <img class="match-poster" id="matchPosterB" alt="">
-    <span class="match-title" id="matchTitleB">—</span>
-    <div class="match-btns"><button type="button" class="no" data-vote="no" aria-label="No">✖️</button><button type="button" class="si" data-vote="si" aria-label="Sì">❤️</button></div>
-  </div>
-  <div class="match-side" data-player="a">
-    <span class="match-lab">Giocatore A</span>
-    <img class="match-poster" id="matchPosterA" alt="">
-    <span class="match-title" id="matchTitleA">—</span>
-    <div class="match-btns"><button type="button" class="no" data-vote="no" aria-label="No">✖️</button><button type="button" class="si" data-vote="si" aria-label="Sì">❤️</button></div>
-  </div>
-  <div class="match-esito" id="matchEsito" hidden>
-    <strong id="matchEsitoT">È MATCH! 🍿</strong>
-    <span id="matchEsitoS"></span>
-  </div>
+  <span class="oled-title" id="oledTitle">—</span>
+  <div class="oled-time" id="oledTime">—</div>
+  <span class="oled-sub" id="oledSub">—</span>
 </div>
 
 <!-- ====================== LOCANDINA INGRANDITA ====================== -->
@@ -1547,6 +2044,7 @@ const STORE = {
   details: 'cineglass:details:v2',
   favs:    'cineglass:favs:v1',
   layout:  'cineglass:layout:v1',
+  hc:      'cineglass:contrasto:v1',
   key:     'cineglass:apikey:v1'
 };
 
@@ -1605,9 +2103,64 @@ function startOfToday(){
   return d.getTime();
 }
 
+/* --- Cache su IndexedDB: apertura istantanea e consultazione offline ---
+   localStorage resta la copia sincrona di riferimento (e' subito leggibile
+   all'avvio); IndexedDB ne tiene una copia piu' capiente e la rimette a posto
+   quando il browser sfratta localStorage o quando si e' senza rete. --- */
+const IDB_NOME = 'cineglass', IDB_STORE = 'cache', IDB_VER = 1;
+let idbPromise = null;
+
+function idb(){
+  if (idbPromise) return idbPromise;
+  idbPromise = new Promise(resolve => {
+    try{
+      if (!window.indexedDB) return resolve(null);
+      const req = indexedDB.open(IDB_NOME, IDB_VER);
+      req.onupgradeneeded = () => {
+        const db = req.result;
+        if (!db.objectStoreNames.contains(IDB_STORE)) db.createObjectStore(IDB_STORE);
+      };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => resolve(null);
+      req.onblocked = () => resolve(null);
+    }catch(err){ resolve(null); }
+  });
+  return idbPromise;
+}
+
+async function idbGet(chiave){
+  const db = await idb();
+  if (!db) return null;
+  return new Promise(resolve => {
+    try{
+      const tx = db.transaction(IDB_STORE, 'readonly');
+      const r = tx.objectStore(IDB_STORE).get(chiave);
+      r.onsuccess = () => resolve(r.result === undefined ? null : r.result);
+      r.onerror = () => resolve(null);
+    }catch(err){ resolve(null); }
+  });
+}
+
+async function idbSet(chiave, valore){
+  const db = await idb();
+  if (!db) return false;
+  return new Promise(resolve => {
+    try{
+      const tx = db.transaction(IDB_STORE, 'readwrite');
+      tx.objectStore(IDB_STORE).put(valore, chiave);
+      tx.oncomplete = () => resolve(true);
+      tx.onerror = () => resolve(false);
+      tx.onabort = () => resolve(false);
+    }catch(err){ resolve(false); }
+  });
+}
+
 const store = {
   get(k){ try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : null; } catch(e){ return null; } },
-  set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch(e){ return false; } },
+  set(k, v){
+    idbSet(k, v);
+    try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch(e){ return false; }
+  },
   del(k){ try { localStorage.removeItem(k); } catch(e){} }
 };
 
@@ -1753,12 +2306,24 @@ const DEMO = [
 /* =========================================================
    4. STATO + RIFERIMENTI DOM
    ========================================================= */
+/* Su macchine modeste il raggio di sfocatura e' il primo a costare: si riduce
+   una volta sola, all'avvio, leggendo i core disponibili e il risparmio dati. */
+function rilevaPrestazioni(){
+  const core = Number(navigator.hardwareConcurrency) || 8;
+  const mem = Number(navigator.deviceMemory) || 8;
+  const conn = navigator.connection || null;
+  const risparmio = !!(conn && (conn.saveData || /2g/.test(String(conn.effectiveType || ''))));
+  const bassa = core <= 4 || mem <= 4 || risparmio;
+  if (bassa) document.documentElement.classList.add('perf-bassa');
+  return bassa;
+}
+
 const state = {
   movies: [], favs: [], favOnly: false, detailsCache: {},
   view: [], genre: null, mode: 'upcoming', searchList: [], searchQuery: '',
-  layout: 'carousel', boxoffice: [], boTab: 'it', credits: {}, custom: null,
+  layout: 'carousel', ultimaPiatta: 'carousel', anno: null, providers: {}, boxoffice: [], boTab: 'it', credits: {}, custom: null,
   section: 'soon', nowPlaying: [], durata: null, storiaVera: false,
-  tiltX: 0, tiltY: 0,
+  tiltX: 0, tiltY: 0, perfBassa: false,
   current: 0, target: 0, activeIndex: 0, activeId: null, activeDetails: null,
   demo: false, raf: 0, drag: null, cardW: 260, spacing: 180, lastRelease: null
 };
@@ -1768,6 +2333,7 @@ const el = {
   prev:$('#prevBtn'), next:$('#nextBtn'), panel:$('#panel'), panelInner:$('#panelInner'),
   title:$('#pTitle'), tagline:$('#pTagline'), overview:$('#pOverview'), vote:$('#pVote'),
   scoreFill:$('#scoreFill'), score:$('#score'), scoreProg:$('#scoreProg'), voteMeta:$('#voteMeta'),
+  ratRow:$('#ratRow'),
   facts:$('#pFacts'), genres:$('#pGenres'), readMore:$('#readMore'), readMoreLabel:$('#readMoreLabel'),
   langNote:$('#langNote'), rerelease:$('#pRerelease'), rereleaseText:$('#pRereleaseText'),
   trailerThumb:$('#trailerThumb'), trailerImg:$('#trailerImg'), trailerTitle:$('#trailerTitle'),
@@ -1776,7 +2342,8 @@ const el = {
   favFilter:$('#favFilter'), favCount:$('#favCount'), refresh:$('#refreshBtn'),
   badge:$('#pBadge'), badgeText:$('#pBadgeText'), chips:$('#chips'),
   carousel:$('#carousel'), listView:$('#listView'), tableBody:$('#movieTableBody'),
-  btnCarousel:$('#btnCarousel'), btnList:$('#btnList'),
+  btnCarousel:$('#btnCarousel'), btnList:$('#btnList'), layoutMini:$('#layoutMini'),
+  topbar:$('.topbar'), navSeg:$('#navSeg'), navSlider:$('#navSlider'), chipsYear:$('#chipsYear'),
   boxoffice:$('#boxoffice'), boList:$('#boList'), boSource:$('#boSource'),
   boIntro:$('#boIntro'), boNote:$('#boNote'), boTabIt:$('#boTabIt'), boTabWw:$('#boTabWw'),
   boTitle:$('#boxoffice') && $('#boxoffice').querySelector('h2'),
@@ -1787,29 +2354,33 @@ const el = {
   pipBtn:$('#pipBtn'),
   filmstrip:$('#filmstrip'), stripTrack:$('#stripTrack'),
   ticket:$('#ticket'), tkTitle:$('#tkTitle'), tkDate:$('#tkDate'),
-  tkQr:$('#tkQr'), tkCode:$('#tkCode'),
+  tkQr:$('#tkQr'), tkQrBtn:$('#tkQrBtn'), tkCode:$('#tkCode'),
+  tkCut:$('#tkCut'), tkShards:$('#tkShards'),
   icsBtn:$('#icsBtn'), cinemaBtn:$('#cinemaBtn'), inviteBtn:$('#inviteBtn'),
   hypeBucket:$('#hypeBucket'), hypeCount:$('#hypeCount'), hypeVal:$('#hypeVal'), hypeHint:$('#hypeHint'),
   hypeClear:$('#hypeClear'),
-  pTags:$('#pTags'), pAge:$('#pAge'), pDateKind:$('#pDateKind'),
+  pTags:$('#pTags'), pProvs:$('#pProvs'), ost:$('#pOst'), ostBtn:null,
+  pAge:$('#pAge'), pDateKind:$('#pDateKind'),
   saveBtn:$('#saveBtn'), saveMenu:$('#saveMenu'),
-  results:$('#results'), searchWrap:$('#searchWrap'), chipsExtra:$('#chipsExtra'),
-  tabSoon:$('#tabSoon'), tabNow:$('#tabNow'), btnTimeline:$('#btnTimeline'),
+  chipsExtra:$('#chipsExtra'),
   timelineView:$('#timelineView'), timelineBody:$('#timelineBody'),
-  matchBtn:$('#matchBtn'), dimBtn:$('#dimBtn'), matchView:$('#matchView'), matchClose:$('#matchClose'),
-  matchPosterA:$('#matchPosterA'), matchPosterB:$('#matchPosterB'),
-  matchTitleA:$('#matchTitleA'), matchTitleB:$('#matchTitleB'),
-  matchEsito:$('#matchEsito'), matchEsitoT:$('#matchEsitoT'), matchEsitoS:$('#matchEsitoS'),
+  dimBtn:$('#dimBtn'), contrastBtn:$('#contrastBtn'), oledBtn:$('#oledBtn'),
+  spot:$('#spot'),
+  wDrawer:$('#wDrawer'), wList:$('#wList'), wLevel:$('#wLevel'), wOnly:$('#wOnly'),
+  wShare:$('#wShare'), wClear:$('#wClear'),
+  oled:$('#oled'), oledTitle:$('#oledTitle'), oledTime:$('#oledTime'),
+  oledSub:$('#oledSub'), oledClose:$('#oledClose'),
   lightbox:$('#lightbox'), lightboxImg:$('#lightboxImg'),
   spoiler:$('#pSpoiler'), spoilerGlass:$('#spoilerGlass'),
   ytBtn:$('#ytBtn'), wipeAll:$('#wipeAll'),
-  searchBtn:$('#searchBtn'), searchBar:$('#searchBar'), searchInput:$('#searchInput'),
-  searchClose:$('#searchClose'), searchTag:$('#searchTag'), searchTagText:$('#searchTagText'),
+  searchBtn:$('#searchBtn'), searchBar:$('#spotForm'), searchInput:$('#spotInput'),
+  results:$('#spotRes'), searchTag:$('#searchTag'), searchTagText:$('#searchTagText'),
   searchReset:$('#searchReset'), status:$('#status'), statusText:$('#statusText'),
   debugBox:$('#debugBox'), debugOut:$('#debugOut'),
   notice:$('#notice'), noticeIco:$('#noticeIco'), noticeTitle:$('#noticeTitle'), noticeText:$('#noticeText'),
   noticeClose:$('#noticeClose'), keyForm:$('#keyForm'), keyInput:$('#keyInput'),
   modal:$('#modal'), modalTitle:$('#mTitle'), player:$('#player'), lightsBtn:$('#lightsBtn'),
+  playerWrap:$('#playerWrap'), fsBtn:$('#fsBtn'),
   backdrop:$('#backdrop'), toast:$('#toast'), empty:$('#empty'), emptyTitle:$('#emptyTitle'),
   emptyText:$('#emptyText'), emptyBtn:$('#emptyBtn')
 };
@@ -1985,17 +2556,31 @@ function isoTraGiorni(n){
   return d.toISOString().split('T')[0];
 }
 
-/* Annunci oltre la finestra: attendibile l'anno, non il giorno */
+/* Annunci oltre la finestra: attendibile l'anno, non il giorno.
+   La CineTimeline deve arrivare al 2028 e oltre, quindi si scorrono
+   ricorsivamente le pagine successive fino al tetto di PAGINE_ANNUNCI. */
+const PAGINE_ANNUNCI = 4;
+
 async function fetchAnnunci(key){
-  const url = `${API_BASE}/discover/movie?api_key=${encodeURIComponent(key)}&language=it-IT` +
-    `&sort_by=popularity.desc&include_adult=false&include_video=false&page=1` +
+  const url = p => `${API_BASE}/discover/movie?api_key=${encodeURIComponent(key)}&language=it-IT` +
+    `&sort_by=popularity.desc&include_adult=false&include_video=false&page=${p}` +
     `&primary_release_date.gte=${isoTraGiorni(GIORNI_CAROSELLO + 1)}`;
-  try{
-    const d = await fetchJSON(url);
-    const lista = (d && d.results ? d.results : []).map(slimMovie).filter(m => m.poster_path);
-    lista.forEach(m => { m.__annuncio = true; });
-    return lista;
-  }catch(err){ return []; }
+  const raccolti = [];
+  let totale = 1;
+  for (let p = 1; p <= Math.min(PAGINE_ANNUNCI, totale); p++){
+    let d = null;
+    try{ d = await fetchJSON(url(p)); }
+    catch(err){ break; }          /* la pagina manca: si tiene quel che c'e' */
+    if (!d) break;
+    totale = Math.max(1, Number(d.total_pages) || 1);
+    const pagina = (d.results || []).map(slimMovie).filter(m => m.poster_path);
+    if (!pagina.length) break;
+    raccolti.push(...pagina);
+  }
+  const visti = new Set();
+  const lista = raccolti.filter(m => !visti.has(m.id) && visti.add(m.id));
+  lista.forEach(m => { m.__annuncio = true; });
+  return lista;
 }
 
 /* Film gia' in programmazione nelle sale italiane */
@@ -2196,7 +2781,8 @@ function parseDetails(d, movie){
     trailer: pickTrailer(d.videos && d.videos.results),
     poster_path: d.poster_path || movie.poster_path || null,
     backdrop_path: d.backdrop_path || movie.backdrop_path || null,
-    homepage: d.homepage || ''
+    homepage: d.homepage || '',
+    imdb: d.imdb_id || ''
   };
 }
 
@@ -2252,6 +2838,86 @@ async function getDetails(movie){
   return data;
 }
 
+/* --- Dove si vedra': provider ufficiali TMDB per la regione Italia --- */
+const PROV_KEY = 'cineglass:providers:v1';
+const TTL_PROV = 24 * 3600 * 1000;
+
+function provCache(){ return store.get(PROV_KEY) || {}; }
+
+async function getProviders(movie){
+  if (!movie || movie.__demo) return null;
+  const id = movie.id;
+  if (state.providers[id]) return state.providers[id];
+  const cache = provCache();
+  const voce = cache[id];
+  if (voce && Date.now() - voce.ts < TTL_PROV){
+    state.providers[id] = voce.data;
+    return voce.data;
+  }
+  const key = resolveKey();
+  if (!key) return null;
+  let dati = null;
+  try{
+    const raw = await fetchJSON(`${API_BASE}/movie/${id}/watch/providers?api_key=${encodeURIComponent(key)}`, 9000);
+    const it = raw && raw.results ? raw.results.IT : null;
+    const visti = new Set();
+    const unisci = (arr, tipo) => (arr || []).forEach(p => {
+      if (!p || visti.has(p.provider_id)) return;
+      visti.add(p.provider_id);
+      lista.push({ id: p.provider_id, nome: p.provider_name, logo: p.logo_path, tipo });
+    });
+    const lista = [];
+    if (it){
+      unisci(it.flatrate, 'abbonamento');
+      unisci(it.free, 'gratis');
+      unisci(it.rent, 'noleggio');
+      unisci(it.buy, 'acquisto');
+    }
+    dati = { lista: lista.slice(0, 6), link: it && it.link ? it.link : '' };
+  }catch(err){
+    dati = { lista: [], link: '' };
+  }
+  state.providers[id] = dati;
+  cache[id] = { ts: Date.now(), data: dati };
+  store.set(PROV_KEY, cache);
+  return dati;
+}
+
+const ETICHETTA_PROV = {
+  abbonamento: 'incluso nell\u2019abbonamento',
+  gratis: 'gratis con pubblicita\u0300',
+  noleggio: 'a noleggio',
+  acquisto: 'in acquisto'
+};
+
+async function renderProviders(movie){
+  const box = el.pProvs;
+  box.innerHTML = '';
+  if (!movie) return;
+  if (movie.__demo){
+    box.innerHTML = '<span class="prov-solo">Esclusiva Cinema \uD83C\uDFAC</span>';
+    return;
+  }
+  const atteso = movie.id;
+  const dati = await getProviders(movie);
+  if (state.activeId !== atteso) return;
+  if (!dati || !dati.lista.length){
+    box.innerHTML = '<span class="prov-solo" title="Nessuna piattaforma italiana lo propone ancora">' +
+                    'Esclusiva Cinema \uD83C\uDFAC</span>';
+    return;
+  }
+  const badge = p => {
+    const logo = img(p.logo, 'w45');
+    return '<span class="prov" title="' + esc(p.nome + ' \u00b7 ' + (ETICHETTA_PROV[p.tipo] || p.tipo)) + '">' +
+      (logo ? `<img src="${esc(logo)}" alt="" loading="lazy" decoding="async">` : '') +
+      `<span class="prov-name">${esc(p.nome)}</span></span>`;
+  };
+  const dentro = '<span class="prov-lab">Anche in streaming</span>' + dati.lista.map(badge).join('');
+  box.innerHTML = dati.link
+    ? `<a class="prov-row" href="${esc(dati.link)}" target="_blank" rel="noopener noreferrer" title="Apri la pagina TMDB con tutte le piattaforme">${dentro}</a>`
+    : `<span class="prov-row">${dentro}</span>`;
+}
+
 /* --- Feed locale: ha la precedenza su TMDB per date, trailer e incassi --- */
 async function loadCustomFeed(){
   if (state.custom) return state.custom;
@@ -2284,6 +2950,31 @@ function measure(){
   state.spacing = state.cardW * 0.66;
 }
 
+/* Due mini-pillole sotto la locandina: pubblico reale e critica stimata */
+function quickScore(m){
+  const votes = Number(m.vote_count) || 0;
+  const vote = Number(m.vote_average) || 0;
+  if (votes < MIN_VOTES || vote <= 0) return '';
+  const pubblico = clamp(Math.round(vote * 10), 0, 100);
+  const critica = stimaCritica(vote, votes);
+  return '<p class="qscore">' +
+    (critica === null ? '' :
+      `<span class="qs qs-rt" title="Stima della critica ricavata dal voto TMDB">🍅 ~${critica}%</span>`) +
+    `<span class="qs qs-pop" title="Voto del pubblico TMDB su ${votes.toLocaleString('it-IT')} voti">🍿 ${pubblico}%</span>` +
+  '</p>';
+}
+
+/* L'alone dietro la card prende i colori dominanti della locandina */
+async function tingiCard(card, m){
+  const url = img(m.poster_path, 'w185');
+  if (!url) return;
+  let hex = null;
+  try{ hex = await dominantColor(url); }catch(err){ hex = null; }
+  if (!hex || !card.isConnected) return;
+  card.style.setProperty('--amb', hex);
+  card.classList.add('ambient');
+}
+
 function buildCards(){
   const list = movies();
   el.stage.innerHTML = '';
@@ -2296,11 +2987,15 @@ function buildCards(){
     card.innerHTML =
       '<div class="card-inner sweep">' +
         `<img class="poster" alt="Locandina di ${esc(m.title)}" loading="lazy" decoding="async" src="${esc(img(m.poster_path, 'w500') || placeholderPoster(m.title))}">` +
-        '<div class="frost"></div><div class="shine"></div><div class="glare"></div><div class="card-grad"></div>' +
+        '<div class="frost"></div><div class="shine"></div><div class="glare"></div>' +
+        '<div class="card-lens"></div><div class="card-grad"></div>' +
         (badge ? `<span class="card-badge${m.__demo ? ' demo' : ''}">${esc(badge)}</span>` : '') +
 
         '<button class="card-play" data-act="play">' +
           '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.2v13.6a1 1 0 0 0 1.53.85l10.6-6.8a1 1 0 0 0 0-1.7L9.53 4.35A1 1 0 0 0 8 5.2Z"/></svg>Guarda Trailer' +
+        '</button>' +
+        `<button class="card-quick" data-act="quick" aria-label="Guarda subito il trailer di ${esc(m.title)}" title="Trailer al volo">` +
+          '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.2v13.6a1 1 0 0 0 1.53.85l10.6-6.8a1 1 0 0 0 0-1.7L9.53 4.35A1 1 0 0 0 8 5.2Z"/></svg>' +
         '</button>' +
         (() => {
           const d = distanza(m.release_date);
@@ -2315,6 +3010,7 @@ function buildCards(){
             `<span>${esc(genreNames(m.genre_ids, 1))}</span><span class="sep">•</span>` +
             `<span class="star">★ ${(Number(m.vote_average) || 0).toFixed(1)}</span>` +
           '</p>' +
+          quickScore(m) +
         '</div>' +
       '</div>';
     const poster = card.querySelector('.poster');
@@ -2322,8 +3018,10 @@ function buildCards(){
     /* il trailer si apre anche se tilt o swipe sono in ascolto sullo stage */
     /* tap sulla locandina (fuori dai controlli): ingrandimento */
     poster.addEventListener('click', e => {
-      if (clickSuppressed || i !== wrapIndex(state.current, cards.length)) return;
+      if (clickSuppressed) return;
       e.stopPropagation();
+      /* laterale: la si porta al centro; centrale: si ingrandisce la locandina */
+      if (i !== wrapIndex(state.current, cards.length)){ goTo(i); sfx.play('tap'); buzz(10); return; }
       apriLightbox(m);
     });
     const play = card.querySelector('.card-play');
@@ -2333,7 +3031,16 @@ function buildCards(){
       play.addEventListener('touchstart', apri, { passive: false });
       play.addEventListener('pointerdown', e => e.stopPropagation());
     }
+    /* Play al volo: apre il trailer anche da una locandina non in primo piano */
+    const quick = card.querySelector('.card-quick');
+    if (quick){
+      const subito = e => { e.stopPropagation(); e.preventDefault(); sfx.play('tap'); buzz(12); openTrailerFor(m); };
+      quick.addEventListener('click', subito);
+      quick.addEventListener('touchstart', subito, { passive: false });
+      quick.addEventListener('pointerdown', e => e.stopPropagation());
+    }
     el.stage.appendChild(card);
+    tingiCard(card, m);
     return card;
   });
   buildDots(list.length);
@@ -2439,6 +3146,7 @@ function render(){
     card.style.setProperty('--frost', String(clamp((a - 0.15) * 0.6, 0, 0.88).toFixed(3)));
     const eraAttiva = card.classList.contains('is-active');
     card.classList.toggle('is-active', i === active);
+    card.classList.toggle('vicina', a <= 1.05);
     if (i === active && cardBucketEl && cardBucketEl.parentNode !== card.firstChild){
       card.firstChild.appendChild(cardBucketEl);
       if (!eraAttiva){
@@ -2505,6 +3213,21 @@ function setTarget(v){
   selectActive(wrapIndex(state.target, n));
   startAnim();
 }
+/* Passaggio morbido locandina -> scheda estesa, dove il browser lo supporta */
+let transizioneInCorso = false;
+function conTransizione(fn){
+  /* Su hardware modesto lo scatto della pagina costa piu' dell'animazione che
+     regala: meglio un cambio istantaneo che mezzo secondo di attesa. */
+  if (REDUCED || state.perfBassa || transizioneInCorso || !document.startViewTransition){ fn(); return; }
+  try{
+    transizioneInCorso = true;
+    const t = document.startViewTransition(fn);
+    const libera = () => { transizioneInCorso = false; };
+    if (t && t.finished && t.finished.then) t.finished.then(libera, libera);
+    else libera();
+  }catch(err){ transizioneInCorso = false; fn(); }
+}
+
 function goTo(index){
   const n = cards.length;
   if (!n) return;
@@ -2666,6 +3389,52 @@ function setScore(vote, votes){
   el.score.title = 'Media dei voti degli utenti TMDB, non della critica';
 }
 
+/* --------- Tripla valutazione: TMDB reale, IMDb e RT come rimandi ---------
+   TMDB non espone i voti di IMDb ne' di Rotten Tomatoes: l'unico numero
+   certo e' la media degli utenti TMDB. Le altre due pillole portano alla
+   scheda ufficiale e mostrano una stima ricavata da quel numero, sempre
+   marcata con la tilde e spiegata nel tooltip: nessun dato inventato
+   viene spacciato per ufficiale. --------- */
+function stimaCritica(vote, votes){
+  const n = Number(votes) || 0;
+  const v = Number(vote) || 0;
+  if (n < MIN_VOTES || v <= 0) return null;
+  /* la critica e' quasi sempre piu' severa del pubblico: si comprime la coda alta */
+  return clamp(Math.round((v * 10 - 50) * 1.35 + 50), 5, 99);
+}
+
+function renderRatings(movie, details){
+  const box = el.ratRow;
+  const vote = details ? details.vote : movie.vote_average;
+  const votes = details ? details.votes : movie.vote_count;
+  const decimi = (Number(vote) || 0);
+  const abbastanza = (Number(votes) || 0) >= MIN_VOTES && decimi > 0;
+  const imdbId = details && details.imdb ? details.imdb : '';
+  const imdbUrl = imdbId
+    ? 'https://www.imdb.com/title/' + encodeURIComponent(imdbId) + '/'
+    : 'https://www.imdb.com/find/?q=' + encodeURIComponent(movie.title);
+  const rtUrl = 'https://www.rottentomatoes.com/search?search=' + encodeURIComponent(movie.title);
+  const critica = stimaCritica(vote, votes);
+
+  const imdbVal = abbastanza ? '~' + decimi.toFixed(1).replace('.', ',') : '—';
+  const rtVal = critica === null ? '—' : '~' + critica + '%';
+  const nota = abbastanza
+    ? 'Stima ricavata dal voto TMDB, non è il punteggio ufficiale: tocca per aprire la scheda'
+    : 'Ancora troppo pochi voti per una stima: tocca per aprire la scheda';
+
+  box.innerHTML =
+    `<a class="rat rat-imdb" href="${esc(imdbUrl)}" target="_blank" rel="noopener noreferrer" title="${esc(nota)}">` +
+      '<span class="rat-ico" aria-hidden="true">IMDb</span>' +
+      `<span class="rat-val">${esc(imdbVal)}<small>/10</small></span>` +
+      '<span class="rat-note">stima · apri ↗</span>' +
+    '</a>' +
+    `<a class="rat rat-rt" href="${esc(rtUrl)}" target="_blank" rel="noopener noreferrer" title="${esc(nota)}">` +
+      '<span class="rat-ico" aria-hidden="true">🍅</span>' +
+      `<span class="rat-val">${esc(rtVal)}</span>` +
+      '<span class="rat-note">stima · apri ↗</span>' +
+    '</a>';
+}
+
 /* --------- Scheda: fatti, generi, trama, trailer --------- */
 const FACT_ICONS = {
   durata: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/>',
@@ -2776,12 +3545,18 @@ function renderPanel(movie, details){
   el.panelInner.classList.remove('swap');
   void el.panelInner.offsetWidth;
   el.panelInner.classList.add('swap');
+  const amb = (cards[state.activeIndex] || {}).style;
+  if (amb && amb.getPropertyValue('--amb')){
+    el.panelInner.style.setProperty('--amb', amb.getPropertyValue('--amb'));
+    el.panelInner.classList.add('ambient');
+  }
 
   el.title.textContent = movie.title;
   el.tagline.textContent = details && details.tagline ? details.tagline : '';
   renderOverview((details && details.overview) || movie.overview || 'Sinossi non ancora disponibile per questo titolo.',
                  details ? details.overviewLang : 'it');
   setScore(details ? details.vote : movie.vote_average, details ? details.votes : movie.vote_count);
+  renderRatings(movie, details);
   renderFacts(details);
   renderGenres(details && details.genreIds && details.genreIds.length ? details.genreIds : movie.genre_ids);
 
@@ -2794,9 +3569,12 @@ function renderPanel(movie, details){
   el.badgeText.textContent = badge || '';
   renderRerelease(details, iso);
   renderCountdown();
+  aggiornaOledBtn();
   renderTrailerCard(movie, details);
   renderTicket(movie, details);
   renderTags(movie, details);
+  renderProviders(movie);
+  renderOst(movie);
   renderDateKind(movie, iso);
   const postCredit = !!(details && details.kw && details.kw.postcredit);
   el.spoiler.hidden = !postCredit;
@@ -2897,8 +3675,9 @@ async function openFilmography(personId, nome, foto, ruolo){
     el.filmoList.innerHTML = film.map(f =>
       `<button type="button" class="filmo-row" data-film="${f.id}">` +
         `<img src="${esc(img(f.poster_path, 'w92') || placeholderPoster(f.title))}" alt="" loading="lazy">` +
-        `<span class="filmo-info"><span class="filmo-title">${esc(f.title)}</span>` +
-        `<span class="filmo-meta">${esc(fmtYear(f.release_date))} · ${esc(f.character || 'Regia')}</span></span>` +
+        '<span class="filmo-info">' +
+        `<span class="filmo-title">${esc(f.title)} (${esc(fmtYear(f.release_date))})</span>` +
+        `<span class="filmo-meta">${esc(f.character || 'Regia')}</span></span>` +
       '</button>').join('');
     state.filmo = film;
   }catch(err){
@@ -3006,6 +3785,7 @@ function toggleFav(movie){
 
 function updateFavUI(){
   el.favCount.textContent = String(state.favs.length);
+  if (!el.wDrawer.hidden) renderWatchlist();
   const list = movies();
   const active = list[state.activeIndex];
   if (active && bucketPanel) renderHype(active);
@@ -3028,15 +3808,23 @@ function setFavOnly(on){
    8-bis. VISTA A LISTA
    ========================================================= */
 function setLayout(mode){
+  conTransizione(() => applicaLayout(mode));
+}
+
+function applicaLayout(mode){
   state.layout = ['list', 'timeline'].includes(mode) ? mode : 'carousel';
   const lista = state.layout === 'list', tl = state.layout === 'timeline';
   el.listView.hidden = !lista;
   el.timelineView.hidden = !tl;
   el.carousel.hidden = lista || tl;
-  [[el.btnCarousel, !lista && !tl], [el.btnList, lista], [el.btnTimeline, tl]].forEach(([b, on]) => {
+  if (!tl) state.ultimaPiatta = state.layout;
+  [[el.btnCarousel, !lista && !tl], [el.btnList, lista]].forEach(([b, on]) => {
     b.classList.toggle('on', on);
     b.setAttribute('aria-pressed', on ? 'true' : 'false');
   });
+  el.layoutMini.hidden = tl;
+  el.chipsYear.hidden = !tl;
+  syncNav();
   store.set(STORE.layout, state.layout);
   buzz(15);
   sfx.play('tap');
@@ -3197,14 +3985,18 @@ el.boList.addEventListener('click', e => {
 let searchSeq = 0, searchTimer = 0;
 
 function openSearch(on){
-  el.searchWrap.hidden = !on;
+  const gia = !el.spot.hidden;
+  el.spot.hidden = !on;
   el.searchBtn.setAttribute('aria-expanded', on ? 'true' : 'false');
+  document.body.classList.toggle('no-scroll', !!on);
   if (on){
+    if (!gia) sfx.play('open');
     el.searchInput.focus();
     el.searchInput.select();
     if (!el.searchInput.value.trim()) mostraRecenti();
   } else {
     el.results.hidden = true;
+    if (gia) sfx.play('close');
   }
 }
 
@@ -3259,6 +4051,7 @@ async function runSearch(q){
 function scegliRisultato(m){
   salvaRecente(m);
   el.results.hidden = true;
+  if (!el.spot.hidden) openSearch(false);
   state.mode = 'search';
   state.favOnly = false;
   el.favFilter.setAttribute('aria-pressed', 'false');
@@ -3315,6 +4108,10 @@ function openTrailer(movie, details){
   el.ytBtn.hidden = !(trailer && trailer.key);
   if (trailer && trailer.key) el.ytBtn.href = 'https://www.youtube.com/watch?v=' + encodeURIComponent(trailer.key);
   state.pipTitle = movie.title;
+  state.pipAuto = false;
+  pipUltimo = window.scrollY;
+  pipApertura = performance.now();
+  el.fsBtn.hidden = !(trailer && trailer.key);
   el.modal.hidden = false;
   document.body.classList.remove('pip-mode');
   document.body.classList.add('no-scroll');
@@ -3324,7 +4121,9 @@ function openTrailer(movie, details){
 }
 
 function closeTrailer(){
+  if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen();
   el.modal.hidden = true;
+  state.pipAuto = false;
   el.player.innerHTML = '';
   document.body.classList.remove('no-scroll', 'lights-out', 'pip-mode');
   sfx.play('close');
@@ -3334,14 +4133,89 @@ function closeTrailer(){
 }
 
 /* Mini player: nessun cambio di genitore per l'iframe, solo un'altra veste */
-function togglePip(){
-  const attivo = !document.body.classList.contains('pip-mode');
-  document.body.classList.toggle('pip-mode', attivo);
+function setPip(attivo, silenzioso){
+  if (document.body.classList.contains('pip-mode') === !!attivo) return;
+  document.body.classList.toggle('pip-mode', !!attivo);
   document.body.classList.toggle('no-scroll', !attivo);
   if (attivo) document.body.classList.remove('lights-out');
   el.pipBtn.querySelector('.lbl').textContent = attivo ? 'Ingrandisci' : 'Mini player';
   el.pipBtn.title = attivo ? 'Torna a schermo intero' : 'Riduci a mini player';
+  if (!silenzioso) sfx.play('tap');
+}
+
+function togglePip(){
+  const attivo = !document.body.classList.contains('pip-mode');
+  setPip(attivo);
+  /* dal mini player si torna al modal grande restando dove si stava leggendo */
+  state.pipAuto = false;
+}
+
+/* Se il trailer e' in riproduzione e si scorre per leggere trama o cast,
+   il player scivola da solo nell'angolo in basso a destra. */
+let pipUltimo = 0, pipApertura = 0;
+function initAutoPip(){
+  window.addEventListener('scroll', () => {
+    if (el.modal.hidden) return;
+    const y = window.scrollY;
+    /* Bloccando lo scorrimento il browser puo' sparare un evento tutto suo:
+       nei primi istanti dopo l'apertura si ignora, altrimenti il player
+       finirebbe nell'angolo senza che nessuno abbia toccato nulla. */
+    if (performance.now() - pipApertura < 450){ pipUltimo = y; return; }
+    const giu = y - pipUltimo;
+    pipUltimo = y;
+    if (!document.body.classList.contains('pip-mode')){
+      if (giu > 4){ state.pipAuto = true; setPip(true, true); }
+    } else if (state.pipAuto && y <= 8 && giu < 0){
+      state.pipAuto = false;
+      setPip(false, true);
+    }
+  }, { passive: true });
+
+  /* Con il modal aperto il corpo non scorre, quindi l'evento "scroll" non
+     arriva: e' la rotellina sopra al player a dire che si vuole leggere oltre. */
+  window.addEventListener('wheel', e => {
+    if (el.modal.hidden || document.body.classList.contains('pip-mode')) return;
+    if (performance.now() - pipApertura < 450) return;
+    if (e.deltaY > 8){ state.pipAuto = true; setPip(true, true); }
+  }, { passive: true });
+
+  /* Su telefono il blocco dello scroll e' totale: la rotellina non basta,
+     serve anche il gesto verticale sopra al modal. */
+  let tocco = null;
+  el.modal.addEventListener('touchstart', e => {
+    if (document.body.classList.contains('pip-mode')) return;
+    tocco = e.touches && e.touches[0] ? e.touches[0].clientY : null;
+  }, { passive: true });
+  el.modal.addEventListener('touchmove', e => {
+    if (tocco === null || document.body.classList.contains('pip-mode')) return;
+    const y = e.touches && e.touches[0] ? e.touches[0].clientY : tocco;
+    if (tocco - y > 46){ tocco = null; state.pipAuto = true; setPip(true, true); }
+  }, { passive: true });
+  el.modal.addEventListener('touchend', () => { tocco = null; }, { passive: true });
+}
+
+/* --- Tutto schermo nativo sul contenitore del player --- */
+function schermoIntero(){
+  const box = el.playerWrap;
+  const doc = document;
+  const attivo = doc.fullscreenElement || doc.webkitFullscreenElement;
   sfx.play('tap');
+  if (attivo){
+    const esci = doc.exitFullscreen || doc.webkitExitFullscreen;
+    if (esci) esci.call(doc);
+    return;
+  }
+  const entra = box.requestFullscreen || box.webkitRequestFullscreen;
+  if (!entra){ toast('Il tuo browser non consente il tutto schermo', 'warn'); return; }
+  const p = entra.call(box);
+  if (p && p.catch) p.catch(() => toast('Tutto schermo non consentito', 'warn'));
+}
+
+function syncFsBtn(){
+  const attivo = !!(document.fullscreenElement || document.webkitFullscreenElement);
+  el.fsBtn.classList.toggle('on', attivo);
+  el.fsBtn.querySelector('.lbl').textContent = attivo ? 'Esci' : 'Tutto schermo';
+  el.fsBtn.title = attivo ? 'Esci dal tutto schermo' : 'Guarda a tutto schermo';
 }
 
 function toggleLights(){
@@ -3536,8 +4410,23 @@ async function boot(){
   state.favs = store.get(STORE.favs) || [];
   const dc = store.get(STORE.details);
   state.detailsCache = (dc && typeof dc === 'object') ? dc : {};
+  /* localStorage puo' essere stato sfrattato: IndexedDB conserva la copia buona */
+  if (!store.get(STORE.list)){
+    const salvata = await idbGet(STORE.list);
+    if (salvata && Array.isArray(salvata.data) && salvata.data.length){
+      try{ localStorage.setItem(STORE.list, JSON.stringify(salvata)); }catch(err){ /* spazio pieno */ }
+    }
+    if (!state.favs.length){
+      const fav = await idbGet(STORE.favs);
+      if (Array.isArray(fav) && fav.length) state.favs = fav;
+    }
+    if (!Object.keys(state.detailsCache).length){
+      const det = await idbGet(STORE.details);
+      if (det && typeof det === 'object') state.detailsCache = det;
+    }
+  }
   el.favCount.textContent = String(state.favs.length);
-  setLayout(store.get(STORE.layout) || 'carousel');
+  applicaLayout(store.get(STORE.layout) || 'carousel');
 
   const key = resolveKey();
   const cached = store.get(STORE.list);
@@ -3613,6 +4502,8 @@ const sfx = {
 
 /* --- Aptica: un tocco secco sui dispositivi che la supportano --- */
 function buzz(ms){
+  /* un solo interruttore per suoni e aptica: e' quello che dice l'etichetta */
+  if (!sfx.on) return;
   try{ if (navigator.vibrate) navigator.vibrate(ms || 15); }catch(err){ /* non supportata */ }
 }
 
@@ -3675,7 +4566,7 @@ function initTilt(){
     /* solo mouse/penna: col dito l'inclinazione sposterebbe il bersaglio
        proprio mentre lo si preme */
     if (state.drag || REDUCED || e.pointerType === 'touch') return;
-    if (e.target.closest('[data-act], .card-play, .card-bucket')){ resetTilt(); return; }
+    if (e.target.closest('[data-act], .card-play, .card-quick, .card-bucket')){ resetTilt(); return; }
     const card = cards[wrapIndex(state.current, cards.length || 1)];
     if (!card) return;
     const r = card.getBoundingClientRect();
@@ -3694,6 +4585,102 @@ function resetTilt(){
   if (!state.tiltX && !state.tiltY) return;
   state.tiltX = 0; state.tiltY = 0;
   render();
+}
+
+/* --- Riflessi giroscopici: la luce segue l'inclinazione reale del telefono ---
+   iOS chiede un permesso esplicito e solo dopo un gesto: si aggancia al primo
+   tocco, e se l'utente rifiuta si resta ai riflessi da puntatore. */
+let giroAttivo = false;
+
+function applicaGiro(e){
+  if (REDUCED || state.drag || !cards.length) return;
+  const card = cards[wrapIndex(state.current, cards.length)];
+  if (!card) return;
+  const gamma = Number(e.gamma) || 0;   /* inclinazione sinistra/destra */
+  const beta  = Number(e.beta) || 0;    /* inclinazione avanti/indietro */
+  const px = clamp(0.5 + gamma / 90, 0, 1);
+  const py = clamp(0.5 + (beta - 45) / 90, 0, 1);
+  card.style.setProperty('--gx', (px * 100).toFixed(1) + '%');
+  card.style.setProperty('--gy', (py * 100).toFixed(1) + '%');
+  card.style.setProperty('--gi', (0.35 + Math.abs(gamma) / 140).toFixed(2));
+  state.tiltY = clamp(gamma / 6, -9, 9);
+  state.tiltX = clamp((45 - beta) / 6, -8, 8);
+  render();
+}
+
+function avviaGiroscopio(){
+  if (giroAttivo || REDUCED) return;
+  if (typeof DeviceOrientationEvent === 'undefined') return;
+  if (!window.matchMedia || !window.matchMedia('(pointer:coarse)').matches) return;
+  const aggancia = () => {
+    giroAttivo = true;
+    document.body.classList.add('giro');
+    window.addEventListener('deviceorientation', applicaGiro, { passive: true });
+  };
+  const chiedi = DeviceOrientationEvent.requestPermission;
+  if (typeof chiedi === 'function'){
+    chiedi.call(DeviceOrientationEvent)
+      .then(esito => { if (esito === 'granted') aggancia(); })
+      .catch(() => { /* permesso negato: restano i riflessi da puntatore */ });
+  } else {
+    aggancia();
+  }
+}
+
+/* --- Anteprima 30 secondi della colonna sonora (iTunes Search API) --- */
+let ostAudio = null, ostToken = 0;
+
+function fermaOst(){
+  if (ostAudio){ try{ ostAudio.pause(); }catch(err){ /* gia' ferma */ } }
+  el.ost.classList.remove('suona');
+  if (el.ostBtn) el.ostBtn.setAttribute('aria-pressed', 'false');
+}
+
+async function renderOst(movie){
+  const box = el.ost;
+  fermaOst();
+  box.hidden = true;
+  box.innerHTML = '';
+  ostAudio = null;
+  if (!movie || movie.__demo) return;
+  const token = ++ostToken;
+  let brano = null;
+  try{
+    const url = 'https://itunes.apple.com/search?media=music&entity=song&limit=1&country=IT&term=' +
+                encodeURIComponent(movie.title + ' colonna sonora');
+    const d = await fetchJSON(url, 8000);
+    const r = d && d.results ? d.results[0] : null;
+    if (r && r.previewUrl) brano = r;
+  }catch(err){ brano = null; }
+  if (token !== ostToken || state.activeId !== movie.id || !brano) return;
+
+  box.innerHTML =
+    '<button type="button" class="ost-disc" id="ostBtn" aria-pressed="false" aria-label="Ascolta 30 secondi della colonna sonora">' +
+      `<img src="${esc(brano.artworkUrl100 || '')}" alt="" loading="lazy" decoding="async">` +
+      '<span class="ost-play"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.2v13.6a1 1 0 0 0 1.53.85l10.6-6.8a1 1 0 0 0 0-1.7L9.53 4.35A1 1 0 0 0 8 5.2Z"/></svg></span>' +
+    '</button>' +
+    '<span class="ost-txt">' +
+      '<span class="ost-lab">Colonna sonora · anteprima 30s</span>' +
+      `<span class="ost-title">${esc(brano.trackName || '')}</span>` +
+      `<span class="ost-art">${esc(brano.artistName || '')}${brano.collectionName ? ' · ' + esc(brano.collectionName) : ''}</span>` +
+      '<span class="ost-src">Anteprima fornita da Apple iTunes</span>' +
+    '</span>';
+  box.hidden = false;
+  el.ostBtn = $('#ostBtn');
+  ostAudio = new Audio(brano.previewUrl);
+  ostAudio.preload = 'none';
+  ostAudio.addEventListener('ended', fermaOst);
+  ostAudio.addEventListener('error', () => { box.hidden = true; });
+  el.ostBtn.addEventListener('click', () => {
+    if (!ostAudio) return;
+    if (box.classList.contains('suona')){ ostAudio.pause(); fermaOst(); return; }
+    ostAudio.currentTime = 0;
+    const p = ostAudio.play();
+    box.classList.add('suona');
+    el.ostBtn.setAttribute('aria-pressed', 'true');
+    sfx.play('tap');
+    if (p && p.catch) p.catch(() => { fermaOst(); toast('Anteprima audio non disponibile', 'warn'); });
+  });
 }
 
 /* =========================================================
@@ -3925,8 +4912,9 @@ function renderTicket(movie, details){
   el.tkDate.textContent = fmtDate(iso);
   const id = Math.abs(Number(movie.id) || 0);
   el.tkCode.textContent = 'CG-' + id.toString(36).toUpperCase().padStart(5, '0');
-  const url = movie.__demo ? 'https://github.com/acrisci-05/cineglass'
-                           : `https://www.themoviedb.org/movie/${movie.id}`;
+  /* Il QR punta alla scheda dentro CineGlass: chi lo scansiona apre il film */
+  const url = deepLink(movie);
+  el.ticket.dataset.link = url;
   if (!drawQR(el.tkQr, url)){
     const ctx = el.tkQr.getContext('2d');
     ctx.fillStyle = '#fff';
@@ -4506,7 +5494,8 @@ function buildChipsExtra(){
   el.chipsExtra.innerHTML =
     durate.map(([k, lab]) =>
       `<button type="button" class="chip${state.durata === k ? ' on' : ''}" data-durata="${k}">${lab}</button>`).join('') +
-    `<button type="button" class="chip${state.storiaVera ? ' on' : ''}" data-vera="1">📖 Storia vera / libro</button>`;
+    `<button type="button" class="chip${state.storiaVera ? ' on' : ''}" data-vera="1">📖 Storia vera / libro</button>` +
+    '<button type="button" class="chip chip-bo" data-bo="1" title="Vai alla classifica degli incassi">💰 Box Office</button>';
   el.chipsExtra.hidden = false;
 }
 
@@ -4525,15 +5514,44 @@ function badgeDistanza(m){
   return `<span class="dist${d.sala ? ' sala' : ''}">${d.sala ? '🟢' : '⏳'} ${esc(d.testo)}</span>`;
 }
 
+/* --- Pillole anno: Tutti / anno corrente / +1 / +2 e oltre --- */
+function chiaveAnno(m, annoOra){
+  const d = parseISO(m.release_date);
+  if (!d) return 'x';
+  const y = d.getFullYear();
+  return y >= annoOra + 2 ? String(annoOra + 2) + '+' : String(y);
+}
+
+function buildChipsYear(){
+  const annoOra = new Date(now()).getFullYear();
+  const conteggi = new Map();
+  movies().forEach(m => {
+    const k = chiaveAnno(m, annoOra);
+    conteggi.set(k, (conteggi.get(k) || 0) + 1);
+  });
+  const ordine = k => (k === 'x' ? 9999 : parseInt(k, 10));
+  const chiavi = Array.from(conteggi.keys()).sort((a, b) => ordine(a) - ordine(b));
+  const etichetta = k => (k === 'x' ? 'Da annunciare' : k);
+  el.chipsYear.innerHTML =
+    `<button type="button" class="chip${state.anno ? '' : ' on'}" data-anno="">Tutti<span class="n">${movies().length}</span></button>` +
+    chiavi.map(k =>
+      `<button type="button" class="chip${state.anno === k ? ' on' : ''}" data-anno="${esc(k)}">` +
+      `${esc(etichetta(k))}<span class="n">${conteggi.get(k)}</span></button>`).join('');
+}
+
 /* --- CineTimeline: nodi per anno, 2028+ raggruppato --- */
 function renderTimeline(){
-  const lista = movies().slice().sort((a, b) => {
-    const da = parseISO(a.release_date), db = parseISO(b.release_date);
-    return (da ? da.getTime() : Infinity) - (db ? db.getTime() : Infinity);
-  });
+  const annoFiltro = new Date(now()).getFullYear();
+  buildChipsYear();
+  const lista = movies()
+    .filter(m => !state.anno || chiaveAnno(m, annoFiltro) === state.anno)
+    .slice().sort((a, b) => {
+      const da = parseISO(a.release_date), db = parseISO(b.release_date);
+      return (da ? da.getTime() : Infinity) - (db ? db.getTime() : Infinity);
+    });
   if (!lista.length){
-    el.timelineBody.innerHTML = '<div class="tl-year"><div class="tl-node"><span class="tl-dot"></span>' +
-      '<h3>Nessun film</h3></div></div>';
+    el.timelineBody.innerHTML = '<div class="tl-empty">Nessun film in questa fascia.<br>' +
+      'Prova con <b>Tutti</b> oppure con un altro anno.</div>';
     return;
   }
   const annoOra = new Date(now()).getFullYear();
@@ -4564,12 +5582,9 @@ function renderTimeline(){
 
 /* --- Due sole sezioni: in arrivo / ora in sala --- */
 async function setSection(sec){
-  if (state.section === sec) return;
+  if (state.section === sec){ syncNav(); return; }
   state.section = sec;
-  el.tabSoon.classList.toggle('on', sec === 'soon');
-  el.tabNow.classList.toggle('on', sec === 'now');
-  el.tabSoon.setAttribute('aria-pressed', sec === 'soon' ? 'true' : 'false');
-  el.tabNow.setAttribute('aria-pressed', sec === 'now' ? 'true' : 'false');
+  syncNav();
   sfx.play('tap');
   state.genre = null;
   state.activeId = null;
@@ -4633,8 +5648,20 @@ function orariInSala(){
     citta = (window.prompt('In quale città cerchi gli orari?', '') || '').trim();
     if (citta) store.set(CITTA_KEY, citta);
   }
-  const q = 'orari cinema ' + movie.title + (citta ? ' ' + citta : '');
+  const q = 'orari cinema ' + movie.title + (citta ? ' ' + citta : '') + ' biglietti';
   window.open('https://www.google.com/search?q=' + encodeURIComponent(q), '_blank', 'noopener');
+}
+
+/* --- Salto alla classifica degli incassi della settimana --- */
+async function vaiAlBoxOffice(){
+  sfx.play('tap');
+  if (el.boxoffice.hidden){
+    await loadBoxOffice();
+    if (el.boxoffice.hidden){ toast('Classifica non ancora disponibile', 'warn'); return; }
+  }
+  el.boxoffice.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  el.boxoffice.classList.add('evidenzia');
+  setTimeout(() => el.boxoffice.classList.remove('evidenzia'), 1600);
 }
 
 /* --- Vetro appannato: si pulisce strofinando --- */
@@ -4684,8 +5711,10 @@ sfx.paper = function(){
   src.start(t);
 };
 
+/* Le forbici si trascinano lungo la perforazione oppure si toccano e basta */
 function initTear(){
-  let inizio = null;
+  let inizio = null, trascinate = false;
+
   el.ticket.addEventListener('pointerdown', e => {
     if (e.target.closest('button, a')) return;
     inizio = { x: e.clientX, y: e.clientY };
@@ -4697,12 +5726,114 @@ function initTear(){
     if (Math.abs(dx) < 60 || dy > 70) return;
     strappa();
   });
+
+  /* Gesto dedicato sulle forbici: scorrono lungo il taglio e lo completano */
+  el.tkCut.addEventListener('pointerdown', e => {
+    e.stopPropagation();
+    trascinate = false;
+    const partenza = e.clientY;
+    const alt = el.ticket.getBoundingClientRect().height;
+    el.tkCut.setPointerCapture(e.pointerId);
+    const muovi = ev => {
+      const d = ev.clientY - partenza;
+      if (Math.abs(d) > 6) trascinate = true;
+      el.tkCut.style.transform = 'translateY(' + Math.max(-6, Math.min(alt, d)) + 'px)';
+      if (d > alt * 0.45){ fine(ev, true); }
+    };
+    const fine = (ev, tagliato) => {
+      el.tkCut.removeEventListener('pointermove', muovi);
+      el.tkCut.removeEventListener('pointerup', su);
+      el.tkCut.removeEventListener('pointercancel', su);
+      try{ el.tkCut.releasePointerCapture(e.pointerId); }catch(err){ /* gia' rilasciato */ }
+      el.tkCut.style.transform = '';
+      if (tagliato || !trascinate) strappa();
+    };
+    const su = ev => fine(ev, false);
+    el.tkCut.addEventListener('pointermove', muovi);
+    el.tkCut.addEventListener('pointerup', su);
+    el.tkCut.addEventListener('pointercancel', su);
+  });
+  el.tkCut.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); strappa(); }
+  });
+}
+
+/* --- Pioggia di micro-schegge di vetro al taglio --- */
+function esplodiSchegge(){
+  const c = el.tkShards;
+  const box = el.ticket.getBoundingClientRect();
+  if (!box.width || !box.height) return;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  c.width = Math.round(box.width * dpr);
+  c.height = Math.round(box.height * dpr);
+  const ctx = c.getContext('2d');
+  if (!ctx) return;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  c.classList.add('on');
+
+  /* il taglio parte dalla perforazione, cioe' dal bordo del tagliando */
+  const stub = el.ticket.querySelector('.ticket-stub');
+  const sx = stub ? stub.getBoundingClientRect().left - box.left : box.width * 0.7;
+  const quante = state.perfBassa ? 26 : 54;
+  const schegge = [];
+  for (let i = 0; i < quante; i++){
+    const a = (Math.random() - .5) * Math.PI * 1.1;
+    const v = 2.2 + Math.random() * 5.4;
+    schegge.push({
+      x: sx + (Math.random() - .5) * 14,
+      y: Math.random() * box.height,
+      vx: Math.cos(a) * v * (Math.random() < .5 ? -1 : 1),
+      vy: Math.sin(a) * v - 2.4,
+      r: 1.6 + Math.random() * 4.6,
+      rot: Math.random() * Math.PI,
+      vr: (Math.random() - .5) * .35,
+      tono: Math.random(),
+      vita: 1
+    });
+  }
+  let raf = 0;
+  const avvio = performance.now();
+  const passo = t => {
+    const dt = Math.min(34, t - (passo.ultimo || avvio)) / 16.7;
+    passo.ultimo = t;
+    ctx.clearRect(0, 0, box.width, box.height);
+    let vive = 0;
+    schegge.forEach(s => {
+      if (s.vita <= 0) return;
+      vive++;
+      s.vy += 0.38 * dt;
+      s.x += s.vx * dt;
+      s.y += s.vy * dt;
+      s.rot += s.vr * dt;
+      s.vita -= 0.014 * dt;
+      ctx.save();
+      ctx.translate(s.x, s.y);
+      ctx.rotate(s.rot);
+      ctx.globalAlpha = Math.max(0, s.vita) * .85;
+      const g = ctx.createLinearGradient(-s.r, -s.r, s.r, s.r);
+      /* riflessi ciano/magenta: e' vetro, non carta */
+      g.addColorStop(0, s.tono < .5 ? 'rgba(122,244,255,.95)' : 'rgba(255,255,255,.95)');
+      g.addColorStop(1, s.tono < .5 ? 'rgba(255,255,255,.28)' : 'rgba(255,95,224,.55)');
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.moveTo(0, -s.r);
+      ctx.lineTo(s.r * .62, s.r * .5);
+      ctx.lineTo(-s.r * .78, s.r * .34);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    });
+    if (vive && t - avvio < 2000) raf = requestAnimationFrame(passo);
+    else { cancelAnimationFrame(raf); ctx.clearRect(0, 0, box.width, box.height); c.classList.remove('on'); }
+  };
+  raf = requestAnimationFrame(passo);
 }
 
 function strappa(){
   const movie = movies()[state.activeIndex];
   if (!movie) return;
   el.ticket.classList.add('strappato');
+  esplodiSchegge();
   sfx.paper();
   buzz(15);
   setTimeout(() => el.ticket.classList.remove('strappato'), 1400);
@@ -4717,75 +5848,56 @@ function strappa(){
   }
 }
 
-/* --- CineMatch a due giocatori --- */
-const match = { lista: [], i: 0, voti: {} };
-
-function apriMatch(){
-  const base = movies();
-  if (base.length < 2){ toast('Servono almeno due film', 'warn'); return; }
-  match.lista = base.slice(0, 20);
-  match.i = 0;
-  match.voti = {};
-  el.matchEsito.hidden = true;
-  el.matchView.hidden = false;
-  document.body.classList.add('no-scroll');
-  sfx.play('open');
-  mostraMatch();
-}
-function chiudiMatch(){
-  el.matchView.hidden = true;
-  document.body.classList.remove('no-scroll');
-  sfx.play('close');
-}
-function mostraMatch(){
-  const m = match.lista[match.i];
-  if (!m){
-    el.matchEsitoT.textContent = 'Nessun accordo 🤷';
-    el.matchEsitoS.textContent = 'Avete finito i film: riprovate con un altro filtro.';
-    el.matchEsito.hidden = false;
-    return;
-  }
-  match.voti = {};
-  $$('.match-side').forEach(s => s.classList.remove('fatto'));
-  const poster = img(m.poster_path, 'w342') || placeholderPoster(m.title);
-  el.matchPosterA.src = poster; el.matchPosterB.src = poster;
-  el.matchTitleA.textContent = m.title; el.matchTitleB.textContent = m.title;
-}
-function votaMatch(player, voto){
-  if (match.voti[player]) return;
-  match.voti[player] = voto;
-  const lato = document.querySelector(`.match-side[data-player="${player}"]`);
-  if (lato) lato.classList.add('fatto');
+/* --- Tap sul QR: copia il link e apre la condivisione nativa --- */
+async function condividiQR(){
+  const movie = movies()[state.activeIndex];
+  if (!movie) return;
+  const url = el.ticket.dataset.link || deepLink(movie);
+  const testo = `🎬 ${movie.title} — ${dataEstesa(state.lastRelease || movie.release_date)}`;
   sfx.play('tap');
   buzz(12);
-  if (!match.voti.a || !match.voti.b) return;
-  const m = match.lista[match.i];
-  if (match.voti.a === 'si' && match.voti.b === 'si'){
-    el.matchEsitoT.textContent = 'È MATCH! 🍿';
-    el.matchEsitoS.textContent = m.title;
-    el.matchEsito.hidden = false;
-    sfx.jingle();
-    buzz(30);
-    const i = movies().findIndex(x => x.id === m.id);
-    if (i >= 0) goTo(i);
-    setTimeout(() => { chiudiMatch(); el.panel.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 2200);
-  } else {
-    match.i++;
-    setTimeout(mostraMatch, 320);
+  let copiato = false;
+  try{ await navigator.clipboard.writeText(url); copiato = true; }
+  catch(err){ /* appunti non disponibili: resta la condivisione */ }
+  if (navigator.share){
+    try{
+      await navigator.share({ title: movie.title, text: testo, url });
+      return;
+    }catch(err){ if (err && err.name === 'AbortError') return; }
   }
+  toast(copiato ? 'Link copiato negli appunti 🔗' : 'Link: ' + url, copiato ? 'ok' : 'warn');
 }
 
-/* --- Locandina a schermo intero --- */
+/* --- Locandina a schermo intero: la griglia si espande nel dettaglio --- */
+function posterAttivo(){
+  const card = cards[state.activeIndex];
+  return card ? card.querySelector('.poster') : null;
+}
+
 function apriLightbox(movie){
-  el.lightboxImg.src = img(movie.poster_path, 'w780') || placeholderPoster(movie.title);
-  el.lightboxImg.alt = 'Locandina di ' + movie.title;
-  el.lightbox.hidden = false;
-  document.body.classList.add('no-scroll');
+  const poster = posterAttivo();
+  if (poster) poster.style.viewTransitionName = 'locandina';
+  conTransizione(() => {
+    if (poster) poster.style.viewTransitionName = '';
+    el.lightboxImg.style.viewTransitionName = 'locandina';
+    el.lightboxImg.src = img(movie.poster_path, 'w780') || placeholderPoster(movie.title);
+    el.lightboxImg.alt = 'Locandina di ' + movie.title;
+    el.lightbox.hidden = false;
+    document.body.classList.add('no-scroll');
+  });
   sfx.play('open');
 }
+
 function chiudiLightbox(){
-  el.lightbox.hidden = true;
-  if (el.modal.hidden && el.matchView.hidden) document.body.classList.remove('no-scroll');
+  const poster = posterAttivo();
+  conTransizione(() => {
+    el.lightboxImg.style.viewTransitionName = '';
+    el.lightbox.hidden = true;
+    if (el.modal.hidden) document.body.classList.remove('no-scroll');
+    if (poster) poster.style.viewTransitionName = 'locandina';
+  });
+  /* il nome serve solo durante il passaggio: poi torna libero */
+  setTimeout(() => { if (poster) poster.style.viewTransitionName = ''; }, 700);
 }
 
 /* --- Luci in sala --- */
@@ -4821,6 +5933,267 @@ function svuotaWatchlist(){
 }
 
 /* =========================================================
+   12-octies. NAVBAR, SPOTLIGHT, WATCHLIST, COUNTDOWN OLED
+   ========================================================= */
+
+/* --- La navbar e' flottante: il corpo deve saperne l'altezza esatta --- */
+function misuraNavbar(){
+  const h = Math.round(el.topbar.getBoundingClientRect().height);
+  if (h > 0) document.documentElement.style.setProperty('--nav-h', h + 'px');
+}
+
+/* --- Indicatore liquido: si allunga come una goccia e poi si ricompone --- */
+let slideTimer = 0;
+function syncNav(){
+  const attivo = state.layout === 'timeline' ? 'timeline' : state.section;
+  const bottoni = $$('[data-nav]', el.navSeg);
+  let scelto = null;
+  bottoni.forEach(b => {
+    const on = b.dataset.nav === attivo;
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    if (on) scelto = b;
+  });
+  if (!scelto) return;
+  const sl = el.navSlider;
+  const x = scelto.offsetLeft, w = scelto.offsetWidth;
+  if (!w) return;
+  const primo = !sl.classList.contains('show');
+  sl.style.width = w + 'px';
+  sl.style.translate = x + 'px';
+  sl.classList.add('show');
+  if (primo) return;
+  sl.classList.add('stretch');
+  clearTimeout(slideTimer);
+  slideTimer = setTimeout(() => sl.classList.remove('stretch'), 230);
+}
+
+/* --- Attrazione magnetica: i tasti in vetro seguono un poco il cursore --- */
+const RAGGIO_MAGNETE = 50;
+
+function initMagnete(){
+  if (!window.matchMedia || !window.matchMedia('(hover:hover)').matches) return;
+  const candidati = () => $$('.magnetic');
+  let attivi = [];
+  let raf = 0, mx = 0, my = 0;
+  const applica = () => {
+    raf = 0;
+    attivi.forEach(b => {
+      const r = b.getBoundingClientRect();
+      const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+      const dx = mx - cx, dy = my - cy;
+      const dist = Math.hypot(dx, dy);
+      const soglia = Math.max(r.width, r.height) / 2 + RAGGIO_MAGNETE;
+      if (dist > soglia){
+        if (b.style.getPropertyValue('--mx')) b.style.removeProperty('--mx');
+        if (b.style.getPropertyValue('--my')) b.style.removeProperty('--my');
+        b.classList.remove('pulled');
+        return;
+      }
+      const forza = (1 - dist / soglia) * 7;
+      b.style.setProperty('--mx', (dx / (dist || 1) * forza).toFixed(2) + 'px');
+      b.style.setProperty('--my', (dy / (dist || 1) * forza).toFixed(2) + 'px');
+      b.classList.add('pulled');
+    });
+  };
+  window.addEventListener('pointermove', e => {
+    if (e.pointerType === 'touch') return;
+    mx = e.clientX; my = e.clientY;
+    attivi = candidati();
+    if (!raf) raf = requestAnimationFrame(applica);
+  }, { passive: true });
+}
+
+/* --- Increspatura fluida al click sui pulsanti in vetro --- */
+function initRipple(){
+  document.addEventListener('pointerdown', e => {
+    const b = e.target.closest('.ripple');
+    if (!b) return;
+    const r = b.getBoundingClientRect();
+    const d = Math.max(r.width, r.height) * 2.2;
+    const n = document.createElement('span');
+    n.className = 'rip';
+    n.style.width = n.style.height = d + 'px';
+    n.style.left = (e.clientX - r.left) + 'px';
+    n.style.top = (e.clientY - r.top) + 'px';
+    b.appendChild(n);
+    setTimeout(() => n.remove(), 700);
+  }, { passive: true });
+}
+
+/* --- Alto contrasto: trasparenze piu' scure, testo piu' netto --- */
+function setContrasto(on){
+  document.body.classList.toggle('hc', !!on);
+  el.contrastBtn.classList.toggle('on', !!on);
+  el.contrastBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  store.set(STORE.hc, !!on);
+}
+
+/* =============== Drawer unico della watchlist =============== */
+const LIVELLI = [
+  [0,   'Spettatore occasionale'],
+  [10,  'Cinefilo in erba'],
+  [30,  'Maratoneta da sala'],
+  [60,  'Leggenda del grande schermo']
+];
+
+function livelloHype(pop){
+  let nome = LIVELLI[0][1];
+  for (const [soglia, etichetta] of LIVELLI) if (pop >= soglia) nome = etichetta;
+  return nome;
+}
+
+function renderWatchlist(){
+  const lista = state.favs.slice().sort((a, b) => {
+    const da = parseISO(a.release_date), db = parseISO(b.release_date);
+    return (da ? da.getTime() : Infinity) - (db ? db.getTime() : Infinity);
+  });
+  const pop = lista.reduce((t, m) => t + hypeOf(m.id), 0);
+  el.wLevel.textContent = lista.length
+    ? `${lista.length} film · ${pop} 🍿 · ${livelloHype(pop)}`
+    : 'Nessun film salvato';
+  el.wOnly.hidden = !lista.length;
+  el.wOnly.setAttribute('aria-pressed', state.favOnly ? 'true' : 'false');
+  el.wShare.disabled = el.wClear.disabled = !lista.length;
+  if (!lista.length){
+    el.wList.innerHTML = '<div class="w-empty">Qui finiscono i film che non vuoi perderti.<br>' +
+      'Tocca il secchiello 🍿 su una scheda oppure strappa il biglietto lungo la perforazione.</div>';
+    return;
+  }
+  el.wList.innerHTML = lista.map(m => {
+    const n = hypeOf(m.id);
+    return `<button type="button" class="w-row" data-id="${m.id}">` +
+      `<img src="${esc(img(m.poster_path, 'w92') || placeholderPoster(m.title))}" alt="" loading="lazy" decoding="async">` +
+      '<span class="w-info">' +
+        `<span class="w-title">${esc(m.title)}</span>` +
+        `<span class="w-meta">${esc(dataEstesa(m.release_date))}</span>` +
+      '</span>' +
+      `<span class="w-hype">${n} 🍿</span>` +
+    '</button>';
+  }).join('');
+}
+
+function apriWatchlist(on){
+  if (on){
+    renderWatchlist();
+    el.wDrawer.hidden = false;
+    document.body.classList.add('no-scroll');
+    sfx.play('open');
+    buzz(12);
+    const primo = el.wDrawer.querySelector('.w-row, .sheet-x');
+    if (primo) primo.focus();
+  } else {
+    el.wDrawer.hidden = true;
+    document.body.classList.remove('no-scroll');
+    sfx.play('close');
+    el.favFilter.focus();
+  }
+}
+
+/* Porta al film scelto dal drawer, anche se non e' nella vista corrente */
+function vaiAlFilm(id){
+  const i = movies().findIndex(m => String(m.id) === String(id));
+  if (i >= 0){
+    goTo(i);
+    markListRow();
+    apriWatchlist(false);
+    el.panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+  const m = state.favs.find(f => String(f.id) === String(id));
+  if (!m) return;
+  apriWatchlist(false);
+  setFavOnly(true);
+  setTimeout(() => {
+    const j = movies().findIndex(x => String(x.id) === String(id));
+    if (j >= 0){ goTo(j); markListRow(); }
+    el.panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 60);
+}
+
+async function condividiWatchlist(){
+  if (!state.favs.length) return;
+  const lista = state.favs.slice().sort((a, b) => {
+    const da = parseISO(a.release_date), db = parseISO(b.release_date);
+    return (da ? da.getTime() : Infinity) - (db ? db.getTime() : Infinity);
+  });
+  const righe = lista.slice(0, 12)
+    .map(m => `• ${m.title} — ${dataEstesa(m.release_date)}`).join('\n');
+  const testo = `🍿 La mia watchlist CineGlass (${lista.length} film)\n${righe}` +
+                (lista.length > 12 ? `\n…e altri ${lista.length - 12}.` : '') +
+                `\n${location.origin + location.pathname}`;
+  sfx.play('tap');
+  if (navigator.share){
+    try{ await navigator.share({ title: 'La mia watchlist CineGlass', text: testo }); return; }
+    catch(err){ if (err && err.name === 'AbortError') return; }
+  }
+  try{
+    await navigator.clipboard.writeText(testo);
+    toast('Watchlist copiata negli appunti 🔗', 'ok');
+  }catch(err){
+    window.open('https://wa.me/?text=' + encodeURIComponent(testo), '_blank', 'noopener');
+  }
+}
+
+/* =============== Countdown a schermo intero =============== */
+let oledTimer = 0, oledLock = null;
+
+function aggiornaOled(){
+  const target = parseISO(state.oledDate);
+  if (!target){ chiudiOled(); return; }
+  const diff = target.getTime() - now();
+  if (diff <= 0){
+    el.oledTime.textContent = 'È il giorno!';
+    el.oledSub.textContent = 'Il film è nelle sale italiane';
+    return;
+  }
+  const tot = Math.floor(diff / 1000);
+  const g = Math.floor(tot / 86400);
+  const o = Math.floor((tot % 86400) / 3600);
+  const m = Math.floor((tot % 3600) / 60);
+  const sec = tot % 60;
+  const p = n => String(n).padStart(2, '0');
+  el.oledTime.textContent = `${g}g ${p(o)}:${p(m)}:${p(sec)}`;
+  el.oledSub.textContent = 'Giorni · ore · minuti · secondi all\u2019uscita';
+}
+
+async function apriOled(){
+  const movie = movies()[state.activeIndex];
+  if (!movie) return;
+  const iso = state.lastRelease || movie.release_date;
+  if (!parseISO(iso)){ toast('Data di uscita non ancora annunciata', 'warn'); return; }
+  state.oledDate = iso;
+  el.oledTitle.textContent = movie.title;
+  aggiornaOled();
+  el.oled.hidden = false;
+  document.body.classList.add('no-scroll');
+  sfx.play('open');
+  buzz(15);
+  clearInterval(oledTimer);
+  oledTimer = setInterval(aggiornaOled, 1000);
+  el.oledClose.focus();
+  try{
+    if (navigator.wakeLock && navigator.wakeLock.request) oledLock = await navigator.wakeLock.request('screen');
+  }catch(err){ /* lo schermo si spegnera' normalmente */ }
+}
+
+function chiudiOled(){
+  if (el.oled.hidden) return;
+  el.oled.hidden = true;
+  document.body.classList.remove('no-scroll');
+  clearInterval(oledTimer);
+  oledTimer = 0;
+  sfx.play('close');
+  if (oledLock){ try{ oledLock.release(); }catch(err){ /* gia' rilasciato */ } oledLock = null; }
+}
+
+/* Il tasto compare solo se manca ancora qualcosa all'uscita */
+function aggiornaOledBtn(){
+  const t = parseISO(state.lastRelease);
+  el.oledBtn.hidden = !t || t.getTime() - now() <= 0;
+}
+
+/* =========================================================
    13. EVENTI
    ========================================================= */
 el.next.addEventListener('click', () => { next(); buzz(12); sfx.play('swipe'); });
@@ -4828,6 +6201,7 @@ el.prev.addEventListener('click', () => { prev(); buzz(12); sfx.play('swipe'); }
 
 /* --- Creatore, audio, mini player, classifiche, esportazioni --- */
 el.creatorBtn.addEventListener('click', () => openSheet(el.creatorSheet));
+$('#creatorLink').addEventListener('click', () => openSheet(el.creatorSheet));
 [el.creatorSheet, el.filmoSheet].forEach(sheet => {
   sheet.addEventListener('click', e => { if (e.target.closest('[data-close]')) closeSheet(sheet); });
 });
@@ -4835,13 +6209,16 @@ el.sfxBtn.addEventListener('click', () => {
   const on = sfx.toggle();
   el.sfxBtn.classList.toggle('off', !on);
   el.sfxBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
-  $('#sfxLabel').textContent = on ? 'Suoni dell\'interfaccia attivi' : 'Suoni dell\'interfaccia disattivati';
-  toast(on ? 'Suoni attivi' : 'Suoni disattivati', 'ok');
+  toast(on ? 'Suoni e vibrazione attivi 🔊' : 'Suoni e vibrazione disattivati 🔇', 'ok');
 });
 el.pipBtn.addEventListener('click', togglePip);
+el.fsBtn.addEventListener('click', schermoIntero);
+document.addEventListener('fullscreenchange', syncFsBtn);
+document.addEventListener('webkitfullscreenchange', syncFsBtn);
 el.boTabIt.addEventListener('click', () => setBoTab('it'));
 el.boTabWw.addEventListener('click', () => setBoTab('ww'));
 el.icsBtn.addEventListener('click', scaricaIcs);
+el.tkQrBtn.addEventListener('click', condividiQR);
 el.cinemaBtn.addEventListener('click', orariInSala);
 
 /* --- Suono cristallino al passaggio sulle schede --- */
@@ -4875,7 +6252,7 @@ setInterval(() => {
 }, 60000);
 el.trailerBtn.addEventListener('click', () => openTrailer());
 
-el.favFilter.addEventListener('click', () => setFavOnly(!state.favOnly));
+el.favFilter.addEventListener('click', () => apriWatchlist(true));
 el.emptyBtn.addEventListener('click', () => {
   const act = el.emptyBtn.dataset.act;
   if (act === 'all') setFavOnly(false);
@@ -4902,9 +6279,9 @@ el.keyForm.addEventListener('submit', async e => {
   if (ok) toast('API key attiva: dati reali caricati', 'ok');
 });
 
-el.searchBtn.addEventListener('click', () => openSearch(el.searchBar.hidden));
-el.searchClose.addEventListener('click', () => exitSearch());
+el.searchBtn.addEventListener('click', () => openSearch(el.spot.hidden));
 el.searchReset.addEventListener('click', () => exitSearch());
+el.spot.addEventListener('click', e => { if (e.target.closest('[data-close]')) openSearch(false); });
 el.searchBar.addEventListener('submit', e => {
   e.preventDefault();
   clearTimeout(searchTimer);
@@ -4987,38 +6364,66 @@ el.results.addEventListener('click', e => {
 el.saveBtn.addEventListener('click', e => { e.stopPropagation(); toggleSaveMenu(); });
 document.addEventListener('click', e => {
   if (!el.saveMenu.hidden && !e.target.closest('.savewrap')) toggleSaveMenu(false);
-  if (!el.results.hidden && !e.target.closest('.searchwrap') && !e.target.closest('#searchBtn')) el.results.hidden = true;
 });
 el.icsBtn.addEventListener('click', () => toggleSaveMenu(false));
 el.calBtn.addEventListener('click', () => toggleSaveMenu(false));
 el.inviteBtn.addEventListener('click', invitaAmici);
 
-el.tabSoon.addEventListener('click', () => setSection('soon'));
-el.tabNow.addEventListener('click', () => setSection('now'));
-el.btnTimeline.addEventListener('click', () => setLayout('timeline'));
+el.navSeg.addEventListener('click', e => {
+  const b = e.target.closest('[data-nav]');
+  if (!b) return;
+  const v = b.dataset.nav;
+  if (v === 'timeline'){ setLayout('timeline'); return; }
+  if (state.layout === 'timeline') setLayout(state.ultimaPiatta);
+  setSection(v);
+});
+el.chipsYear.addEventListener('click', e => {
+  const chip = e.target.closest('[data-anno]');
+  if (!chip) return;
+  state.anno = chip.dataset.anno || null;
+  sfx.play('tap');
+  renderTimeline();
+});
 el.timelineBody.addEventListener('click', e => {
   const it = e.target.closest('.tl-item');
   if (!it) return;
   const i = movies().findIndex(m => String(m.id) === it.dataset.id);
   if (i >= 0){ goTo(i); sfx.play('tap'); el.panel.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
 });
-el.matchBtn.addEventListener('click', apriMatch);
-el.matchClose.addEventListener('click', chiudiMatch);
-el.matchView.addEventListener('click', e => {
-  const b = e.target.closest('[data-vote]');
-  if (!b) return;
-  const lato = b.closest('.match-side');
-  votaMatch(lato.dataset.player, b.dataset.vote);
-});
 el.dimBtn.addEventListener('click', toggleDim);
 el.lightbox.addEventListener('click', chiudiLightbox);
 el.wipeAll.addEventListener('click', svuotaWatchlist);
+
+/* --- Drawer watchlist --- */
+el.wDrawer.addEventListener('click', e => {
+  if (e.target.closest('[data-close]')){ apriWatchlist(false); return; }
+  const row = e.target.closest('.w-row');
+  if (row) vaiAlFilm(row.dataset.id);
+});
+el.wOnly.addEventListener('click', () => {
+  setFavOnly(!state.favOnly);
+  el.wOnly.setAttribute('aria-pressed', state.favOnly ? 'true' : 'false');
+  sfx.play('tap');
+});
+el.wShare.addEventListener('click', condividiWatchlist);
+el.wClear.addEventListener('click', () => { svuotaWatchlist(); renderWatchlist(); });
+
+/* --- Contrasto, countdown a schermo intero --- */
+el.contrastBtn.addEventListener('click', () => {
+  const on = !document.body.classList.contains('hc');
+  setContrasto(on);
+  sfx.play('tap');
+  toast(on ? 'Alto contrasto attivo' : 'Alto contrasto disattivato', 'ok');
+});
+el.oledBtn.addEventListener('click', apriOled);
+el.oledClose.addEventListener('click', chiudiOled);
 
 /* --- Filtri durata e storia vera --- */
 el.chipsExtra.addEventListener('click', async e => {
   const chip = e.target.closest('.chip');
   if (!chip) return;
   sfx.play('tap');
+  if (chip.dataset.bo){ vaiAlBoxOffice(); return; }
   if (chip.dataset.durata) state.durata = state.durata === chip.dataset.durata ? null : chip.dataset.durata;
   else if (chip.dataset.vera) state.storiaVera = !state.storiaVera;
   if (state.durata || state.storiaVera) await assicuraDettagli();
@@ -5038,9 +6443,17 @@ el.lightsBtn.addEventListener('click', toggleLights);
 el.modal.addEventListener('click', e => { if (e.target.closest('[data-close]')) closeTrailer(); });
 
 document.addEventListener('keydown', e => {
+  if (!el.oled.hidden){ if (e.key === 'Escape'){ e.preventDefault(); chiudiOled(); } return; }
   if (e.key === 'Escape' && !el.lightbox.hidden){ e.preventDefault(); chiudiLightbox(); return; }
-  if (e.key === 'Escape' && !el.matchView.hidden){ e.preventDefault(); chiudiMatch(); return; }
   if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k'){ e.preventDefault(); openSearch(true); return; }
+  if (!el.spot.hidden){
+    if (e.key === 'Escape'){ e.preventDefault(); openSearch(false); }
+    return;
+  }
+  if (!el.wDrawer.hidden){
+    if (e.key === 'Escape'){ e.preventDefault(); apriWatchlist(false); }
+    return;
+  }
   const sheetAperto = !el.creatorSheet.hidden ? el.creatorSheet : (!el.filmoSheet.hidden ? el.filmoSheet : null);
   if (sheetAperto){
     if (e.key === 'Escape'){ e.preventDefault(); closeSheet(sheetAperto); }
@@ -5060,13 +6473,21 @@ document.addEventListener('keydown', e => {
   else if (e.key === 'Home'){ e.preventDefault(); goTo(0); }
   else if (e.key === 'End'){ e.preventDefault(); goTo(Math.max(cards.length - 1, 0)); }
   else if ((e.key === 'Enter' || e.key === ' ') && e.target === el.stage){ e.preventDefault(); openTrailer(); }
+  else if (e.key.toLowerCase() === 'w'){ e.preventDefault(); apriWatchlist(true); }
+  else if (e.key.toLowerCase() === 't' && !el.oledBtn.hidden){ e.preventDefault(); apriOled(); }
 });
 
 let resizeTimer = 0;
 window.addEventListener('resize', () => {
+  misuraNavbar();
+  syncNav();
   clearTimeout(resizeTimer);
   resizeTimer = setTimeout(() => { measure(); render(); }, 120);
 });
+if (window.ResizeObserver){
+  const ro = new ResizeObserver(() => { misuraNavbar(); syncNav(); });
+  ro.observe(el.topbar);
+}
 document.addEventListener('visibilitychange', () => { if (!document.hidden) renderCountdown(); });
 
 /* =========================================================
@@ -5074,7 +6495,6 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden) rend
    ========================================================= */
 el.sfxBtn.classList.toggle('off', !sfx.on);
 el.sfxBtn.setAttribute('aria-pressed', sfx.on ? 'true' : 'false');
-$('#sfxLabel').textContent = sfx.on ? 'Suoni dell\'interfaccia attivi' : 'Suoni dell\'interfaccia disattivati';
 initTilt();
 initSpoiler();
 initTear();
@@ -5085,8 +6505,16 @@ if (store.get('cineglass:dim:v1')){
 }
 initBuckets();
 buildChipsExtra();
+state.perfBassa = rilevaPrestazioni();
+initRipple();
+initMagnete();
+initAutoPip();
+misuraNavbar();
+syncNav();
+setContrasto(store.get(STORE.hc) === true);
+window.addEventListener('load', misuraNavbar);
 /* il jingle parte al primo gesto: i browser bloccano l'audio prima */
-document.addEventListener('pointerdown', () => sfx.jingle(), { once: true });
+document.addEventListener('pointerdown', () => { sfx.jingle(); avviaGiroscopio(); }, { once: true });
 if (/[?&]debug/.test(location.search)){
   el.debugBox.hidden = false;
   /* ganci per i test automatici */
