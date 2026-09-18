@@ -4,10 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#07060d">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="CineGlass">
 <title>CineGlass — Prossimamente al Cinema</title>
 <meta name="description" content="CineGlass: esplora i film prossimamente al cinema in Italia con un carosello 3D in Liquid Glass, trailer ufficiali, countdown live e promemoria calendario.">
 <link rel="preconnect" href="https://api.themoviedb.org">
@@ -324,7 +320,7 @@ a{color:inherit;text-decoration:none}
 .shine{position:absolute;inset:0;pointer-events:none;opacity:.5;
   background:linear-gradient(115deg, rgba(255,255,255,.22) 0%, rgba(255,255,255,0) 32%, rgba(255,255,255,0) 68%, rgba(255,255,255,.10) 100%)}
 
-.card-meta{position:absolute;left:0;right:0;bottom:0;padding:18px 16px 17px;text-align:center;z-index:3;
+.card-meta{position:absolute;left:0;right:0;bottom:58px;padding:0 16px 8px;text-align:center;z-index:3;
   transition:transform .5s var(--ease), opacity .4s var(--ease)}
 .card-meta h3{font-size:clamp(14px,1.5vw,17.5px);font-weight:600;letter-spacing:-.015em;line-height:1.22;
   text-shadow:0 2px 14px rgba(0,0,0,.8);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
@@ -826,9 +822,9 @@ body.lights-out .beam{opacity:0}
   text-align:left;transition:background .2s}
 .res-row:hover{background:rgba(255,255,255,.1)}
 .res-row img{width:34px;height:51px;border-radius:7px;object-fit:cover;flex:0 0 auto;background:rgba(255,255,255,.07)}
-.res-info{min-width:0;flex:1}
-.res-title{font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.res-meta{font-size:11px;color:var(--muted);margin-top:2px}
+.res-info{min-width:0;flex:1;display:flex;flex-direction:column;gap:2px}
+.res-title{display:block;font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.res-meta{display:block;font-size:11px;color:var(--muted)}
 .res-badge{font-size:10.5px;padding:4px 9px;border-radius:999px;white-space:nowrap;
   background:rgba(255,255,255,.08);border:1px solid var(--stroke-soft)}
 .res-empty{padding:18px 12px;text-align:center;font-size:13px;color:var(--muted)}
@@ -836,29 +832,6 @@ body.lights-out .beam{opacity:0}
 .recent button{min-height:34px;padding:7px 12px;border-radius:999px;font-size:12px;color:var(--muted);
   background:rgba(255,255,255,.05);border:1px solid var(--stroke-soft)}
 .recent button:hover{color:var(--txt);background:rgba(255,255,255,.1)}
-
-/* --- CineCalendario --- */
-.calendar{max-width:1080px;margin:clamp(14px,2.4vw,24px) auto 0}
-.calendar[hidden]{display:none}
-.cal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
-.cal-head h3{font-size:clamp(15px,2.2vw,18px);font-weight:600;letter-spacing:-.02em;text-transform:capitalize}
-.cal-nav{display:flex;gap:6px}
-.cal-nav button{min-width:44px;min-height:44px;border-radius:12px;display:grid;place-items:center;
-  background:var(--glass);border:1px solid var(--stroke)}
-.cal-nav svg{width:16px;height:16px}
-.cal-week{margin-bottom:10px;padding:12px 14px;border-radius:18px;
-  background:linear-gradient(150deg, rgba(255,255,255,.07), rgba(255,255,255,.025));
-  border:1px solid var(--stroke-soft);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
-.cal-week-lab{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);margin-bottom:10px}
-.cal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(122px,1fr));gap:9px}
-.cal-item{display:flex;gap:9px;align-items:center;padding:7px;border-radius:13px;text-align:left;min-height:44px;
-  background:rgba(255,255,255,.05);border:1px solid var(--stroke-soft);transition:background .25s, transform .25s var(--ease)}
-.cal-item:hover{background:rgba(255,255,255,.11);transform:translateY(-2px)}
-.cal-item img{width:30px;height:45px;border-radius:6px;object-fit:cover;flex:0 0 auto}
-.cal-day{font-size:15px;font-weight:700;line-height:1;background:linear-gradient(140deg,var(--c1),var(--c2));
-  -webkit-background-clip:text;background-clip:text;color:transparent}
-.cal-title{font-size:11.5px;font-weight:500;line-height:1.25;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
-.cal-empty{font-size:12.5px;color:var(--faint);font-style:italic}
 
 /* --- Capsule informative --- */
 .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
@@ -886,6 +859,128 @@ button,.btn,a.btn,.chip,.frame,.dot-btn{-webkit-tap-highlight-color:transparent}
   .card.is-active:hover .poster{transform:none}
   .icon-btn:hover{transform:none}
 }
+}
+
+/* ==========================================================
+   Timeline, drawer, CineMatch, spoiler, biglietto strappabile
+   ========================================================== */
+
+/* --- CineTimeline verticale --- */
+.timeline{max-width:1080px;margin:clamp(14px,2.4vw,24px) auto 0;position:relative}
+.timeline[hidden]{display:none}
+.tl-year{position:relative;padding-left:clamp(28px,5vw,44px);padding-bottom:22px}
+.tl-year::before{content:'';position:absolute;left:clamp(9px,1.8vw,15px);top:14px;bottom:-8px;width:2px;
+  background:linear-gradient(180deg, color-mix(in oklab, var(--c1) 70%, transparent), color-mix(in oklab, var(--c2) 45%, transparent), transparent)}
+.tl-year:last-child::before{bottom:34px}
+.tl-node{display:flex;align-items:center;gap:11px;margin-bottom:12px}
+.tl-dot{position:absolute;left:clamp(3px,1vw,9px);width:15px;height:15px;border-radius:50%;
+  background:linear-gradient(140deg,var(--c1),var(--c2));box-shadow:0 0 14px -2px color-mix(in oklab, var(--c1) 90%, transparent)}
+.tl-node h3{font-size:clamp(17px,2.6vw,22px);font-weight:700;letter-spacing:-.02em}
+.tl-count{font-size:11px;color:var(--faint);padding:4px 10px;border-radius:999px;
+  background:rgba(255,255,255,.05);border:1px solid var(--stroke-soft)}
+.tl-items{display:flex;flex-direction:column;gap:8px}
+.tl-item{display:flex;align-items:center;gap:12px;padding:9px;border-radius:15px;text-align:left;width:100%;min-height:44px;
+  background:linear-gradient(140deg, rgba(255,255,255,.07), rgba(255,255,255,.025));
+  border:1px solid var(--stroke-soft);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  transition:background .25s, transform .25s var(--ease)}
+.tl-item img{width:42px;height:63px;border-radius:9px;object-fit:cover;flex:0 0 auto;background:rgba(255,255,255,.06)}
+.tl-info{min-width:0;flex:1;display:flex;flex-direction:column;gap:3px}
+.tl-title{display:block;font-size:14px;font-weight:600;letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tl-date{display:block;font-size:10.5px;letter-spacing:.09em;color:var(--muted)}
+.tl-badges{display:flex;flex-wrap:wrap;gap:5px;margin-top:2px}
+
+/* --- Badge di stato data --- */
+.dstate{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:600;letter-spacing:.05em;
+  padding:4px 9px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid var(--stroke-soft);white-space:nowrap}
+.dstate.ok{color:#8df0b8;border-color:rgba(110,231,168,.4);background:rgba(110,231,168,.12)}
+.dstate.spostata{color:#ffc46b;border-color:rgba(255,176,60,.5);background:rgba(255,176,60,.14);
+  box-shadow:0 0 14px -4px rgba(255,176,60,.8)}
+.dstate.annuncio{color:rgba(244,241,250,.72)}
+.dist{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;letter-spacing:.08em;
+  padding:4px 9px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid var(--stroke-soft);white-space:nowrap}
+.dist.sala{color:#8df0b8;border-color:rgba(110,231,168,.4);background:rgba(110,231,168,.14)}
+.card-date{position:absolute;left:0;right:0;bottom:0;z-index:5;padding:9px 12px 10px;text-align:center;
+  font-size:9.5px;font-weight:700;letter-spacing:.1em;color:rgba(255,255,255,.96);
+  background:linear-gradient(180deg, rgba(6,4,12,0), rgba(6,4,12,.88) 42%);pointer-events:none}
+.card-date span{display:block;margin-top:4px;font-size:9px;letter-spacing:.12em;color:#8df0b8}
+.card-date span.attesa{color:#cdb8ff}
+
+/* --- Blocco uscita: data e countdown separati --- */
+.release-row{flex-direction:column;align-items:stretch;gap:0}
+.rel-main{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.rel-sep{height:1px;margin:14px 0;background:linear-gradient(90deg,transparent,var(--stroke),transparent)}
+.countdown{justify-content:center}
+
+/* --- Drawer del cast dal basso --- */
+.drawer .sheet-box{position:fixed;left:0;right:0;bottom:0;width:100%;max-width:none;max-height:80dvh;
+  border-radius:26px 26px 0 0;padding-bottom:calc(24px + env(safe-area-inset-bottom));animation:drawerUp .38s var(--ease)}
+@keyframes drawerUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.drawer .sheet-box::before{content:'';position:absolute;left:50%;top:9px;translate:-50% 0;width:44px;height:4px;
+  border-radius:999px;background:rgba(255,255,255,.28)}
+.drawer .sheet-box{padding-top:26px}
+
+/* --- Vetro appannato anti-spoiler --- */
+.spoiler{position:relative;border-radius:14px;overflow:hidden;padding:11px 14px;margin-top:10px;
+  background:rgba(255,255,255,.05);border:1px solid var(--stroke-soft);cursor:pointer;touch-action:none}
+.spoiler[hidden]{display:none}
+.spoiler-txt{font-size:12.5px;display:flex;align-items:center;gap:8px}
+.spoiler-glass{position:absolute;inset:0;display:grid;place-items:center;gap:4px;
+  background:rgba(214,220,255,.14);backdrop-filter:blur(9px) saturate(.6);-webkit-backdrop-filter:blur(9px) saturate(.6);
+  font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.8);
+  transition:opacity .25s linear, backdrop-filter .25s linear}
+.spoiler.pulito .spoiler-glass{opacity:0;pointer-events:none}
+
+/* --- Biglietto strappabile --- */
+.ticket{touch-action:pan-y}
+.ticket-stub{will-change:transform}
+.ticket.strappato .ticket-stub{transform:translate(18px,10px) rotate(7deg);opacity:.55}
+.ticket-hint{grid-column:1 / -1;padding:0 20px 12px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+
+/* --- CineMatch --- */
+.match{position:fixed;inset:0;z-index:240;display:flex;background:rgba(4,3,9,.86);
+  backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px)}
+.match[hidden]{display:none}
+.match-side{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+  padding:clamp(12px,3vw,26px);position:relative}
+.match-side:first-child{border-right:1px solid var(--stroke)}
+.match-side.b{transform:rotate(180deg)}
+.match-lab{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)}
+.match-poster{width:min(34vw,180px);aspect-ratio:2/3;border-radius:16px;object-fit:cover;
+  border:1px solid var(--stroke);box-shadow:0 20px 50px -22px #000}
+.match-title{font-size:clamp(13px,2.4vw,17px);font-weight:600;text-align:center;max-width:90%;line-height:1.25}
+.match-btns{display:flex;gap:12px}
+.match-btns button{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;font-size:22px;
+  background:var(--glass);border:1px solid var(--stroke);backdrop-filter:blur(14px);transition:transform .2s var(--ease)}
+.match-btns button:active{transform:scale(.92)}
+.match-btns .si{border-color:rgba(110,231,168,.5);box-shadow:0 0 20px -8px rgba(110,231,168,.9)}
+.match-btns .no{border-color:rgba(255,95,126,.45)}
+.match-side.fatto .match-btns{opacity:.35;pointer-events:none}
+.match-esito{position:absolute;left:50%;top:50%;translate:-50% -50%;z-index:2;padding:22px 30px;border-radius:24px;
+  text-align:center;background:linear-gradient(150deg, rgba(255,255,255,.14), rgba(255,255,255,.05));
+  border:1px solid rgba(110,231,168,.5);backdrop-filter:blur(24px);box-shadow:0 0 60px -18px rgba(110,231,168,.8)}
+.match-esito[hidden]{display:none}
+.match-esito strong{display:block;font-size:22px;font-weight:700;margin-bottom:6px}
+.match-x{position:absolute;top:calc(12px + env(safe-area-inset-top));right:12px;z-index:3;width:44px;height:44px;
+  border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.1);border:1px solid var(--stroke)}
+.match-x svg{width:16px;height:16px}
+
+/* --- Locandina a schermo intero --- */
+.lightbox{position:fixed;inset:0;z-index:230;display:grid;place-items:center;padding:clamp(14px,4vw,40px);
+  background:rgba(4,3,9,.72);backdrop-filter:blur(26px);-webkit-backdrop-filter:blur(26px);animation:fadeIn .3s var(--ease)}
+.lightbox[hidden]{display:none}
+.lightbox img{max-width:min(92vw,560px);max-height:86dvh;border-radius:22px;object-fit:contain;
+  border:1px solid var(--stroke);box-shadow:0 40px 100px -30px #000;animation:popIn .4s var(--ease)}
+
+/* --- Luci in sala --- */
+body.dim .bg{filter:brightness(.34) saturate(1.15)}
+body.dim .panel-inner,body.dim .topbar{background-color:rgba(6,5,12,.72)}
+body.dim .card.is-active .card-inner{box-shadow:0 44px 90px -30px #000, 0 0 90px -18px color-mix(in oklab, var(--c1) 85%, transparent)}
+#dimBtn.on{background:linear-gradient(135deg, rgba(255,214,120,.3), rgba(255,160,60,.22));border-color:rgba(255,206,110,.5)}
+
+@media (max-width:640px){
+  .match{flex-direction:column}
+  .match-side:first-child{border-right:0;border-bottom:1px solid var(--stroke)}
+  .match-poster{width:min(42vw,150px)}
 }
 
 /* ---------- Responsive ---------- */
@@ -977,15 +1072,34 @@ button,.btn,a.btn,.chip,.frame,.dot-btn{-webkit-tap-highlight-color:transparent}
 <header class="topbar">
   <div class="brand">
     <span class="brand-mark" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#7af4ff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="2.6" y="5" width="18.8" height="14" rx="3"/>
-        <path d="M8.4 5v14M15.6 5v14"/>
-        <path d="M5.5 8.2h.01M5.5 12h.01M5.5 15.8h.01M18.5 8.2h.01M18.5 12h.01M18.5 15.8h.01" stroke-width="2.4"/>
+      <svg viewBox="0 0 32 32" fill="none">
+        <defs>
+          <linearGradient id="cgA" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#7af4ff"/><stop offset="1" stop-color="#ff5fe0"/>
+          </linearGradient>
+          <linearGradient id="cgB" x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0" stop-color="#ffffff" stop-opacity=".9"/><stop offset="1" stop-color="#7af4ff" stop-opacity=".25"/>
+          </linearGradient>
+        </defs>
+        <path d="M16 3.4 27 9.6v12.8L16 28.6 5 22.4V9.6Z" fill="url(#cgA)" fill-opacity=".22" stroke="url(#cgA)" stroke-width="1.5" stroke-linejoin="round"/>
+        <path d="M16 3.4 27 9.6 16 15.9 5 9.6Z" fill="url(#cgB)" fill-opacity=".45"/>
+        <circle cx="16" cy="19" r="5.1" stroke="url(#cgA)" stroke-width="1.6"/>
+        <circle cx="16" cy="19" r="1.9" fill="#7af4ff"/>
+        <path d="M16 12.6v1.5M16 23.9v1.5M9.6 19h1.5M20.9 19h1.5" stroke="#7af4ff" stroke-width="1.5" stroke-linecap="round"/>
       </svg>
     </span>
     <span class="brand-text">Cine<em>Glass</em></span>
   </div>
   <div class="topbar-actions">
+    <button id="matchBtn" class="pill-btn" title="Scegliete insieme cosa vedere">
+      <span aria-hidden="true" style="font-size:14px;line-height:1">👥</span>
+      <span class="lbl">CineMatch</span>
+    </button>
+    <button id="dimBtn" class="icon-btn plain" title="Luci in sala" aria-pressed="false" aria-label="Abbassa le luci">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 1 3.6 10.8c-.6.5-.9 1.1-.9 1.8H9.3c0-.7-.3-1.3-.9-1.8A6 6 0 0 1 12 3Z"/>
+      </svg>
+    </button>
     <button id="creatorBtn" class="pill-btn" title="Chi ha fatto CineGlass">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px">
         <circle cx="12" cy="8.5" r="3.6"/><path d="M4.8 20a7.4 7.4 0 0 1 14.4 0"/>
@@ -1033,8 +1147,8 @@ button,.btn,a.btn,.chip,.frame,.dot-btn{-webkit-tap-highlight-color:transparent}
     </div>
     <div class="toolbar-row">
       <div class="bo-tabs" role="group" aria-label="Periodo di uscita">
-        <button type="button" id="tabSoon" class="on" aria-pressed="true">🎬 Prossimamente</button>
-        <button type="button" id="tabRadar" aria-pressed="false">📡 Hype Radar</button>
+        <button type="button" id="tabSoon" class="on" aria-pressed="true">⏳ In arrivo</button>
+        <button type="button" id="tabNow" aria-pressed="false">🎟️ Ora in sala</button>
       </div>
       <div class="view-toggle" role="group" aria-label="Modalità di visualizzazione">
         <button type="button" id="btnCarousel" class="on" aria-pressed="true">
@@ -1045,9 +1159,9 @@ button,.btn,a.btn,.chip,.frame,.dot-btn{-webkit-tap-highlight-color:transparent}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
           Lista
         </button>
-        <button type="button" id="btnCal" aria-pressed="false">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
-          Calendario
+        <button type="button" id="btnTimeline" aria-pressed="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><circle cx="12" cy="7" r="2.4"/><circle cx="12" cy="17" r="2.4"/><path d="M15 7h5M15 17h5M4 12h4"/></svg>
+          Timeline
         </button>
       </div>
     </div>
@@ -1097,16 +1211,9 @@ button,.btn,a.btn,.chip,.frame,.dot-btn{-webkit-tap-highlight-color:transparent}
     </div>
   </section>
 
-  <!-- ====================== CINECALENDARIO ====================== -->
-  <div class="calendar" id="calView" hidden>
-    <div class="cal-head">
-      <h3 id="calTitle">—</h3>
-      <div class="cal-nav">
-        <button type="button" id="calPrev" aria-label="Mese precedente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7"/></svg></button>
-        <button type="button" id="calNext" aria-label="Mese successivo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></button>
-      </div>
-    </div>
-    <div id="calBody"></div>
+  <!-- ====================== CINETIMELINE ====================== -->
+  <div class="timeline" id="timelineView" hidden>
+    <div id="timelineBody"></div>
   </div>
 
   <!-- ====================== VISTA A LISTA ====================== -->
@@ -1162,6 +1269,10 @@ button,.btn,a.btn,.chip,.frame,.dot-btn{-webkit-tap-highlight-color:transparent}
       <span class="lang-note" id="langNote"></span>
       <div class="genres" id="pGenres"></div>
       <div class="tags" id="pTags"></div>
+      <div class="spoiler" id="pSpoiler" hidden>
+        <div class="spoiler-txt">🍿 <span>Questo film ha una scena dopo i titoli di coda: resta in sala.</span></div>
+        <div class="spoiler-glass" id="spoilerGlass">Strofina per scoprire · spoiler</div>
+      </div>
       <div class="cast-wrap" id="castWrap" hidden>
         <div class="cast-lab">Regia e interpreti</div>
         <div class="cast-strip" id="castStrip"></div>
@@ -1170,6 +1281,7 @@ button,.btn,a.btn,.chip,.frame,.dot-btn{-webkit-tap-highlight-color:transparent}
       <ul class="facts" id="pFacts"></ul>
 
       <div class="release-row">
+        <div class="rel-main">
         <div>
           <div class="rel-lab">Uscita nelle sale italiane</div>
           <div class="rel-val" id="pDate">—</div>
@@ -1183,6 +1295,8 @@ button,.btn,a.btn,.chip,.frame,.dot-btn{-webkit-tap-highlight-color:transparent}
             <span id="pRereleaseText"></span>
           </div>
         </div>
+        </div>
+        <div class="rel-sep"></div>
         <div class="countdown" id="countdown"></div>
       </div>
 
@@ -1213,17 +1327,13 @@ button,.btn,a.btn,.chip,.frame,.dot-btn{-webkit-tap-highlight-color:transparent}
             </button>
           </div>
         </span>
-        <button class="btn ghost" id="waBtn" title="Organizza la serata su WhatsApp">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.6 14.2c-.2.6-1.2 1.2-1.7 1.2-.5.1-1 .1-1.6-.1-.4-.1-.9-.3-1.5-.6-2.6-1.1-4.3-3.8-4.4-4-.2-.2-1.1-1.4-1.1-2.7s.7-1.9 1-2.2c.2-.2.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.3 0 .5l-.4.5-.3.3c-.1.1-.2.3 0 .5.1.2.6 1 1.3 1.6.9.8 1.6 1 1.9 1.2.2.1.4.1.5-.1l.7-.9c.2-.2.3-.2.5-.1l2 .9c.2.1.4.2.4.3.1.2.1.6-.1 1Z"/></svg>
-          Invita su WhatsApp
+        <button class="btn ghost sweep" id="inviteBtn" title="Condividi con gli amici">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12a4 4 0 1 0-4-4"/><path d="M4 8a4 4 0 0 0 4 4"/><circle cx="18" cy="6" r="2.6"/><circle cx="18" cy="18" r="2.6"/><circle cx="6" cy="12" r="2.6"/><path d="m8.3 10.7 7.4-3.9M8.3 13.3l7.4 3.9"/></svg>
+          Invita amici
         </button>
         <button class="btn ghost" id="cinemaBtn" title="Cerca i cinema vicino a te">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z"/><circle cx="12" cy="10" r="2.6"/></svg>
           Trova in sala
-        </button>
-        <button class="btn ghost" id="inviteBtn" title="Crea un invito da condividere">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5.5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="18.5" r="2.6"/><path d="m8.3 10.7 7.4-3.9M8.3 13.3l7.4 3.9"/></svg>
-          Invita al cinema
         </button>
       </div>
 
@@ -1238,7 +1348,10 @@ button,.btn,a.btn,.chip,.frame,.dot-btn{-webkit-tap-highlight-color:transparent}
           <div class="hype-lab">Hype Popcorn</div>
           <div class="hype-val" id="hypeVal">Tocca il secchiello</div>
           <div class="hype-hint" id="hypeHint">Al primo popcorn il film entra nella tua lista</div>
-          <button type="button" class="hype-clear" id="hypeClear" hidden>Svuota e togli dalla lista</button>
+          <div style="display:flex;gap:14px;flex-wrap:wrap">
+            <button type="button" class="hype-clear" id="hypeClear" hidden>Svuota e togli dalla lista</button>
+            <button type="button" class="hype-clear" id="wipeAll">🗑️ Svuota watchlist</button>
+          </div>
         </div>
       </div>
 
@@ -1255,6 +1368,7 @@ button,.btn,a.btn,.chip,.frame,.dot-btn{-webkit-tap-highlight-color:transparent}
           <canvas class="ticket-qr" id="tkQr" width="92" height="92" aria-label="Codice QR della scheda del film"></canvas>
           <span class="ticket-code" id="tkCode">—</span>
         </div>
+        <div class="ticket-hint">Trascina lungo la perforazione per strappare e salvare</div>
       </div>
     </div>
   </section>
@@ -1305,6 +1419,9 @@ button,.btn,a.btn,.chip,.frame,.dot-btn{-webkit-tap-highlight-color:transparent}
     <div class="modal-head">
       <h3 id="mTitle">Trailer</h3>
       <div class="modal-tools">
+        <a class="pill-btn" id="ytBtn" target="_blank" rel="noopener noreferrer" title="Apri il trailer su YouTube" hidden>
+          <span aria-hidden="true">▶️</span><span class="lbl">Apri su YouTube</span>
+        </a>
         <button class="pill-btn" id="pipBtn" title="Riduci a mini player">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" style="width:15px;height:15px">
             <rect x="2.8" y="4.5" width="18.4" height="15" rx="2.6"/><rect x="12" y="11.5" width="8" height="7" rx="1.6" fill="currentColor" stroke="none" opacity=".85"/>
@@ -1364,7 +1481,7 @@ button,.btn,a.btn,.chip,.frame,.dot-btn{-webkit-tap-highlight-color:transparent}
 </div>
 
 <!-- ====================== MODALE FILMOGRAFIA ====================== -->
-<div class="sheet" id="filmoSheet" hidden>
+<div class="sheet drawer" id="filmoSheet" hidden>
   <div class="sheet-bd" data-close></div>
   <div class="sheet-box wide" role="dialog" aria-modal="true" aria-labelledby="filmoName">
     <button class="sheet-x" data-close aria-label="Chiudi">
@@ -1376,6 +1493,34 @@ button,.btn,a.btn,.chip,.frame,.dot-btn{-webkit-tap-highlight-color:transparent}
     </div>
     <div class="filmo-list" id="filmoList"></div>
   </div>
+</div>
+
+<!-- ====================== CINEMATCH ====================== -->
+<div class="match" id="matchView" hidden>
+  <button class="match-x" id="matchClose" aria-label="Chiudi CineMatch">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+  </button>
+  <div class="match-side b" data-player="b">
+    <span class="match-lab">Giocatore B</span>
+    <img class="match-poster" id="matchPosterB" alt="">
+    <span class="match-title" id="matchTitleB">—</span>
+    <div class="match-btns"><button type="button" class="no" data-vote="no" aria-label="No">✖️</button><button type="button" class="si" data-vote="si" aria-label="Sì">❤️</button></div>
+  </div>
+  <div class="match-side" data-player="a">
+    <span class="match-lab">Giocatore A</span>
+    <img class="match-poster" id="matchPosterA" alt="">
+    <span class="match-title" id="matchTitleA">—</span>
+    <div class="match-btns"><button type="button" class="no" data-vote="no" aria-label="No">✖️</button><button type="button" class="si" data-vote="si" aria-label="Sì">❤️</button></div>
+  </div>
+  <div class="match-esito" id="matchEsito" hidden>
+    <strong id="matchEsitoT">È MATCH! 🍿</strong>
+    <span id="matchEsitoS"></span>
+  </div>
+</div>
+
+<!-- ====================== LOCANDINA INGRANDITA ====================== -->
+<div class="lightbox" id="lightbox" hidden>
+  <img id="lightboxImg" alt="Locandina ingrandita">
 </div>
 
 <!-- ====================== TOAST ====================== -->
@@ -1612,8 +1757,7 @@ const state = {
   movies: [], favs: [], favOnly: false, detailsCache: {},
   view: [], genre: null, mode: 'upcoming', searchList: [], searchQuery: '',
   layout: 'carousel', boxoffice: [], boTab: 'it', credits: {}, custom: null,
-  range: 'soon', radar: [], durata: null, storiaVera: false,
-  calYear: new Date().getFullYear(), calMonth: new Date().getMonth(),
+  section: 'soon', nowPlaying: [], durata: null, storiaVera: false,
   tiltX: 0, tiltY: 0,
   current: 0, target: 0, activeIndex: 0, activeId: null, activeDetails: null,
   demo: false, raf: 0, drag: null, cardW: 260, spacing: 180, lastRelease: null
@@ -1648,11 +1792,17 @@ const el = {
   hypeBucket:$('#hypeBucket'), hypeCount:$('#hypeCount'), hypeVal:$('#hypeVal'), hypeHint:$('#hypeHint'),
   hypeClear:$('#hypeClear'),
   pTags:$('#pTags'), pAge:$('#pAge'), pDateKind:$('#pDateKind'),
-  saveBtn:$('#saveBtn'), saveMenu:$('#saveMenu'), waBtn:$('#waBtn'),
+  saveBtn:$('#saveBtn'), saveMenu:$('#saveMenu'),
   results:$('#results'), searchWrap:$('#searchWrap'), chipsExtra:$('#chipsExtra'),
-  tabSoon:$('#tabSoon'), tabRadar:$('#tabRadar'), btnCal:$('#btnCal'),
-  calView:$('#calView'), calTitle:$('#calTitle'), calBody:$('#calBody'),
-  calPrev:$('#calPrev'), calNext:$('#calNext'),
+  tabSoon:$('#tabSoon'), tabNow:$('#tabNow'), btnTimeline:$('#btnTimeline'),
+  timelineView:$('#timelineView'), timelineBody:$('#timelineBody'),
+  matchBtn:$('#matchBtn'), dimBtn:$('#dimBtn'), matchView:$('#matchView'), matchClose:$('#matchClose'),
+  matchPosterA:$('#matchPosterA'), matchPosterB:$('#matchPosterB'),
+  matchTitleA:$('#matchTitleA'), matchTitleB:$('#matchTitleB'),
+  matchEsito:$('#matchEsito'), matchEsitoT:$('#matchEsitoT'), matchEsitoS:$('#matchEsitoS'),
+  lightbox:$('#lightbox'), lightboxImg:$('#lightboxImg'),
+  spoiler:$('#pSpoiler'), spoilerGlass:$('#spoilerGlass'),
+  ytBtn:$('#ytBtn'), wipeAll:$('#wipeAll'),
   searchBtn:$('#searchBtn'), searchBar:$('#searchBar'), searchInput:$('#searchInput'),
   searchClose:$('#searchClose'), searchTag:$('#searchTag'), searchTagText:$('#searchTagText'),
   searchReset:$('#searchReset'), status:$('#status'), statusText:$('#statusText'),
@@ -1668,7 +1818,7 @@ let cards = [];
 /* lista di partenza (uscite, ricerca o preferiti) e vista filtrata per genere */
 const baseList = () => state.mode === 'search' ? state.searchList
   : state.favOnly ? state.favs
-  : state.range === 'radar' ? state.radar
+  : state.section === 'now' ? state.nowPlaying
   : state.movies;
 const movies = () => state.view;
 const wrapIndex = (i, n) => ((Math.round(i) % n) + n) % n;
@@ -1679,6 +1829,48 @@ function computeView(){
   let v = state.genre ? base.filter(m => (m.genre_ids || []).includes(state.genre)) : base;
   if (state.durata || state.storiaVera) v = v.filter(passaFiltriProfondi);
   state.view = v;
+}
+
+/* --- Date Change Tracker: confronto con l'ultima data vista --- */
+const DATES_KEY = 'cineglass:date-tracker:v1';
+function aggiornaTracker(lista){
+  const memo = store.get(DATES_KEY) || {};
+  let cambi = 0;
+  lista.forEach(m => {
+    const attuale = m.release_date;
+    if (!attuale) return;
+    const prec = memo[m.id];
+    if (prec && prec !== attuale){ m.__spostata = prec; cambi++; }
+    memo[m.id] = attuale;
+  });
+  store.set(DATES_KEY, memo);
+  return cambi;
+}
+
+/* Stato della data: confermata, spostata o solo annunciata */
+function statoData(m){
+  const d = parseISO(m.release_date);
+  if (!d) return { tipo: 'annuncio', icona: '\u26AA', testo: 'Data da annunciare' };
+  if (m.__spostata) return { tipo: 'spostata', icona: '\uD83D\uDD04', testo: 'Data spostata dal ' + fmtDate(m.__spostata) };
+  const lontano = m.__annuncio || (d.getTime() - startOfToday()) > 365 * 86400000;
+  if (lontano) return { tipo: 'annuncio', icona: '\u26AA', testo: 'Annunciato ' + d.getFullYear() };
+  return { tipo: 'ok', icona: '\uD83D\uDFE2', testo: 'Confermata IT' };
+}
+
+/* Data estesa e distanza: "DAL 24 SETTEMBRE 2026" + "TRA 3 SETTIMANE" */
+function dataEstesa(iso){
+  const d = parseISO(iso);
+  return d ? ('Dal ' + fmtDateLong(iso)).toUpperCase() : 'DATA DA ANNUNCIARE';
+}
+function distanza(iso){
+  const d = parseISO(iso);
+  if (!d) return null;
+  const giorni = Math.round((d.getTime() - startOfToday()) / 86400000);
+  if (giorni <= 0) return { sala: true, testo: 'IN SALA ORA' };
+  if (giorni === 1) return { sala: false, testo: 'DOMANI' };
+  if (giorni < 14) return { sala: false, testo: 'TRA ' + giorni + ' GIORNI' };
+  if (giorni < 60) return { sala: false, testo: 'TRA ' + Math.round(giorni / 7) + ' SETTIMANE' };
+  return { sala: false, testo: 'TRA ' + Math.round(giorni / 30.4) + ' MESI' };
 }
 
 /* Etichetta per le uscite imminenti (entro 7 giorni) */
@@ -1781,7 +1973,7 @@ function orderList(raw, opts){
       return o.skipDates ? true : d.getTime() >= limit;
     })
     .sort((a, b) => parseISO(a.release_date) - parseISO(b.release_date))
-    .slice(0, o.limit || MAX_MOVIES);
+    .slice(0, o.limit || MAX_MOVIES * 2);
 }
 
 /* Uscite italiane: /discover filtrato sulle date di uscita IT in sala
@@ -1793,19 +1985,31 @@ function isoTraGiorni(n){
   return d.toISOString().split('T')[0];
 }
 
-/* Hype Radar: uscite oltre la finestra, ordinate per popolarità */
-async function fetchRadar(key){
+/* Annunci oltre la finestra: attendibile l'anno, non il giorno */
+async function fetchAnnunci(key){
   const url = `${API_BASE}/discover/movie?api_key=${encodeURIComponent(key)}&language=it-IT` +
     `&sort_by=popularity.desc&include_adult=false&include_video=false&page=1` +
     `&primary_release_date.gte=${isoTraGiorni(GIORNI_CAROSELLO + 1)}`;
   try{
     const d = await fetchJSON(url);
-    const lista = (d && d.results ? d.results : []).map(slimMovie)
-      .filter(m => m.poster_path).slice(0, MAX_MOVIES);
-    lista.forEach(m => { m.__radar = true; });
-    state.radar = lista;
+    const lista = (d && d.results ? d.results : []).map(slimMovie).filter(m => m.poster_path);
+    lista.forEach(m => { m.__annuncio = true; });
     return lista;
-  }catch(err){ state.radar = []; return []; }
+  }catch(err){ return []; }
+}
+
+/* Film gia' in programmazione nelle sale italiane */
+async function fetchOraInSala(key){
+  try{
+    const d = await fetchJSON(`${API_BASE}/movie/now_playing?api_key=${encodeURIComponent(key)}&language=it-IT&region=IT&page=1`);
+    const lista = (d && d.results ? d.results : []).map(slimMovie)
+      .filter(m => m.poster_path)
+      .sort((a, b) => (b.popularity - a.popularity) || (b.vote_average - a.vote_average))
+      .slice(0, MAX_MOVIES);
+    lista.forEach(m => { m.__inSala = true; });
+    state.nowPlaying = lista;
+    return lista;
+  }catch(err){ state.nowPlaying = []; return []; }
 }
 
 async function fetchUpcoming(key){
@@ -1845,6 +2049,13 @@ async function fetchUpcoming(key){
     }catch(err){
       if (!list.length) throw err;   // senza nulla in mano l'errore va propagato
     }
+  }
+  /* ai 90 giorni si aggiungono gli annunci lontani: la timeline deve poter
+     mostrare anche 2027 e 2028 */
+  const annunci = await fetchAnnunci(key);
+  if (annunci.length){
+    const visti = new Set(list.map(m => m.id));
+    list = list.concat(annunci.filter(m => !visti.has(m.id)));
   }
   if (!list.length) throw new Error('Nessun film in uscita restituito da TMDB');
   return list;
@@ -2091,6 +2302,12 @@ function buildCards(){
         '<button class="card-play" data-act="play">' +
           '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.2v13.6a1 1 0 0 0 1.53.85l10.6-6.8a1 1 0 0 0 0-1.7L9.53 4.35A1 1 0 0 0 8 5.2Z"/></svg>Guarda Trailer' +
         '</button>' +
+        (() => {
+          const d = distanza(m.release_date);
+          return `<div class="card-date">${esc(dataEstesa(m.release_date))}` +
+                 (d ? `<span class="${d.sala ? '' : 'attesa'}">${d.sala ? '🟢' : '⏳'} ${esc(d.testo)}</span>` : '') +
+                 '</div>';
+        })() +
         '<div class="card-meta">' +
           `<h3>${esc(m.title)}</h3>` +
           '<p class="card-sub">' +
@@ -2103,6 +2320,12 @@ function buildCards(){
     const poster = card.querySelector('.poster');
     poster.addEventListener('error', () => { poster.src = placeholderPoster(m.title); }, { once: true });
     /* il trailer si apre anche se tilt o swipe sono in ascolto sullo stage */
+    /* tap sulla locandina (fuori dai controlli): ingrandimento */
+    poster.addEventListener('click', e => {
+      if (clickSuppressed || i !== wrapIndex(state.current, cards.length)) return;
+      e.stopPropagation();
+      apriLightbox(m);
+    });
     const play = card.querySelector('.card-play');
     if (play){
       const apri = e => { e.stopPropagation(); e.preventDefault(); openTrailer(); };
@@ -2575,6 +2798,9 @@ function renderPanel(movie, details){
   renderTicket(movie, details);
   renderTags(movie, details);
   renderDateKind(movie, iso);
+  const postCredit = !!(details && details.kw && details.kw.postcredit);
+  el.spoiler.hidden = !postCredit;
+  if (postCredit && el.spoiler.__reset) el.spoiler.__reset();
   renderHype(movie);
 
   /* Google Calendar */
@@ -2802,12 +3028,12 @@ function setFavOnly(on){
    8-bis. VISTA A LISTA
    ========================================================= */
 function setLayout(mode){
-  state.layout = ['list', 'cal'].includes(mode) ? mode : 'carousel';
-  const lista = state.layout === 'list', cal = state.layout === 'cal';
+  state.layout = ['list', 'timeline'].includes(mode) ? mode : 'carousel';
+  const lista = state.layout === 'list', tl = state.layout === 'timeline';
   el.listView.hidden = !lista;
-  el.calView.hidden = !cal;
-  el.carousel.hidden = lista || cal;
-  [[el.btnCarousel, !lista && !cal], [el.btnList, lista], [el.btnCal, cal]].forEach(([b, on]) => {
+  el.timelineView.hidden = !tl;
+  el.carousel.hidden = lista || tl;
+  [[el.btnCarousel, !lista && !tl], [el.btnList, lista], [el.btnTimeline, tl]].forEach(([b, on]) => {
     b.classList.toggle('on', on);
     b.setAttribute('aria-pressed', on ? 'true' : 'false');
   });
@@ -2815,7 +3041,7 @@ function setLayout(mode){
   buzz(15);
   sfx.play('tap');
   if (lista) renderListView();
-  else if (cal) renderCalendar();
+  else if (tl) renderTimeline();
   else { measure(); render(); }
 }
 
@@ -2834,7 +3060,7 @@ function renderListView(){
     return `<tr data-i="${i}"${i === state.activeIndex ? ' class="on"' : ''}>` +
       `<td class="c-poster"><img class="thumb" src="${esc(img(m.poster_path, 'w92') || placeholderPoster(m.title))}" alt="" loading="lazy" decoding="async"></td>` +
       `<td><span class="t-title">${esc(m.title)}</span>${badge ? `<br><span class="t-tag">${esc(badge)}</span>` : ''}</td>` +
-      `<td data-lab="Uscita">${esc(fmtDate(m.release_date))}</td>` +
+      `<td data-lab="Uscita">${esc(dataEstesa(m.release_date))}<br>${badgeStato(m)} ${badgeDistanza(m)}</td>` +
       `<td data-lab="Genere">${esc(genreNames(m.genre_ids, 2))}</td>` +
       `<td data-lab="Voto">${voteCell(m)}</td>` +
       '<td class="c-act"><button class="btn-sm" type="button" data-act="trailer">Trailer</button></td>' +
@@ -3061,8 +3287,10 @@ function openTrailer(movie, details){
   const permessi = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
   if (trailer && trailer.key){
     /* Livelli 1 e 2: trailer ufficiale italiano, altrimenti internazionale */
+    /* origin + enablejsapi evitano gli errori 150/151 su alcuni domini */
     const src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(trailer.key)}` +
-                '?autoplay=1&rel=0&modestbranding=1&playsinline=1&hl=it&cc_lang_pref=it';
+                '?autoplay=1&enablejsapi=1&rel=0&modestbranding=1&playsinline=1&hl=it&cc_lang_pref=it' +
+                '&origin=' + encodeURIComponent(location.origin);
     el.player.innerHTML = `<iframe src="${src}" title="${esc(movie.title)} - Trailer" allow="${permessi}" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
   } else if (movie.__demo){
     el.player.innerHTML =
@@ -3084,6 +3312,8 @@ function openTrailer(movie, details){
       '</div>';
     el.modalTitle.textContent = movie.title;
   }
+  el.ytBtn.hidden = !(trailer && trailer.key);
+  if (trailer && trailer.key) el.ytBtn.href = 'https://www.youtube.com/watch?v=' + encodeURIComponent(trailer.key);
   state.pipTitle = movie.title;
   el.modal.hidden = false;
   document.body.classList.remove('pip-mode');
@@ -3226,7 +3456,7 @@ function rebuild(preserveId){
   selectActive(idx);
   updateFavUI();
   if (state.layout === 'list') renderListView();
-  else if (state.layout === 'cal') renderCalendar();
+  else if (state.layout === 'timeline') renderTimeline();
 }
 
 function applyList(list, preserveId){
@@ -3242,6 +3472,7 @@ async function loadFromAPI(key, opts){
     const candidates = await fetchUpcoming(key);
     state.demo = false;
     hideNotice();
+    aggiornaTracker(candidates);
     applyList(candidates.slice(0, MAX_MOVIES), opts.silent ? state.activeId : null);
     setDiag({ count: movies().length, at: now() });
     if (opts.notify) toast('Uscite aggiornate da TMDB', 'ok');
@@ -3273,6 +3504,7 @@ async function refineDates(key, candidates){
     const datesChanged = await enrichReleaseDates(key, candidates);
     const refined = orderList(candidates, {});
     if (!refined.length) return;
+    aggiornaTracker(refined);
     store.set(STORE.list, { ts: now(), data: refined });
     setDiag({ count: refined.length, at: now(), label: diag.label + ' + date IT verificate' });
     if (state.mode === 'search') return;
@@ -3744,26 +3976,6 @@ function scaricaIcs(){
   sfx.play('tap');
 }
 
-/* --- Cinema vicini: la finestra si apre subito, l'URL arriva dopo --- */
-function trovaCinema(){
-  const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-  const win = window.open('', '_blank');
-  const vai = url => { if (win) win.location.replace(url); else window.location.href = url; };
-  const generico = iOS ? 'https://maps.apple.com/?q=cinema' : 'https://www.google.com/maps/search/cinema+vicino+a+me';
-  sfx.play('tap');
-  if (!navigator.geolocation){ vai(generico); return; }
-  toast('Cerco i cinema vicino a te…', 'ok');
-  navigator.geolocation.getCurrentPosition(
-    pos => {
-      const la = pos.coords.latitude.toFixed(5), lo = pos.coords.longitude.toFixed(5);
-      vai(iOS ? `https://maps.apple.com/?q=cinema&sll=${la},${lo}&z=13`
-              : `https://www.google.com/maps/search/cinema/@${la},${lo},14z`);
-    },
-    () => vai(generico),
-    { enableHighAccuracy: false, timeout: 8000, maximumAge: 600000 }
-  );
-}
-
 /* --- Invito 9:16 disegnato su canvas e condiviso --- */
 function caricaImg(url){
   return new Promise(resolve => {
@@ -3791,11 +4003,8 @@ function testoACapo(ctx, testo, max, righeMax){
   return righe;
 }
 
-async function creaInvito(){
-  const movie = movies()[state.activeIndex];
-  if (!movie) return;
-  sfx.play('tap');
-  toast('Preparo l’invito…', 'ok');
+async function invitoPng(movie){
+  if (!movie) return null;
   const W = 1080, H = 1920;
   const c = document.createElement('canvas');
   c.width = W; c.height = H;
@@ -3869,24 +4078,7 @@ async function creaInvito(){
   ctx.fillStyle = 'rgba(255,255,255,.55)';
   ctx.fillText('CineGlass', W / 2, by + bh - 54);
 
-  const blob = await new Promise(res => c.toBlob(res, 'image/png', .92));
-  if (!blob){ toast('Non riesco a creare l’immagine', 'warn'); return; }
-  const file = new File([blob], 'cineglass-invito.png', { type: 'image/png' });
-  const testo = `${movie.title} — al cinema dal ${fmtDate(state.lastRelease)}. Andiamo?`;
-  try{
-    if (navigator.canShare && navigator.canShare({ files: [file] })){
-      await navigator.share({ files: [file], text: testo, title: 'CineGlass' });
-      return;
-    }
-  }catch(err){ if (err && err.name === 'AbortError') return; }
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'cineglass-invito.png';
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-  toast('Invito salvato come immagine', 'ok');
+  return new Promise(res => c.toBlob(res, 'image/png', .92));
 }
 
 /* --- Box office: Italia (€) e Mondiale ($) --- */
@@ -3928,50 +4120,6 @@ async function loadBoxOfficeMondiale(key){
   state.boxoffice = righe;
   renderBoxOffice(righe);
   el.boxoffice.hidden = false;
-}
-
-/* --- PWA: manifest generato al volo, service worker se servito via http --- */
-function iconaPng(lato){
-  const c = document.createElement('canvas');
-  c.width = c.height = lato;
-  const x = c.getContext('2d');
-  const g = x.createLinearGradient(0, 0, lato, lato);
-  g.addColorStop(0, '#00F2FE'); g.addColorStop(.55, '#8a5cff'); g.addColorStop(1, '#ff7a3d');
-  x.fillStyle = g;
-  x.fillRect(0, 0, lato, lato);
-  const u = lato / 24;
-  x.strokeStyle = 'rgba(255,255,255,.95)';
-  x.lineWidth = u * 1.5;
-  x.lineJoin = 'round';
-  x.strokeRect(u * 3.5, u * 6, u * 17, u * 12);
-  x.beginPath();
-  x.moveTo(u * 9, u * 6); x.lineTo(u * 9, u * 18);
-  x.moveTo(u * 15, u * 6); x.lineTo(u * 15, u * 18);
-  x.stroke();
-  return c.toDataURL('image/png');
-}
-
-function initPWA(){
-  try{
-    const manifest = {
-      name: 'CineGlass', short_name: 'CineGlass',
-      description: 'Le uscite al cinema in Italia, in vetro liquido.',
-      start_url: './', scope: './', display: 'standalone',
-      background_color: '#07060d', theme_color: '#07060d', lang: 'it',
-      icons: [
-        { src: iconaPng(192), sizes: '192x192', type: 'image/png', purpose: 'any' },
-        { src: iconaPng(512), sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
-      ]
-    };
-    const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
-    const link = document.createElement('link');
-    link.rel = 'manifest';
-    link.href = URL.createObjectURL(blob);
-    document.head.appendChild(link);
-  }catch(err){ /* niente manifest: l'app resta comunque utilizzabile */ }
-  if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){
-    navigator.serviceWorker.register('sw.js').catch(() => { /* file assente: nessun problema */ });
-  }
 }
 
 /* =========================================================
@@ -4217,7 +4365,7 @@ function renderHype(movie){
   const n = hypeOf(movie.id);
   el.hypeCount.textContent = n;
   el.hypeCount.classList.toggle('on', n > 0);
-  el.hypeVal.textContent = n ? `${n} popcorn` : 'Tocca il secchiello';
+  el.hypeVal.textContent = titoloHype(n);
   el.hypeHint.textContent = n
     ? (isFav(movie.id) ? 'Nella tua lista · tocca ancora per alzare l’hype' : 'Tocca ancora per alzare l’hype')
     : 'Al primo popcorn il film entra nella tua lista';
@@ -4255,7 +4403,6 @@ function renderTags(movie, details){
   if (details.italiano) t.push('<span class="tag-glass tag-ita">🇮🇹 Cinema italiano</span>');
   if (details.kw && details.kw.festival) t.push('<span class="tag-glass tag-fest">🏆 Festival</span>');
   (details.kw ? details.kw.formati : []).forEach(f => t.push(`<span class="tag-glass tag-fmt">${esc(f)}</span>`));
-  if (details.kw && details.kw.postcredit) t.push('<span class="tag-glass tag-post">🍿 Scena post-credit</span>');
   if (details.kw && details.kw.storiaVera) t.push('<span class="tag-glass tag-true">📖 Tratto da una storia vera</span>');
   else if (details.kw && details.kw.libro) t.push('<span class="tag-glass tag-true">📚 Tratto da un libro</span>');
   el.pTags.innerHTML = t.join('');
@@ -4265,11 +4412,11 @@ function renderTags(movie, details){
 }
 
 function renderDateKind(movie, iso){
-  const ufficiale = !movie.__radar && !!parseISO(iso);
-  el.pDateKind.className = 'date-badge' + (ufficiale ? ' ok' : '');
-  el.pDateKind.textContent = ufficiale
-    ? '🟢 Data ufficiale IT'
-    : '⚪ Previsto per il ' + (parseISO(iso) ? parseISO(iso).getFullYear() : 'futuro');
+  const st = statoData({ id: movie.id, release_date: iso, __annuncio: movie.__annuncio, __spostata: movie.__spostata });
+  el.pDateKind.className = 'dstate ' + st.tipo;
+  el.pDateKind.textContent = st.icona + ' ' + st.testo;
+  const d = distanza(iso);
+  el.date.title = dataEstesa(iso) + (d ? ' · ' + d.testo : '');
 }
 
 /* --- Menu "Salva data" --- */
@@ -4278,18 +4425,6 @@ function toggleSaveMenu(forza){
   el.saveMenu.hidden = !apri;
   el.saveBtn.setAttribute('aria-expanded', apri ? 'true' : 'false');
   if (apri) sfx.play('tap');
-}
-
-/* --- WhatsApp --- */
-function invitaWhatsApp(){
-  const movie = movies()[state.activeIndex];
-  if (!movie) return;
-  const det = state.activeDetails;
-  const link = det && det.trailer ? `https://www.youtube.com/watch?v=${det.trailer.key}`
-    : `https://www.youtube.com/results?search_query=${encodeURIComponent('trailer italiano ufficiale ' + movie.title)}`;
-  const testo = `🎬 Andiamo al cinema a vedere ${movie.title}? Esce il ${fmtDate(state.lastRelease)}! Guarda il trailer: ${link}`;
-  window.open('https://wa.me/?text=' + encodeURIComponent(testo), '_blank', 'noopener');
-  sfx.play('tap');
 }
 
 /* --- Ricerca: risultati divisi, recenti, scorciatoia --- */
@@ -4337,45 +4472,6 @@ function mostraRecenti(){
   state.recenti = r;
 }
 
-/* --- CineCalendario --- */
-function renderCalendar(){
-  const base = movies();
-  const anno = state.calYear, mese = state.calMonth;
-  el.calTitle.textContent = `${MONTHS[mese]} ${anno}`;
-  const primo = new Date(anno, mese, 1);
-  const ultimo = new Date(anno, mese + 1, 0);
-  const perGiorno = new Map();
-  base.forEach(m => {
-    const d = parseISO(m.release_date);
-    if (!d || d.getFullYear() !== anno || d.getMonth() !== mese) return;
-    const g = d.getDate();
-    if (!perGiorno.has(g)) perGiorno.set(g, []);
-    perGiorno.get(g).push(m);
-  });
-  const settimane = [];
-  let inizio = 1;
-  while (inizio <= ultimo.getDate()){
-    const d = new Date(anno, mese, inizio);
-    const giornoSett = (d.getDay() + 6) % 7;            // lunedì = 0
-    const fine = Math.min(inizio + (6 - giornoSett), ultimo.getDate());
-    settimane.push([inizio, fine]);
-    inizio = fine + 1;
-  }
-  el.calBody.innerHTML = settimane.map(([a, b], i) => {
-    const film = [];
-    for (let g = a; g <= b; g++) (perGiorno.get(g) || []).forEach(m => film.push([g, m]));
-    const celle = film.length
-      ? film.map(([g, m]) => `<button type="button" class="cal-item" data-id="${m.id}">` +
-          `<span class="cal-day">${g}</span>` +
-          `<img src="${esc(img(m.poster_path, 'w92') || placeholderPoster(m.title))}" alt="" loading="lazy">` +
-          `<span class="cal-title">${esc(m.title)}</span></button>`).join('')
-      : '<div class="cal-empty">Nessuna uscita questa settimana.</div>';
-    return `<div class="cal-week"><div class="cal-week-lab">Settimana ${i + 1} · ${a}–${b} ${MONTHS[mese]}</div>` +
-           `<div class="cal-grid">${celle}</div></div>`;
-  }).join('');
-  if (!settimane.length) el.calBody.innerHTML = '<div class="cal-week"><div class="cal-empty">Nessuna uscita.</div></div>';
-}
-
 /* --- Filtri che richiedono i dettagli (durata, storia vera) --- */
 async function assicuraDettagli(){
   const base = baseList();
@@ -4392,9 +4488,10 @@ function passaFiltriProfondi(m){
   if (state.durata){
     const r = m.__d ? m.__d.runtime : 0;
     if (!r) return false;
-    if (state.durata === 'corto' && r >= 90) return false;
-    if (state.durata === 'medio' && (r < 90 || r > 120)) return false;
-    if (state.durata === 'lungo' && r <= 150) return false;
+    if (state.durata === 'corto' && !(r < 90)) return false;
+    if (state.durata === 'medio' && !(r >= 90 && r <= 120)) return false;
+    if (state.durata === 'lungo' && !(r > 120 && r <= 150)) return false;
+    if (state.durata === 'extra' && !(r > 150)) return false;
   }
   if (state.storiaVera){
     const k = m.__d && m.__d.kw;
@@ -4404,12 +4501,323 @@ function passaFiltriProfondi(m){
 }
 
 function buildChipsExtra(){
-  const durate = [['corto', '< 90 min'], ['medio', '90-120 min'], ['lungo', '> 150 min']];
+  const durate = [['corto', '< 90 min'], ['medio', '90-120 min'],
+                  ['lungo', '120-150 min'], ['extra', '> 150 min']];
   el.chipsExtra.innerHTML =
     durate.map(([k, lab]) =>
       `<button type="button" class="chip${state.durata === k ? ' on' : ''}" data-durata="${k}">${lab}</button>`).join('') +
     `<button type="button" class="chip${state.storiaVera ? ' on' : ''}" data-vera="1">📖 Storia vera / libro</button>`;
   el.chipsExtra.hidden = false;
+}
+
+/* =========================================================
+   12-septies. TIMELINE, CINEMATCH, STRAPPO, SPOILER
+   ========================================================= */
+
+/* --- Badge riutilizzabili per card, lista e timeline --- */
+function badgeStato(m){
+  const st = statoData(m);
+  return `<span class="dstate ${st.tipo}">${st.icona} ${esc(st.testo)}</span>`;
+}
+function badgeDistanza(m){
+  const d = distanza(m.release_date);
+  if (!d) return '';
+  return `<span class="dist${d.sala ? ' sala' : ''}">${d.sala ? '🟢' : '⏳'} ${esc(d.testo)}</span>`;
+}
+
+/* --- CineTimeline: nodi per anno, 2028+ raggruppato --- */
+function renderTimeline(){
+  const lista = movies().slice().sort((a, b) => {
+    const da = parseISO(a.release_date), db = parseISO(b.release_date);
+    return (da ? da.getTime() : Infinity) - (db ? db.getTime() : Infinity);
+  });
+  if (!lista.length){
+    el.timelineBody.innerHTML = '<div class="tl-year"><div class="tl-node"><span class="tl-dot"></span>' +
+      '<h3>Nessun film</h3></div></div>';
+    return;
+  }
+  const annoOra = new Date(now()).getFullYear();
+  const gruppi = new Map();
+  lista.forEach(m => {
+    const d = parseISO(m.release_date);
+    const y = d ? d.getFullYear() : 9999;
+    const k = y === 9999 ? 9999 : Math.min(y, annoOra + 2);
+    if (!gruppi.has(k)) gruppi.set(k, []);
+    gruppi.get(k).push(m);
+  });
+  const chiavi = Array.from(gruppi.keys()).sort((a, b) => a - b);
+  el.timelineBody.innerHTML = chiavi.map(k => {
+    const film = gruppi.get(k);
+    const etichetta = k === 9999 ? 'Da annunciare' : (k >= annoOra + 2 ? k + '+' : String(k));
+    const righe = film.map(m =>
+      `<button type="button" class="tl-item" data-id="${m.id}">` +
+        `<img src="${esc(img(m.poster_path, 'w92') || placeholderPoster(m.title))}" alt="" loading="lazy" decoding="async">` +
+        `<span class="tl-info"><span class="tl-title">${esc(m.title)}</span>` +
+        `<span class="tl-date">${esc(dataEstesa(m.release_date))}</span>` +
+        `<span class="tl-badges">${badgeStato(m)}${badgeDistanza(m)}</span></span>` +
+      '</button>').join('');
+    return `<section class="tl-year"><div class="tl-node"><span class="tl-dot"></span>` +
+           `<h3>${esc(etichetta)}</h3><span class="tl-count">${film.length} film</span></div>` +
+           `<div class="tl-items">${righe}</div></section>`;
+  }).join('');
+}
+
+/* --- Due sole sezioni: in arrivo / ora in sala --- */
+async function setSection(sec){
+  if (state.section === sec) return;
+  state.section = sec;
+  el.tabSoon.classList.toggle('on', sec === 'soon');
+  el.tabNow.classList.toggle('on', sec === 'now');
+  el.tabSoon.setAttribute('aria-pressed', sec === 'soon' ? 'true' : 'false');
+  el.tabNow.setAttribute('aria-pressed', sec === 'now' ? 'true' : 'false');
+  sfx.play('tap');
+  state.genre = null;
+  state.activeId = null;
+  if (sec === 'now' && !state.nowPlaying.length){
+    const key = resolveKey();
+    if (key){ showSkeleton(true); await fetchOraInSala(key); showSkeleton(false); }
+  }
+  rebuild(null);
+}
+
+/* --- Link profondo alla scheda del film --- */
+function deepLink(movie){
+  return location.origin + location.pathname + '?movie=' + movie.id;
+}
+
+async function apriDaLink(){
+  const id = new URLSearchParams(location.search).get('movie');
+  if (!id) return;
+  const key = resolveKey();
+  if (!key) return;
+  try{
+    const d = await fetchJSON(`${API_BASE}/movie/${encodeURIComponent(id)}?api_key=${encodeURIComponent(key)}&language=it-IT`);
+    if (d && d.id) mostraSingolo(d);
+  }catch(err){ /* link non valido: si resta sulla home */ }
+}
+
+/* --- Un solo invito: condivisione nativa, altrimenti WhatsApp --- */
+async function invitaAmici(){
+  const movie = movies()[state.activeIndex];
+  if (!movie) return;
+  sfx.play('tap');
+  const det = state.activeDetails;
+  const trailer = det && det.trailer ? `https://www.youtube.com/watch?v=${det.trailer.key}` : '';
+  const url = deepLink(movie);
+  const testo = `🎬 Andiamo al cinema a vedere ${movie.title}? ${dataEstesa(state.lastRelease)}!` +
+                (trailer ? ` Trailer: ${trailer}` : '');
+  const tocco = window.matchMedia('(pointer:coarse)').matches;
+  if (tocco && navigator.share){
+    try{
+      const blob = await invitoPng(movie);
+      const file = blob ? new File([blob], 'cineglass.png', { type: 'image/png' }) : null;
+      if (file && navigator.canShare && navigator.canShare({ files: [file] })){
+        await navigator.share({ files: [file], text: testo, url, title: 'CineGlass' });
+        return;
+      }
+      await navigator.share({ text: testo, url, title: 'CineGlass' });
+      return;
+    }catch(err){ if (err && err.name === 'AbortError') return; }
+  }
+  window.open('https://wa.me/?text=' + encodeURIComponent(testo + '\n' + url), '_blank', 'noopener');
+}
+
+/* --- Orari in sala su Google, con la città dell'utente --- */
+const CITTA_KEY = 'cineglass:citta:v1';
+function orariInSala(){
+  const movie = movies()[state.activeIndex];
+  if (!movie) return;
+  sfx.play('tap');
+  let citta = store.get(CITTA_KEY) || '';
+  if (!citta){
+    citta = (window.prompt('In quale città cerchi gli orari?', '') || '').trim();
+    if (citta) store.set(CITTA_KEY, citta);
+  }
+  const q = 'orari cinema ' + movie.title + (citta ? ' ' + citta : '');
+  window.open('https://www.google.com/search?q=' + encodeURIComponent(q), '_blank', 'noopener');
+}
+
+/* --- Vetro appannato: si pulisce strofinando --- */
+function initSpoiler(){
+  let pulizia = 0;
+  const reset = () => { pulizia = 0; el.spoiler.classList.remove('pulito'); el.spoilerGlass.style.opacity = ''; };
+  el.spoiler.__reset = reset;
+  const strofina = e => {
+    if (el.spoiler.classList.contains('pulito')) return;
+    pulizia = Math.min(1, pulizia + 0.07);
+    el.spoilerGlass.style.opacity = String(1 - pulizia);
+    if (pulizia >= 1){
+      el.spoiler.classList.add('pulito');
+      sfx.play('hover');
+      buzz(10);
+    }
+  };
+  el.spoiler.addEventListener('pointermove', strofina);
+  el.spoiler.addEventListener('click', () => { pulizia = 0.93; strofina(); });
+}
+
+/* --- Strappo del biglietto --- */
+sfx.paper = function(){
+  if (!this.on) return;
+  this.init();
+  const ctx = this.ctx;
+  if (!ctx) return;
+  if (ctx.state === 'suspended') ctx.resume();
+  const t = ctx.currentTime, dur = .45;
+  const len = Math.floor(ctx.sampleRate * dur);
+  const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+  const d = buf.getChannelData(0);
+  /* rumore a strappi: densità crescente = fibra che cede */
+  for (let i = 0; i < len; i++){
+    const p = i / len;
+    const grana = Math.random() < (.1 + p * .6) ? (Math.random() * 2 - 1) : 0;
+    d[i] = grana * Math.pow(1 - p, .6);
+  }
+  const src = ctx.createBufferSource();
+  src.buffer = buf;
+  const hp = ctx.createBiquadFilter();
+  hp.type = 'highpass';
+  hp.frequency.value = 1200;
+  const g = ctx.createGain();
+  g.gain.value = .12;
+  src.connect(hp).connect(g).connect(ctx.destination);
+  src.start(t);
+};
+
+function initTear(){
+  let inizio = null;
+  el.ticket.addEventListener('pointerdown', e => {
+    if (e.target.closest('button, a')) return;
+    inizio = { x: e.clientX, y: e.clientY };
+  });
+  el.ticket.addEventListener('pointerup', e => {
+    if (!inizio) return;
+    const dx = e.clientX - inizio.x, dy = Math.abs(e.clientY - inizio.y);
+    inizio = null;
+    if (Math.abs(dx) < 60 || dy > 70) return;
+    strappa();
+  });
+}
+
+function strappa(){
+  const movie = movies()[state.activeIndex];
+  if (!movie) return;
+  el.ticket.classList.add('strappato');
+  sfx.paper();
+  buzz(15);
+  setTimeout(() => el.ticket.classList.remove('strappato'), 1400);
+  if (!isFav(movie.id)){
+    state.favs.unshift(JSON.parse(JSON.stringify(movie)));
+    store.set(STORE.favs, state.favs);
+    if (hypeOf(movie.id) === 0) hypeAdd(movie.id, 3);
+    updateFavUI();
+    toast('Biglietto strappato: film salvato 🎟️', 'ok');
+  } else {
+    toast('Già nella tua lista 🎟️', 'ok');
+  }
+}
+
+/* --- CineMatch a due giocatori --- */
+const match = { lista: [], i: 0, voti: {} };
+
+function apriMatch(){
+  const base = movies();
+  if (base.length < 2){ toast('Servono almeno due film', 'warn'); return; }
+  match.lista = base.slice(0, 20);
+  match.i = 0;
+  match.voti = {};
+  el.matchEsito.hidden = true;
+  el.matchView.hidden = false;
+  document.body.classList.add('no-scroll');
+  sfx.play('open');
+  mostraMatch();
+}
+function chiudiMatch(){
+  el.matchView.hidden = true;
+  document.body.classList.remove('no-scroll');
+  sfx.play('close');
+}
+function mostraMatch(){
+  const m = match.lista[match.i];
+  if (!m){
+    el.matchEsitoT.textContent = 'Nessun accordo 🤷';
+    el.matchEsitoS.textContent = 'Avete finito i film: riprovate con un altro filtro.';
+    el.matchEsito.hidden = false;
+    return;
+  }
+  match.voti = {};
+  $$('.match-side').forEach(s => s.classList.remove('fatto'));
+  const poster = img(m.poster_path, 'w342') || placeholderPoster(m.title);
+  el.matchPosterA.src = poster; el.matchPosterB.src = poster;
+  el.matchTitleA.textContent = m.title; el.matchTitleB.textContent = m.title;
+}
+function votaMatch(player, voto){
+  if (match.voti[player]) return;
+  match.voti[player] = voto;
+  const lato = document.querySelector(`.match-side[data-player="${player}"]`);
+  if (lato) lato.classList.add('fatto');
+  sfx.play('tap');
+  buzz(12);
+  if (!match.voti.a || !match.voti.b) return;
+  const m = match.lista[match.i];
+  if (match.voti.a === 'si' && match.voti.b === 'si'){
+    el.matchEsitoT.textContent = 'È MATCH! 🍿';
+    el.matchEsitoS.textContent = m.title;
+    el.matchEsito.hidden = false;
+    sfx.jingle();
+    buzz(30);
+    const i = movies().findIndex(x => x.id === m.id);
+    if (i >= 0) goTo(i);
+    setTimeout(() => { chiudiMatch(); el.panel.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 2200);
+  } else {
+    match.i++;
+    setTimeout(mostraMatch, 320);
+  }
+}
+
+/* --- Locandina a schermo intero --- */
+function apriLightbox(movie){
+  el.lightboxImg.src = img(movie.poster_path, 'w780') || placeholderPoster(movie.title);
+  el.lightboxImg.alt = 'Locandina di ' + movie.title;
+  el.lightbox.hidden = false;
+  document.body.classList.add('no-scroll');
+  sfx.play('open');
+}
+function chiudiLightbox(){
+  el.lightbox.hidden = true;
+  if (el.modal.hidden && el.matchView.hidden) document.body.classList.remove('no-scroll');
+}
+
+/* --- Luci in sala --- */
+function toggleDim(){
+  const on = !document.body.classList.contains('dim');
+  document.body.classList.toggle('dim', on);
+  el.dimBtn.classList.toggle('on', on);
+  el.dimBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  store.set('cineglass:dim:v1', on);
+  sfx.play('tap');
+  toast(on ? 'Luci abbassate 🌙' : 'Luci accese ☀️', 'ok');
+}
+
+/* --- Titolo dell'hype in base ai popcorn --- */
+function titoloHype(n){
+  if (!n) return 'Tocca il secchiello';
+  if (n < 20) return `${n} popcorn · Curioso 🍿`;
+  if (n <= 50) return `${n} popcorn · Fanatico 🎬`;
+  return `${n} popcorn · Hype alle stelle! 🔥`;
+}
+
+function svuotaWatchlist(){
+  if (!state.favs.length && !Object.keys(hypeAll()).length){ toast('La lista è già vuota', 'ok'); return; }
+  state.favs = [];
+  store.set(STORE.favs, []);
+  store.set(HYPE_KEY, {});
+  sfx.play('close');
+  buzz(20);
+  updateFavUI();
+  if (state.favOnly) setFavOnly(false);
+  else { const m = movies()[state.activeIndex]; if (m) renderHype(m); }
+  toast('Watchlist svuotata 🗑️', 'minus');
 }
 
 /* =========================================================
@@ -4434,8 +4842,7 @@ el.pipBtn.addEventListener('click', togglePip);
 el.boTabIt.addEventListener('click', () => setBoTab('it'));
 el.boTabWw.addEventListener('click', () => setBoTab('ww'));
 el.icsBtn.addEventListener('click', scaricaIcs);
-el.cinemaBtn.addEventListener('click', trovaCinema);
-el.inviteBtn.addEventListener('click', creaInvito);
+el.cinemaBtn.addEventListener('click', orariInSala);
 
 /* --- Suono cristallino al passaggio sulle schede --- */
 let ultimoHover = 0;
@@ -4584,27 +4991,28 @@ document.addEventListener('click', e => {
 });
 el.icsBtn.addEventListener('click', () => toggleSaveMenu(false));
 el.calBtn.addEventListener('click', () => toggleSaveMenu(false));
-el.waBtn.addEventListener('click', invitaWhatsApp);
+el.inviteBtn.addEventListener('click', invitaAmici);
 
-/* --- Periodo: prossimamente / hype radar --- */
-async function setRange(r){
-  if (state.range === r) return;
-  state.range = r;
-  el.tabSoon.classList.toggle('on', r === 'soon');
-  el.tabRadar.classList.toggle('on', r === 'radar');
-  el.tabSoon.setAttribute('aria-pressed', r === 'soon' ? 'true' : 'false');
-  el.tabRadar.setAttribute('aria-pressed', r === 'radar' ? 'true' : 'false');
-  sfx.play('tap');
-  state.genre = null;
-  state.activeId = null;
-  if (r === 'radar' && !state.radar.length){
-    const key = resolveKey();
-    if (key){ showSkeleton(true); await fetchRadar(key); showSkeleton(false); }
-  }
-  rebuild(null);
-}
-el.tabSoon.addEventListener('click', () => setRange('soon'));
-el.tabRadar.addEventListener('click', () => setRange('radar'));
+el.tabSoon.addEventListener('click', () => setSection('soon'));
+el.tabNow.addEventListener('click', () => setSection('now'));
+el.btnTimeline.addEventListener('click', () => setLayout('timeline'));
+el.timelineBody.addEventListener('click', e => {
+  const it = e.target.closest('.tl-item');
+  if (!it) return;
+  const i = movies().findIndex(m => String(m.id) === it.dataset.id);
+  if (i >= 0){ goTo(i); sfx.play('tap'); el.panel.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+});
+el.matchBtn.addEventListener('click', apriMatch);
+el.matchClose.addEventListener('click', chiudiMatch);
+el.matchView.addEventListener('click', e => {
+  const b = e.target.closest('[data-vote]');
+  if (!b) return;
+  const lato = b.closest('.match-side');
+  votaMatch(lato.dataset.player, b.dataset.vote);
+});
+el.dimBtn.addEventListener('click', toggleDim);
+el.lightbox.addEventListener('click', chiudiLightbox);
+el.wipeAll.addEventListener('click', svuotaWatchlist);
 
 /* --- Filtri durata e storia vera --- */
 el.chipsExtra.addEventListener('click', async e => {
@@ -4617,24 +5025,6 @@ el.chipsExtra.addEventListener('click', async e => {
   rebuild(state.activeId);
 });
 
-/* --- CineCalendario --- */
-el.calPrev.addEventListener('click', () => {
-  state.calMonth--;
-  if (state.calMonth < 0){ state.calMonth = 11; state.calYear--; }
-  renderCalendar();
-});
-el.calNext.addEventListener('click', () => {
-  state.calMonth++;
-  if (state.calMonth > 11){ state.calMonth = 0; state.calYear++; }
-  renderCalendar();
-});
-el.calBody.addEventListener('click', e => {
-  const it = e.target.closest('.cal-item');
-  if (!it) return;
-  const i = movies().findIndex(m => String(m.id) === it.dataset.id);
-  if (i >= 0){ goTo(i); setLayout('carousel'); el.panel.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
-});
-el.btnCal.addEventListener('click', () => setLayout('cal'));
 
 el.readMore.addEventListener('click', () => {
   const aperta = !el.overview.classList.toggle('clamped');
@@ -4648,6 +5038,8 @@ el.lightsBtn.addEventListener('click', toggleLights);
 el.modal.addEventListener('click', e => { if (e.target.closest('[data-close]')) closeTrailer(); });
 
 document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && !el.lightbox.hidden){ e.preventDefault(); chiudiLightbox(); return; }
+  if (e.key === 'Escape' && !el.matchView.hidden){ e.preventDefault(); chiudiMatch(); return; }
   if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k'){ e.preventDefault(); openSearch(true); return; }
   const sheetAperto = !el.creatorSheet.hidden ? el.creatorSheet : (!el.filmoSheet.hidden ? el.filmoSheet : null);
   if (sheetAperto){
@@ -4684,7 +5076,13 @@ el.sfxBtn.classList.toggle('off', !sfx.on);
 el.sfxBtn.setAttribute('aria-pressed', sfx.on ? 'true' : 'false');
 $('#sfxLabel').textContent = sfx.on ? 'Suoni dell\'interfaccia attivi' : 'Suoni dell\'interfaccia disattivati';
 initTilt();
-initPWA();
+initSpoiler();
+initTear();
+if (store.get('cineglass:dim:v1')){
+  document.body.classList.add('dim');
+  el.dimBtn.classList.add('on');
+  el.dimBtn.setAttribute('aria-pressed', 'true');
+}
 initBuckets();
 buildChipsExtra();
 /* il jingle parte al primo gesto: i browser bloccano l'audio prima */
@@ -4696,7 +5094,7 @@ if (/[?&]debug/.test(location.search)){
 }
 renderStatus();
 initDrag();
-boot().then(() => setTimeout(loadBoxOffice, 500));
+boot().then(() => { apriDaLink(); setTimeout(loadBoxOffice, 500); });
 
 })();
 </script>

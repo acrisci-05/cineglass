@@ -126,6 +126,23 @@ Il filtro sulle uscite, il countdown e i badge usano l'orologio del dispositivo:
 espone il proprio header `Date` alle richieste cross-origin, quindi se la data del computer
 è sbagliata anche le uscite mostrate lo saranno.
 
+## Struttura
+
+Due sole sezioni, senza ambiguità temporale:
+
+- **⏳ In arrivo al cinema** — uscite italiane future in ordine cronologico crescente
+  (`/discover` con `release_date.gte`, più gli annunci lontani per popolarità).
+- **🎟️ Ora in sala** — `/movie/now_playing?region=IT`, ordinate per popolarità e voto.
+
+Tre modi di guardarle, con un selettore separato dai filtri: **carosello 3D**, **lista** e
+**CineTimeline**, una timeline verticale in vetro con nodi per anno (`2026 | 2027 | 2028+`)
+per seguire saghe e grandi annunci.
+
+**Date Change Tracker** — l'app ricorda in `localStorage` l'ultima data vista per ogni film e
+marca ogni scheda con 🟢 *Confermata IT*, 🔄 *Data spostata dal …* (arancione al neon) o
+⚪ *Annunciato [anno]* quando è attendibile solo l'anno. Ovunque la data compare per esteso
+(**DAL 24 SETTEMBRE 2026**) affiancata da 🟢 *IN SALA ORA* o ⏳ *TRA X GIORNI / SETTIMANE / MESI*.
+
 ## Gamification e gestione del tempo
 
 **Popcorn Hype Drop** sostituisce il cuore "Non perdertelo": un secchiello in vetro disegnato su
@@ -141,6 +158,11 @@ fermano, quindi a riposo non consuma CPU.
 **Ricerca divisa** — debounce di 300 ms, apertura con `Ctrl/Cmd+K`, risultati in una tendina di
 vetro separati in 🎟️ *In sala* (già uscito) e ⏳ *In arrivo*, con le ultime 3 ricerche in
 `localStorage`.
+
+**Micro-interazioni** — vetro appannato anti-spoiler sulla scena post-credit (si pulisce
+strofinando), biglietto che si strappa con uno swipe lungo la perforazione (rumore di carta
+sintetizzato + vibrazione) salvando il film, **CineMatch** a due giocatori su schermo diviso,
+locandina a schermo intero al tap e interruttore "luci in sala" per la visione al buio.
 
 **Nove capsule informative** — cinema italiano (tricolore), festival, IMAX/ISENSE/Dolby Atmos,
 scena post-credit, tratto da una storia vera o da un libro (tutte dalle keyword TMDB),
@@ -165,6 +187,10 @@ generato dall'app** (codificatore QR scritto da zero: modalità byte, correzione
 mascheratura scelta per penalità). Nessuna libreria esterna; la leggibilità è verificata nei
 test decodificando l'output con `jsQR`.
 
+**Condivisione** — un solo tasto **Invita amici**: su telefono usa `navigator.share` con
+l'immagine 9:16 generata su canvas, su desktop apre WhatsApp; in entrambi i casi allega il
+deep link `?movie=<id>`, lo stesso che finisce nel QR del promemoria.
+
 **Esportazioni** — un unico pulsante **📅 Salva data** apre un menu traslucido con Google
 Calendar e il download `.ics` (Apple Calendar e Outlook) con promemoria a un giorno; c'è anche
 l'invito precompilato su WhatsApp e **invito 9:16 disegnato su Canvas** (locandina, data, "Andiamo al
@@ -175,9 +201,6 @@ inclinazione 3D con riflesso specchiato sulla card attiva, pellicola 35 mm scorr
 puntini, grana e pulviscolo, fascio del proiettore sul player, e **suoni "vetro" sintetizzati con
 la Web Audio API** (nessun file audio, disattivabili dall'header).
 
-**PWA** — manifest generato a runtime con icone disegnate su canvas e service worker (`sw.js`)
-che mette in cache il guscio dell'app lasciando sempre freschi i dati TMDB.
-
 ## Accessibilità e performance
 
 Un solo file, nessuna dipendenza (solo il font da Google Fonts), animazioni disattivate con
@@ -185,8 +208,8 @@ Un solo file, nessuna dipendenza (solo il font da Google Fonts), animazioni disa
 gesture di swipe e `navigator.vibrate` su mobile, `aria-label`/`aria-pressed` sui controlli e
 layout responsive fino a 330px.
 
-`sw.js` e `data/*.json` restano file separati perché un service worker non può vivere dentro
-l'HTML e i dati locali devono poter cambiare senza ripubblicare l'app: `index.html` funziona
-comunque da solo, senza di essi.
+`data/*.json` restano file separati perché i dati locali devono poter cambiare senza
+ripubblicare l'app: `index.html` funziona comunque da solo, senza di essi. Nessun service
+worker e nessun manifest: è un sito statico puro, pronto per GitHub Pages o Vercel.
 
 Questo prodotto usa le API di TMDB ma non è approvato né certificato da TMDB.
