@@ -1,2 +1,310 @@
-# cineglass
-Web app con interfaccia Glassmorphism per scoprire i film prossimamente al cinema in Italia tramite TMDB API.
+# CineGlass
+
+Web app single-page (un solo file `index.html`, zero build, zero server) con interfaccia
+**Liquid Glass** per scoprire i film prossimamente al cinema in Italia tramite le API di TMDB.
+
+## Avvio rapido
+
+Apri `index.html` nel browser, oppure servilo con un qualsiasi static server:
+
+```bash
+npx http-server -p 8080     # poi apri http://localhost:8080
+```
+
+La API key TMDB (v3 auth) è la costante in cima allo `<script>`:
+
+```js
+const API_KEY = '...';
+```
+
+Essendo un'app interamente client-side la key è visibile a chiunque apra il sito o il sorgente:
+va considerata pubblica e si rigenera quando serve da
+[themoviedb.org/settings/api](https://www.themoviedb.org/settings/api).
+Se la costante è vuota o non valida, l'app parte in **modalità demo** con dati di esempio e
+permette di incollare una key dall'interfaccia: in quel caso resta solo nel `localStorage` del browser.
+
+## Cosa fa
+
+- **Dati TMDB** — `/discover/movie` con `region=IT`, `with_release_type=3|2` (distribuzione
+  e anteprime) e `release_date.gte` calcolato ogni volta sulla data odierna: restituisce solo
+  i film con un'uscita in sala italiana da oggi in avanti. Le liste TMDB riportano però la
+  data di uscita *principale* (spesso quella estera), quindi ogni candidato viene arricchito
+  con la vera data italiana da `/movie/{id}/release_dates` (richieste a gruppi di 6) e solo
+  allora la lista viene riordinata e ripulita. Se `discover` restituisce meno di 4 titoli si
+  ricade su `/movie/upcoming`.
+- **Dettagli del film al centro** — `/movie/{id}?append_to_response=videos,release_dates`:
+  data di uscita ufficiale italiana (tipo *theatrical* con fallback), trailer YouTube
+  in italiano (fallback internazionale), budget, durata in ore e minuti, tagline e casa di produzione.
+- **Cache TTL zero-server** — lista in `localStorage` per 6 ore (avvio istantaneo, refresh
+  in background quando scade), dettagli per 24 ore. Tutto viene rispecchiato su **IndexedDB**:
+  se il browser sfratta `localStorage` (succede su iOS dopo qualche settimana) l'app si
+  ripesca la copia buona da lì e continua a funzionare anche senza rete.
+- **Carosello 3D** — card centrale con bordo liquido animato, card laterali con `rotateY`,
+  vetro smerigliato e wave effect durante lo scorrimento; navigazione con frecce, tastiera
+  (← →, Home/End) e swipe/drag su touch e mouse.
+- **Accento cromatico dinamico** — sfondo, blob fluidi e UI cambiano tonalità in base al
+  genere del film attivo.
+- **Countdown live**, **indicatore a riempimento liquido** del gradimento,
+  **modal trailer con "Luci spente"**, **link dinamico a Google Calendar** e lista
+  **"Non perdertelo"** salvata in `localStorage`.
+- **Due viste** — carosello 3D o lista tabellare (con locandina, uscita IT, genere, voto e
+  trailer diretto), scelta ricordata in `localStorage`.
+- **Dove si vedrà** — `/movie/{id}/watch/providers` per la regione `IT`: se il film è (o sarà)
+  su Netflix, Prime Video, Disney+ o Apple TV+ compaiono i badge ufficiali con il logo,
+  altrimenti la scheda dichiara **Esclusiva Cinema 🎬**.
+- **Nelle sale ora in Italia** — classifica dei film in programmazione, con incassi reali in
+  euro se configurati (vedi sotto).
+- **Ricerca su TMDB** (`/search/movie`) dalla lente nell'header o con il tasto `/`,
+  **filtri per genere** generati dai film effettivamente caricati e **badge fluorescente**
+  sulle uscite entro 7 giorni ("Da oggi in sala", "Domani in sala", "In uscita questo weekend",
+  "Tra N giorni").
+- **Nessuna attesa muta** — ogni caricamento ha la sua **sagoma in vetro con shimmer**, delle
+  stesse misure del contenuto che sostituirà: carosello, scheda, lista, CineTimeline, classifica
+  degli incassi, cast e risultati della ricerca. Niente salti di layout quando arrivano i dati.
+- **Stati di errore** — locandine generate in SVG quando l'immagine manca, fallback sulla cache
+  e modalità demo se TMDB non risponde. Se il browser perde la linea compare un badge discreto
+  sotto la navbar (*Modalità offline — consultazione dalla memoria locale*): watchlist, film già
+  scaricati e biglietti restano consultabili, e al ritorno online la lista si aggiorna da sola.
+
+## Da dove arriva ogni dato
+
+| Campo | Endpoint TMDB | Note |
+|---|---|---|
+| Data di uscita IT | `/movie/{id}/release_dates` → `IT`, tipi 3 (distribuzione) e 2 (limitata) | Si sceglie la **prossima** proiezione futura: per le riedizioni TMDB aggiunge la nuova data alla scheda originale invece di crearne una nuova |
+| Trama | `/movie/{id}?language=it-IT` → `overview` | Se la traduzione italiana manca si usa quella inglese, dichiarandolo sotto al testo |
+| Gradimento | `/movie/{id}` → `vote_average` × 10 | Media dei voti degli **utenti TMDB**, non della critica e non del botteghino. Sotto i 10 voti mostra `N/D`: su un film non ancora uscito una percentuale basata su 3 voti non significa nulla |
+| Durata, Budget, Incassi | `/movie/{id}` → `runtime`, `budget`, `revenue` | Dati inseriti dalla community: il budget è quasi sempre 0 per le produzioni europee, e in quel caso il riquadro viene sostituito da Paese o Lingua |
+| Produzione, Paese, Lingua | `production_companies`, `production_countries`, `original_language` | Paesi e lingue tradotti in italiano con `Intl.DisplayNames` |
+| Trailer | `/movie/{id}?append_to_response=videos&include_video_language=it,en,null` | Preferito l'italiano; l'etichetta sul pulsante dichiara lingua e qualità |
+| Nelle sale ora | `/movie/now_playing?region=IT` | Programmazione italiana corrente, ordinata per popolarità TMDB |
+| Piattaforme streaming | `/movie/{id}/watch/providers` → `results.IT` | Abbonamento, gratis, noleggio e acquisto; cache locale di 24 ore. Senza risultati si mostra "Esclusiva Cinema" |
+| Voto IMDb e Rotten Tomatoes | **nessuno: non esistono su TMDB** | Le due pillole accanto al cerchio TMDB portano alla scheda ufficiale (`imdb_id` quando c'è) e mostrano una **stima ricavata dal voto TMDB**, sempre preceduta da `~` e spiegata nel tooltip. Nessun punteggio inventato viene presentato come ufficiale |
+| Colonna sonora | iTunes Search API (`itunes.apple.com/search`) | Anteprima di 30 secondi del brano più pertinente, servita da Apple e dichiarata sotto al titolo |
+
+## Box office italiano
+
+La sezione **Nelle sale ora in Italia** funziona in due modi:
+
+1. **Senza configurazione** usa `/movie/now_playing?region=IT` ordinato per popolarità TMDB.
+   Attenzione: la popolarità TMDB **non è un incasso** — misura visite e interazioni sulla
+   scheda del film. Gli importi mostrati in quel caso sono incassi *mondiali complessivi in
+   dollari* presi da `revenue`, non italiani. L'app lo dichiara esplicitamente sotto la classifica.
+2. **Con incassi reali in euro**, se il repository contiene `data/boxoffice.json` con una
+   classifica compilata. L'app lo carica per primo e, quando c'è, mostra gli importi in euro
+   con la fonte e la settimana di riferimento.
+
+Formato di `data/boxoffice.json`:
+
+```json
+{
+  "fonte": "Cinetel",
+  "settimana": "12-14 settembre 2026",
+  "aggiornato": "2026-09-15",
+  "valuta": "EUR",
+  "classifica": [
+    { "posizione": 1, "titolo": "…", "tmdb_id": 12345, "incasso": 1284500, "incasso_totale": 4120000, "schermi": 431 }
+  ]
+}
+```
+
+Le righe vengono abbinate ai film di TMDB tramite `tmdb_id` (o, in mancanza, per titolo
+normalizzato); un film assente da TMDB viene comunque mostrato con una locandina generata.
+
+`scripts/update-boxoffice.mjs` + `.github/workflows/boxoffice.yml` aggiornano il file ogni
+lunedì leggendo il feed JSON indicato nella variabile di repository `BOXOFFICE_FEED_URL`.
+Senza quella variabile lo script non fa nulla: **non include uno scraper di Cinetel o
+MYmovies**, perché quei dati sono licenziati e lo scraping violerebbe i loro termini d'uso
+oltre a rompersi al primo restyling. Il feed va quindi alimentato da una fonte su cui si
+hanno i diritti, o compilato a mano.
+
+**Serve un'API italiana alternativa?** Non esiste un equivalente pubblico e gratuito: MYmovies
+e ComingSoon non espongono API, i dati Cinetel sono a pagamento. TMDB resta la fonte migliore
+perché mantiene le date di uscita **per singolo paese**: il punto non è cambiare fonte, è
+leggerla per bene (`region=IT` + `release_dates`, come fa questa app).
+
+## Capire cosa si sta guardando
+
+In fondo alla pagina una riga di stato dichiara sempre la sorgente dei film mostrati:
+`Fonte: TMDB /discover (uscite IT) + date IT verificate · 24 film · uscite dal 2026-09-18 · aggiornato 14:02`.
+Se diventa ambrata (`Dati di esempio — i titoli NON sono reali`) significa che TMDB non è
+raggiungibile: in quel caso l'avviso in alto non è chiudibile e ogni locandina porta il badge
+"Esempio", così i dati finti non possono essere scambiati per veri.
+
+Aggiungendo `?debug=1` all'indirizzo compare il dettaglio tecnico di ogni chiamata fatta a
+TMDB (URL con la chiave mascherata, esito HTTP o errore di rete, durata).
+
+## Nota sulle date
+
+Il filtro sulle uscite, il countdown e i badge usano l'orologio del dispositivo: TMDB non
+espone il proprio header `Date` alle richieste cross-origin, quindi se la data del computer
+è sbagliata anche le uscite mostrate lo saranno.
+
+## Struttura e navigazione
+
+**Navbar flottante** (`position: fixed`, `z-index: 1000`, `backdrop-filter: blur(20px)`) con
+bordo frosted luminescente: a sinistra il logo SVG proprietario, al centro il segmented control
+`[ 🎟️ Ora in sala | ⏳ In arrivo | 🗓️ Timeline ]` con indicatore liquido "metaball" che si
+allunga durante il cambio, a destra `[ 🔍 Cerca ] [ 💡 Luci ] [ 🔊 Suoni ] [ ◐ Contrasto ]
+[ 🍿 Watchlist (N) ]`. Su schermo stretto il segmented control scende su una riga tutta sua e i
+tasti restano tutti da 44×44px.
+
+Due sezioni, senza ambiguità temporale:
+
+- **⏳ In arrivo al cinema** — uscite italiane future in ordine cronologico crescente
+  (`/discover` con `release_date.gte`, più gli annunci lontani per popolarità).
+- **🎟️ Ora in sala** — `/movie/now_playing?region=IT`, ordinate per popolarità e voto.
+
+**CineTimeline** — timeline verticale in vetro con nodi per anno e pillole di filtro rapido
+`[ Tutti ] [ 2026 ] [ 2027 ] [ 2028+ ]`. Gli annunci lontani vengono raccolti scorrendo
+**più pagine** di `/discover?sort_by=popularity.desc` (fino a 4), così saghe e kolossal
+annunciati per il 2028 e oltre compaiono davvero. Carosello e lista restano disponibili da un
+micro-selettore nella barra dei filtri.
+
+**Date Change Tracker** — l'app ricorda in `localStorage` l'ultima data vista per ogni film e
+marca ogni scheda con 🟢 *Confermata IT*, 🔄 *Data spostata dal …* (arancione al neon) o
+⚪ *Annunciato [anno]* quando è attendibile solo l'anno. Ovunque la data compare per esteso
+(**DAL 24 SETTEMBRE 2026**) affiancata da 🟢 *IN SALA ORA* o ⏳ *TRA X GIORNI / SETTIMANE / MESI*.
+
+**Watchlist in un drawer solo** — `🍿 Watchlist (N)` apre un pannello laterale traslucido con i
+film ordinati per imminenza di uscita, il livello di hype accumulato, `🔗 Condividi lista`
+(`navigator.share`, altrimenti appunti) e `🗑️ Svuota`.
+
+## Gamification e micro-interazioni
+
+**Popcorn Hype Drop** sostituisce il cuore "Non perdertelo": un secchiello in vetro disegnato su
+`<canvas>` con fisica 2D scritta a mano (gravità, rimbalzo sulle pareti trapezoidali, collisioni
+fra chicchi). Ogni tocco lancia tre chicchi, alza il contatore hype e — al primo — salva il film
+nella watchlist locale. Il loop `requestAnimationFrame` si spegne da solo quando i chicchi si
+fermano, quindi a riposo non consuma CPU.
+
+**Finestra temporale** — il carosello mostra le uscite italiane dei prossimi 90 giorni
+(`release_date.lte`); tutto ciò che sta oltre resta visibile nella CineTimeline.
+
+**Barra dei filtri** — sul desktop una riga sola: le pillole dei generi, il pulsante
+`🎛️ Filtri` che apre un pannello traslucido con durata, storia vera e box office (con il
+contatore dei filtri attivi e un `Azzera`), e il micro-selettore carosello/lista. Sugli schermi
+grandi la locandina centrale del carosello è più generosa (fino a 330px) per riempire il campo
+visivo invece di lasciare vuoti ai lati.
+
+**Ricerca Spotlight** — la lente in vetro (o `Ctrl/Cmd + K`, o `/`) apre un overlay centrale a
+`backdrop-filter: blur(30px)` che cerca mentre si digita, con miniature, data e separazione fra
+🎟️ *In sala* e ⏳ *In arrivo*; debounce di 300 ms. A campo vuoto mostra lo **storico delle
+ricerche** (fino a 8 termini in `localStorage`) come pillole che si rilanciano con un tocco e si
+cancellano una a una con la ×, più gli ultimi film aperti.
+
+**Sorprendimi 🎲** — il dado nella navbar (o il tasto `R`, o uno **scuotimento del telefono**
+via `DeviceMotionEvent`) pesca a caso fra i film meglio votati della lista e lo porta al centro.
+
+**Swipe sulla scheda** — su telefono si passa al film successivo o precedente trascinando in
+orizzontale sulla scheda, senza tornare al carosello; i gesti verticali restano scorrimento
+della pagina e quelli che partono da un controllo vengono ignorati.
+
+**Teatro Mode** — appena parte il trailer la pagina attorno al player scende al 10% di opacità
+e luminosità: resta acceso solo il film. Si riaccende chiudendo il trailer, passando al mini
+player o premendo *Luci accese*.
+
+**Biglietto con le forbici** — sulla perforazione c'è un'icona ✂️ che si può **trascinare lungo
+il taglio oppure toccare e basta**: parte il rumore di carta sintetizzato, la vibrazione aptica
+(`navigator.vibrate`) e una **pioggia di micro-schegge di vetro disegnata su `<canvas>`**, e il
+film entra in watchlist. Sotto al QR la dicitura *📱 SCANSIONA O TAP PER CONDIVIDERE*: al tocco
+copia negli appunti il deep link `?movie=<id>` e apre `navigator.share` dove esiste.
+
+**Altro** — vetro appannato anti-spoiler sulla scena post-credit (si pulisce strofinando),
+locandina a schermo intero al tap, interruttore "luci in sala" e **anteprima di 30 secondi della
+colonna sonora** in un widget a forma di disco (iTunes Search API, dichiarata come tale).
+
+**Capsule informative** — cinema italiano (tricolore), festival, IMAX/ISENSE/Dolby Atmos,
+scena post-credit, tratto da una storia vera o da un libro (tutte dalle keyword TMDB),
+classificazione italiana (`T`, `6+`, `12+`, `14+`, `18+`) dal visto censura in `/release_dates`,
+durata formattata `2h 15m`, più filtri rapidi per durata e il filtro `💰 Box Office` che porta
+alla classifica degli incassi.
+
+## Funzioni avanzate
+
+**Trailer, gerarchia stretta** — 1) Trailer ufficiale italiano, 2) teaser o clip italiani,
+3) trailer internazionale. L'`<iframe>` usa sempre `youtube-nocookie.com`; se TMDB non espone
+alcun video si mostra una card in vetro con il link "Guarda Trailer su YouTube ↗" che apre la
+ricerca in una nuova scheda (nessun `listType=search` incorporato).
+L'iframe porta sempre `origin=<location.origin>`, `enablejsapi=1` e
+`referrerpolicy="strict-origin-when-cross-origin"`: senza quei parametri YouTube risponde con
+l'errore di configurazione 150/153 su alcuni domini. Sopra al player c'è `↗️ Apri su YouTube`,
+in basso a destra `⛶ Tutto schermo` (`element.requestFullscreen()`).
+Il **mini player** rimpicciolisce la finestra del trailer in basso a destra senza spostare
+l'`<iframe>` nel DOM: la riproduzione non si interrompe e il sito resta navigabile. Si attiva
+**da solo** appena si scorre per leggere trama o cast, e torna grande quando si risale in cima.
+
+**Cast e filmografia** — `/movie/{id}/credits` per regista e primi 8 interpreti, in pillole di
+vetro scorribili; il click apre `/person/{id}/movie_credits` con i 5 film più popolari, e
+sceglierne uno lo carica direttamente nel carosello.
+
+**Biglietto di sala** — riepilogo a forma di biglietto con bordo perforato e **codice QR
+generato dall'app** (codificatore QR scritto da zero: modalità byte, correzione L, versioni 1‑5,
+mascheratura scelta per penalità). Nessuna libreria esterna; la leggibilità è verificata nei
+test decodificando l'output con `jsQR`.
+
+**Condivisione** — un solo tasto **Invita amici**: su telefono usa `navigator.share` con
+l'immagine 9:16 generata su canvas, su desktop apre WhatsApp; in entrambi i casi allega il
+deep link `?movie=<id>`, lo stesso che finisce nel QR del promemoria.
+
+**Esportazioni** — un unico pulsante **📅 Salva data** apre un menu traslucido con Google
+Calendar e il download `.ics` (Apple Calendar e Outlook) con promemoria a un giorno; c'è anche
+l'invito precompilato su WhatsApp e **invito 9:16 disegnato su Canvas** (locandina, data, "Andiamo al
+cinema?") condiviso con `navigator.share` o scaricato come PNG.
+
+**Impulso "questa settimana"** — le locandine salvate in watchlist che escono entro 7 giorni
+pulsano in arancione neon, nel carosello, nella lista e nel drawer (dove portano anche
+l'etichetta *questa settimana*).
+
+**Countdown a schermo intero** — dalla scheda di un film futuro, `⏱️ Countdown schermo intero`
+(o il tasto `T`) apre una schermata nera OLED con giorni, ore, minuti e secondi all'uscita, e
+tiene acceso lo schermo con la Screen Wake Lock API dove è disponibile.
+
+**Effetti Liquid Glass** — colore dominante estratto dalla locandina (media pesata su una
+griglia ridotta disegnata su `<canvas>`) che ridefinisce l'accento dell'interfaccia, **l'alone
+dietro la card** e **l'alone del tasto *Guarda il trailer***, bordi con refrazione prismatica
+ciano/magenta, badge a bolla 3D con punto luce e bordo `rgba(255,255,255,.2)`, pillole dei
+punteggi con `border-radius` asimmetrico animato (goccia organica), lampo diagonale lucido sulla
+card attiva, increspatura liquida al click dei pulsanti, attrazione magnetica entro 50px dal
+cursore, indicatore metaball della navbar, vetro satinato per gli stati vuoti, inclinazione 3D
+con riflesso specchiato e **lente convessa cromatica** con aberrazione ciano/magenta, agganciata
+su telefono all'inclinazione reale del dispositivo (`DeviceOrientationEvent`). Più pellicola
+35 mm scorribile al posto dei puntini, grana e pulviscolo, fascio del proiettore sul player, e
+**suoni "vetro" sintetizzati con la Web Audio API** (nessun file audio, disattivabili dal tasto
+🔊 nella navbar, che spegne anche le vibrazioni).
+
+## Accessibilità e performance
+
+Un solo file, nessuna libreria (l'unico asset esterno è il font da Google Fonts; a runtime si
+parla solo con TMDB, con `image.tmdb.org` e — per la sola anteprima della colonna sonora — con
+l'API di ricerca di iTunes), animazioni disattivate con
+`prefers-reduced-motion`, `aria-label`/`aria-pressed` sui controlli e layout responsive fino a
+330px. **Ogni elemento interattivo misura almeno 44×44px** (verificato da un audit automatico su
+iPhone in home, scheda, Spotlight, drawer e timeline) e la pagina non scorre mai in orizzontale.
+
+**Scorciatoie da tastiera** — `←` `→` scorrono il carosello, `Home`/`End` saltano agli estremi,
+`/` oppure `Ctrl/Cmd + K` aprono lo Spotlight, `W` apre la watchlist, `R` pesca un film a caso,
+`T` il countdown a schermo intero, `L` spegne le luci nel trailer, `ESC` chiude qualsiasi overlay.
+
+**Adattamento prestazionale** — all'avvio l'app legge `navigator.hardwareConcurrency`,
+`navigator.deviceMemory` e lo stato di risparmio dati: su hardware modesto riduce il raggio dei
+`backdrop-filter`, spegne grana, pulviscolo e le animazioni continue, e salta le
+**View Transitions** (su una pagina così densa di sfocature fotografare l'intera radice costa più
+dell'animazione che regala: meglio un cambio istantaneo). Dove il dispositivo regge,
+`document.startViewTransition()` anima l'espansione della locandina verso la vista ingrandita.
+
+`data/*.json` restano file separati perché i dati locali devono poter cambiare senza
+ripubblicare l'app: `index.html` funziona comunque da solo, senza di essi. Nessuna finestra di
+sistema: anche la richiesta della città per gli orari è un foglio in vetro, e ogni conferma passa
+dalle pillole *toast* traslucide ancorate in basso al centro. Nessun service
+worker e nessun manifest: è un sito statico puro, pronto per GitHub Pages o Vercel.
+
+## Una nota sull'onestà dei numeri
+
+TMDB non espone i voti di IMDb né quelli di Rotten Tomatoes, e non esiste un'API pubblica e
+gratuita che lo faccia. Le due pillole accanto al cerchio TMDB esistono lo stesso — portano alla
+scheda ufficiale, che è la cosa utile — ma il numero che mostrano è una **stima ricavata dal voto
+TMDB**, marcata con `~` e dichiarata nel tooltip. Stesso discorso per il 🍅 sotto le locandine:
+è una stima della critica, mentre il 🍿 accanto è il voto reale del pubblico TMDB. Preferiamo una
+stima dichiarata a un numero inventato che sembra ufficiale.
+
+Questo prodotto usa le API di TMDB ma non è approvato né certificato da TMDB.

@@ -1,0 +1,15 @@
+{
+  "_formato": "Incassi reali delle sale italiane. Finche' 'classifica' e' vuoto, CineGlass mostra la classifica TMDB per popolarita'.",
+  "_campi": {
+    "fonte": "nome di chi pubblica il dato, es. 'Cinetel'",
+    "settimana": "intervallo del weekend, es. '12-14 settembre 2026'",
+    "aggiornato": "data ISO dell'ultimo aggiornamento, es. '2026-09-15'",
+    "valuta": "sempre EUR",
+    "classifica": "array ordinato: { posizione, titolo, tmdb_id, incasso, incasso_totale, schermi }"
+  },
+  "fonte": "",
+  "settimana": "",
+  "aggiornato": null,
+  "valuta": "EUR",
+  "classifica": []
+}
