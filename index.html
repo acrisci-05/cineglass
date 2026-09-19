@@ -918,7 +918,6 @@ button,.btn,a.btn,.chip,.frame,.dot-btn{-webkit-tap-highlight-color:transparent}
   .card.is-active:hover .poster{transform:none}
   .icon-btn:hover{transform:none}
 }
-}
 
 /* ==========================================================
    Timeline, drawer, spoiler, biglietto strappabile
@@ -1497,7 +1496,7 @@ a.prov-row:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,
 
 /* ---------- Locandina piu' generosa sugli schermi grandi ---------- */
 @media (min-width:1200px){
-  .card{width:clamp(226px,27.5vw,330px)}
+  .card,.sk-card{width:clamp(226px,27.5vw,330px)}
   .stage{height:clamp(440px,60vh,600px)}
 }
 
@@ -1535,6 +1534,129 @@ a.prov-row:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,
   .filterwrap{position:static}
   .filtermenu{left:50%;right:auto;translate:-50% 0;width:min(420px,calc(100vw - 28px))}
 }
+
+/* ==========================================================
+   Sagome di caricamento: stesse misure del contenuto vero
+   ========================================================== */
+.sk-line{display:block;height:12px;border-radius:999px;margin:0;
+  background:linear-gradient(90deg, rgba(255,255,255,.08), rgba(255,255,255,.13), rgba(255,255,255,.08));
+  background-size:220% 100%;animation:skPulse 1.7s ease-in-out infinite}
+@keyframes skPulse{0%,100%{background-position:0% 0}50%{background-position:100% 0}}
+/* miniature della misura esatta delle locandine che sostituiscono */
+.sk-thumb{display:block;width:46px;aspect-ratio:2/3;border-radius:9px;flex:0 0 auto;position:relative;overflow:hidden;
+  background:rgba(255,255,255,.07);border:1px solid var(--stroke-soft)}
+.sk-thumb-tl{width:42px}
+.sk-thumb-bo{width:44px}
+.sk-thumb-res{width:34px;border-radius:7px}
+.sk-pic{display:block;width:34px;height:34px;border-radius:50%;flex:0 0 auto;
+  background:rgba(255,255,255,.08);border:1px solid var(--stroke-soft)}
+.sk-thumb::after,.sk-pic::after{content:'';position:absolute;inset:0;transform:translateX(-100%);
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,.16), transparent);animation:shimmer 1.7s infinite}
+.sk-pic{position:relative;overflow:hidden}
+/* le righe finte non rispondono al tocco e non si illuminano al passaggio */
+.sk-item{pointer-events:none;cursor:default}
+.sk-item:hover{transform:none!important;background:rgba(255,255,255,.05)!important}
+.sk-row td{vertical-align:middle}
+.sk-row .c-poster .sk-thumb{width:46px}
+.tl-item.sk-item{display:flex;align-items:center;gap:12px}
+.res-row.sk-item{display:flex;align-items:center;gap:11px}
+.bo-row.sk-item{display:flex;align-items:center;gap:12px}
+.cast-pill.sk-item{display:flex;align-items:center;gap:10px}
+
+/* ==========================================================
+   Teatro Mode, accento sul trailer, impulso "questa settimana"
+   ========================================================== */
+
+/* ---------- Teatro Mode: la pagina si spegne attorno al player ---------- */
+body.lights-out .shell,body.lights-out .bg{opacity:.1;filter:brightness(.1);
+  transition:opacity .7s var(--ease), filter .7s var(--ease)}
+body.lights-out .net-badge{opacity:.1}
+.shell,.bg{transition:opacity .5s var(--ease), filter .5s var(--ease)}
+
+/* ---------- Alone del tasto trailer tinto dalla locandina ---------- */
+.panel-inner.ambient .qbar .trailer-card{
+  box-shadow:0 18px 44px -20px color-mix(in oklab, var(--amb, var(--c1)) 85%, transparent),
+             0 0 34px -14px color-mix(in oklab, var(--amb, var(--c1)) 70%, transparent),
+             inset 0 1px 0 rgba(255,255,255,.28);
+  border-color:color-mix(in oklab, var(--amb, var(--c1)) 45%, transparent);
+  transition:box-shadow .8s var(--ease), border-color .8s var(--ease)}
+.panel-inner.ambient .qbar .trailer-card:hover{
+  box-shadow:0 22px 56px -18px color-mix(in oklab, var(--amb, var(--c1)) 95%, transparent),
+             0 0 48px -12px color-mix(in oklab, var(--amb, var(--c1)) 85%, transparent),
+             inset 0 1px 0 rgba(255,255,255,.34)}
+
+/* ---------- "In uscita questa settimana": impulso arancione neon ---------- */
+@keyframes impulsoNeon{
+  0%,100%{box-shadow:0 0 0 0 rgba(255,150,40,0)}
+  45%{box-shadow:0 0 26px 2px rgba(255,150,40,.55), 0 0 60px -6px rgba(255,110,20,.45)}
+}
+.card.imminente .card-inner{border-color:rgba(255,160,60,.6);animation:impulsoNeon 2.4s ease-in-out infinite}
+.card.imminente.is-active .card-inner{animation-duration:2s}
+tr.imminente td:first-child{box-shadow:inset 3px 0 0 rgba(255,160,60,.9)}
+.w-row.imminente{border-color:rgba(255,160,60,.5);animation:impulsoNeon 2.4s ease-in-out infinite}
+.w-soon{flex:0 0 auto;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;
+  padding:4px 8px;border-radius:999px;color:#ffd3a3;
+  background:linear-gradient(120deg, rgba(255,150,40,.3), rgba(255,110,20,.18));
+  border:1px solid rgba(255,160,60,.5)}
+
+/* ---------- Avviso offline ---------- */
+.net-badge{position:fixed;left:50%;top:calc(var(--nav-h) + env(safe-area-inset-top) + 8px);translate:-50% 0;z-index:900;
+  display:inline-flex;align-items:center;gap:9px;max-width:calc(100vw - 28px);
+  padding:9px 16px;border-radius:999px;font-size:12px;color:var(--muted);
+  background:linear-gradient(140deg, rgba(255,180,80,.2), rgba(255,255,255,.05));
+  border:1px solid rgba(255,180,80,.42);
+  backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);
+  box-shadow:0 18px 40px -22px #000, inset 0 1px 0 rgba(255,255,255,.26);
+  animation:fadeDown .4s var(--ease) both}
+.net-badge[hidden]{display:none}
+.net-badge b{color:var(--txt);font-weight:600}
+.net-dot{width:7px;height:7px;border-radius:50%;flex:0 0 auto;background:#ffb44f;
+  box-shadow:0 0 12px #ffb44f;animation:pulse 2.2s ease-in-out infinite}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+
+/* ---------- Richiesta della città ---------- */
+.ask-title{font-size:19px;font-weight:600;letter-spacing:-.02em;padding-right:40px}
+.ask-sub{margin-top:8px;font-size:13px;line-height:1.6;color:var(--muted)}
+.ask-form{display:flex;gap:9px;margin-top:16px;flex-wrap:wrap}
+.ask-form input{flex:1 1 180px;min-width:0;min-height:46px;padding:12px 16px;border-radius:14px;font-size:15px;
+  background:rgba(255,255,255,.06);border:1px solid var(--stroke);outline:none;
+  transition:border-color .25s, background .25s}
+.ask-form input:focus{border-color:color-mix(in oklab, var(--c1) 55%, transparent);background:rgba(255,255,255,.1)}
+.ask-form .btn{flex:0 0 auto;min-height:46px}
+.ask-skip{display:block;width:100%;min-height:40px;margin-top:10px;font-size:12.5px;color:var(--faint);
+  transition:color .25s}
+.ask-skip:hover{color:var(--txt)}
+
+/* ---------- Sorprendimi: il dado rotola ---------- */
+@keyframes rotola{
+  0%{transform:rotate(0) scale(1)}
+  35%{transform:rotate(200deg) scale(1.18)}
+  70%{transform:rotate(340deg) scale(.94)}
+  100%{transform:rotate(360deg) scale(1)}
+}
+#diceBtn svg{transition:transform .3s var(--elastic)}
+#diceBtn.rolling svg{animation:rotola .62s var(--ease)}
+#diceBtn:hover{background:var(--glass-strong);transform:none}
+#diceBtn:hover svg{transform:rotate(-18deg) scale(1.08)}
+
+/* ---------- Trascinamento della scheda: segue il dito ---------- */
+.panel-inner{will-change:transform}
+
+/* ---------- Storico delle ricerche: pillole cancellabili ---------- */
+.res-group{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.res-clear{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);
+  padding:6px 10px;border-radius:999px;transition:color .25s, background .25s}
+.res-clear:hover{color:var(--txt);background:rgba(255,255,255,.08)}
+.recent-term{gap:7px}
+.term{display:inline-flex;align-items:stretch;border-radius:999px;overflow:hidden;
+  background:rgba(255,255,255,.05);border:1px solid var(--stroke-soft);transition:background .25s, border-color .25s}
+.term:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2)}
+.term-go{min-height:34px;padding:7px 6px 7px 13px;font-size:12px;color:var(--muted);transition:color .25s}
+.term:hover .term-go{color:var(--txt)}
+.term-x{display:grid;place-items:center;width:30px;min-height:34px;padding:0 9px 0 3px;color:var(--faint);
+  transition:color .25s}
+.term-x:hover{color:#ff8fa3}
+.term-x svg{width:10px;height:10px}
 
 /* ---------- Responsive ---------- */
 @media (max-width:860px){
@@ -1598,7 +1720,8 @@ a.prov-row:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,
   .btn,.pill-btn,.chip,.btn-sm,.bo-tabs button,.savemenu a,.savemenu button,
   .read-more,.hype-clear,.res-row,.cast-pill,.fs-btn,.lens,.navseg button,
   .layout-mini button,.w-row,.w-only,.wdrawer-foot .btn,
-  .foot-links button,.foot-links a,.social-btn,.rat{min-height:44px}
+  .foot-links button,.foot-links a,.social-btn,.rat,.term-go,.term-x,.res-clear{min-height:44px}
+  .term-x{width:44px}
   .scissors,.oled-x{width:48px;height:48px}
   .qr-btn{min-height:44px}
   .pill-btn,.icon-btn{min-width:44px}
@@ -1618,6 +1741,7 @@ a.prov-row:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,
   .sheet-x{width:44px;height:44px}
   .wdrawer-head .sheet-x{width:44px;height:44px}
   .card-bucket{width:62px;height:68px}
+}
 </style>
 </head>
 <body>
@@ -1685,6 +1809,14 @@ a.prov-row:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,
     <button id="contrastBtn" class="icon-btn plain" aria-pressed="false" title="Alto contrasto" aria-label="Alto contrasto">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17a8.5 8.5 0 0 0 0-17Z" fill="currentColor"/></svg>
     </button>
+    <button id="diceBtn" class="icon-btn plain" title="Sorprendimi: un film a caso (o scuoti il telefono)" aria-label="Sorprendimi: scegli un film a caso">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">
+        <rect x="3.6" y="3.6" width="16.8" height="16.8" rx="4.4"/>
+        <circle cx="8.6" cy="8.6" r="1.35" fill="currentColor" stroke="none"/>
+        <circle cx="15.4" cy="15.4" r="1.35" fill="currentColor" stroke="none"/>
+        <circle cx="12" cy="12" r="1.35" fill="currentColor" stroke="none"/>
+      </svg>
+    </button>
     <button id="favFilter" class="pill-btn ripple magnetic" title="Apri la watchlist">
       <span aria-hidden="true" style="font-size:14px;line-height:1">🍿</span>
       <span class="lbl">Watchlist</span>
@@ -1703,6 +1835,28 @@ a.prov-row:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,
     </button>
   </div>
 </header>
+
+<div class="net-badge" id="netBadge" role="status" aria-live="polite" hidden>
+  <span class="net-dot" aria-hidden="true"></span>
+  <span><b>Modalità offline</b> — consultazione dalla memoria locale</span>
+</div>
+
+<!-- Richiesta della città: in vetro, niente finestre di sistema -->
+<div class="sheet" id="cittaSheet" hidden>
+  <div class="sheet-bd" data-close></div>
+  <div class="sheet-box" role="dialog" aria-modal="true" aria-labelledby="cittaTitle">
+    <button class="sheet-x" data-close aria-label="Chiudi">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+    <h3 id="cittaTitle" class="ask-title">📍 In quale città cerchi gli orari?</h3>
+    <p class="ask-sub">Serve solo a precompilare la ricerca su Google. Resta salvata sul tuo dispositivo.</p>
+    <form class="ask-form" id="cittaForm" autocomplete="off">
+      <input id="cittaInput" type="text" inputmode="text" placeholder="Es. Roma" aria-label="Città">
+      <button class="btn primary ripple" type="submit">Cerca</button>
+    </form>
+    <button type="button" class="ask-skip" id="cittaSkip">Cerca senza città</button>
+  </div>
+</div>
 
 <div class="shell">
 
@@ -2490,7 +2644,7 @@ const state = {
   section: 'soon', nowPlaying: [], durata: null, storiaVera: false,
   tiltX: 0, tiltY: 0, perfBassa: false,
   current: 0, target: 0, activeIndex: 0, activeId: null, activeDetails: null,
-  demo: false, raf: 0, drag: null, cardW: 260, spacing: 180, lastRelease: null
+  demo: false, caricando: true, teatroAuto: false, raf: 0, drag: null, cardW: 260, spacing: 180, lastRelease: null
 };
 
 const el = {
@@ -2501,6 +2655,8 @@ const el = {
   ratRow:$('#ratRow'), mbFacts:$('#mbFacts'),
   panelBg:$('#panelBg'), panelPoster:$('#panelPoster'), panelPosterImg:$('#panelPosterImg'),
   cutBtn:$('#cutBtn'),
+  netBadge:$('#netBadge'), diceBtn:$('#diceBtn'),
+  cittaSheet:$('#cittaSheet'), cittaForm:$('#cittaForm'), cittaInput:$('#cittaInput'), cittaSkip:$('#cittaSkip'),
   filtersBtn:$('#filtersBtn'), filterMenu:$('#filterMenu'),
   filtersCount:$('#filtersCount'), filtersReset:$('#filtersReset'),
   facts:$('#pFacts'), genres:$('#pGenres'), readMore:$('#readMore'), readMoreLabel:$('#readMoreLabel'),
@@ -3142,6 +3298,27 @@ async function tingiCard(card, m){
   if (!hex || !card.isConnected) return;
   card.style.setProperty('--amb', hex);
   card.classList.add('ambient');
+  if (state.activeId === m.id) tingiAzioni(hex);
+}
+
+/* Il tasto del trailer prende l'alone dal colore dominante della locandina */
+function tingiAzioni(hex){
+  if (!hex) return;
+  el.panelInner.style.setProperty('--amb', hex);
+  el.panelInner.classList.add('ambient');
+}
+
+async function accentoAzioni(movie){
+  if (!movie) return;
+  const card = cards[state.activeIndex];
+  const gia = card && card.style.getPropertyValue('--amb');
+  if (gia){ tingiAzioni(gia.trim()); return; }
+  const url = img(movie.poster_path, 'w185');
+  if (!url) return;
+  try{
+    const hex = await dominantColor(url);
+    if (hex && state.activeId === movie.id) tingiAzioni(hex);
+  }catch(err){ /* si resta sull'accento del genere */ }
 }
 
 function buildCards(){
@@ -3214,6 +3391,7 @@ function buildCards(){
   });
   buildDots(list.length);
   buildStrip();
+  aggiornaImminenti();
   measure();
 }
 
@@ -3628,6 +3806,68 @@ function renderRatings(movie, details){
     '</a>';
 }
 
+/* --------- Sagome di caricamento in vetro ---------
+   Ogni attesa ha la sua sagoma, delle stesse misure del contenuto che
+   sostituira': niente salti di layout quando arrivano i dati. --------- */
+const skRiga = (w, h, extra) =>
+  `<span class="sk-line" style="width:${w};height:${h || '12px'}${extra || ''}"></span>`;
+
+function skeletonLista(n){
+  let out = '';
+  for (let i = 0; i < n; i++){
+    out += '<tr class="sk-row">' +
+      '<td class="c-poster"><span class="sk-thumb"></span></td>' +
+      `<td>${skRiga('68%', '15px')}${skRiga('34%', '10px', ';margin-top:7px')}</td>` +
+      `<td>${skRiga('80%', '12px')}${skRiga('54%', '10px', ';margin-top:7px')}</td>` +
+      `<td>${skRiga('62%', '12px')}</td>` +
+      `<td>${skRiga('40%', '12px')}</td>` +
+      `<td class="c-act">${skRiga('64px', '30px', ';border-radius:999px')}</td>` +
+    '</tr>';
+  }
+  return out;
+}
+
+function skeletonTimeline(){
+  let out = '<section class="tl-year"><div class="tl-node"><span class="tl-dot"></span>' +
+            '<span class="sk-line" style="width:82px;height:22px"></span></div><div class="tl-items">';
+  for (let i = 0; i < 4; i++){
+    out += '<span class="tl-item sk-item"><span class="sk-thumb sk-thumb-tl"></span>' +
+      `<span class="tl-info">${skRiga('46%', '14px')}${skRiga('30%', '11px', ';margin-top:8px')}` +
+      `${skRiga('58%', '18px', ';margin-top:9px;border-radius:999px')}</span></span>`;
+  }
+  return out + '</div></section>';
+}
+
+function skeletonClassifica(n){
+  let out = '';
+  for (let i = 0; i < (n || 5); i++){
+    out += '<li class="bo-row sk-item"><span class="sk-line" style="width:22px;height:22px;border-radius:8px"></span>' +
+      '<span class="sk-thumb sk-thumb-bo"></span>' +
+      `<span style="flex:1;min-width:0">${skRiga('54%', '14px')}${skRiga('34%', '11px', ';margin-top:7px')}</span>` +
+      `${skRiga('84px', '16px')}</li>`;
+  }
+  return out;
+}
+
+function skeletonCast(){
+  let out = '';
+  for (let i = 0; i < 5; i++){
+    out += '<span class="cast-pill sk-item"><span class="sk-pic"></span>' +
+      `<span class="cast-txt">${skRiga('82px', '13px')}${skRiga('54px', '10px', ';margin-top:6px')}</span></span>`;
+  }
+  return out;
+}
+
+function skeletonRisultati(){
+  let out = '';
+  for (let i = 0; i < 4; i++){
+    out += '<span class="res-row sk-item"><span class="sk-thumb sk-thumb-res"></span>' +
+      `<span class="res-info">${skRiga('58%', '13px')}${skRiga('38%', '10px', ';margin-top:6px')}</span>` +
+      `${skRiga('58px', '20px', ';border-radius:999px')}</span>`;
+  }
+  return out;
+}
+
 /* --------- Scheda: fatti, generi, trama, trailer --------- */
 const FACT_ICONS = {
   durata: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/>',
@@ -3752,6 +3992,7 @@ function renderPanel(movie, details){
   renderRatings(movie, details);
   renderMetaBar(movie, details);
   renderPanelArt(movie);
+  accentoAzioni(movie);
   renderFacts(details);
   renderGenres(details && details.genreIds && details.genreIds.length ? details.genreIds : movie.genre_ids);
 
@@ -3817,17 +4058,18 @@ const avatarSvg = nome => 'data:image/svg+xml;charset=utf-8,' + encodeURICompone
   `<text x="32" y="58" font-family="Outfit,sans-serif" font-size="13" fill="rgba(255,255,255,.75)" text-anchor="middle">${esc((nome || '?').slice(0, 1).toUpperCase())}</text></svg>`);
 
 async function loadCredits(movie){
-  el.castWrap.hidden = true;
   el.castStrip.innerHTML = '';
-  if (!movie || movie.__demo) return;
+  if (!movie || movie.__demo){ el.castWrap.hidden = true; return; }
   const key = resolveKey();
-  if (!key) return;
+  if (!key){ el.castWrap.hidden = true; return; }
   let dati = state.credits[movie.id];
   if (!dati){
+    el.castStrip.innerHTML = skeletonCast();
+    el.castWrap.hidden = false;
     try{
       dati = await fetchJSON(`${API_BASE}/movie/${movie.id}/credits?api_key=${encodeURIComponent(key)}&language=it-IT`);
       state.credits[movie.id] = dati;
-    }catch(err){ return; }
+    }catch(err){ el.castWrap.hidden = true; el.castStrip.innerHTML = ''; return; }
   }
   if (state.activeId !== movie.id) return;
   const regista = (dati.crew || []).find(c => c.job === 'Director');
@@ -3835,7 +4077,7 @@ async function loadCredits(movie){
   const persone = [];
   if (regista) persone.push({ id: regista.id, nome: regista.name, ruolo: 'Regia', foto: regista.profile_path, dir: true });
   cast.forEach(a => persone.push({ id: a.id, nome: a.name, ruolo: a.character || 'Interprete', foto: a.profile_path, dir: false }));
-  if (!persone.length) return;
+  if (!persone.length){ el.castWrap.hidden = true; el.castStrip.innerHTML = ''; return; }
   el.castStrip.innerHTML = persone.map(p =>
     `<button type="button" class="cast-pill${p.dir ? ' dir' : ''}" data-person="${p.id}" data-nome="${esc(p.nome)}" data-ruolo="${esc(p.ruolo)}">` +
       `<img class="cast-pic" src="${esc(p.foto ? IMG_BASE + 'w185' + p.foto : avatarSvg(p.nome))}" alt="" loading="lazy" decoding="async">` +
@@ -3980,6 +4222,7 @@ function toggleFav(movie){
 
 function updateFavUI(){
   el.favCount.textContent = String(state.favs.length);
+  aggiornaImminenti();
   if (!el.wDrawer.hidden) renderWatchlist();
   const list = movies();
   const active = list[state.activeIndex];
@@ -4038,6 +4281,7 @@ function voteCell(m){
 
 function renderListView(){
   const list = movies();
+  if (!list.length && state.caricando){ el.tableBody.innerHTML = skeletonLista(6); return; }
   el.tableBody.innerHTML = list.map((m, i) => {
     const badge = m.__demo ? 'Esempio' : releaseBadge(m.release_date);
     return `<tr data-i="${i}"${i === state.activeIndex ? ' class="on"' : ''}>` +
@@ -4097,6 +4341,10 @@ const normTitle = t => String(t || '').toLowerCase().normalize('NFD').replace(/[
 async function loadBoxOffice(){
   const key = resolveKey();
   if (!key || state.demo){ el.boxoffice.hidden = true; return; }
+  if (!state.boxoffice.length){
+    el.boList.innerHTML = skeletonClassifica(5);
+    el.boxoffice.hidden = false;
+  }
   await loadCustomFeed();
   if (state.boTab === 'ww') return loadBoxOfficeMondiale(key);
   let inSala = [];
@@ -4192,6 +4440,7 @@ function openSearch(on){
   } else {
     el.results.hidden = true;
     if (gia) sfx.play('close');
+    if (el.panel.hidden && movies().length && !state.caricando) el.panel.hidden = false;
   }
 }
 
@@ -4218,7 +4467,8 @@ async function runSearch(q){
   if (query.length < 2) return;
   const seq = ++searchSeq;
   state.searchQuery = query;
-  showSkeleton(true);
+  el.results.innerHTML = skeletonRisultati();
+  el.results.hidden = false;
   let list = [];
   const key = resolveKey();
   try{
@@ -4233,12 +4483,12 @@ async function runSearch(q){
     }
   }catch(err){
     if (seq !== searchSeq) return;
-    showSkeleton(false);
+    el.results.innerHTML = '<div class="res-empty">Ricerca non riuscita: riprova.</div>';
     toast('Ricerca non riuscita: riprova', 'warn');
     return;
   }
   if (seq !== searchSeq) return;
-  showSkeleton(false);
+  if (list.length) salvaTermine(query);
   renderRisultati(list);
 }
 
@@ -4262,7 +4512,7 @@ function scegliRisultato(m){
 /* =========================================================
    10. MODAL TRAILER + LUCI SPENTE
    ========================================================= */
-let lastFocus = null;
+let lastFocus = null, teatroTimer = 0;
 
 function openTrailer(movie, details){
   movie = movie || movies()[state.activeIndex];
@@ -4311,11 +4561,21 @@ function openTrailer(movie, details){
   document.body.classList.remove('pip-mode');
   document.body.classList.add('no-scroll');
   sfx.play('open');
+  /* Teatro Mode: quando parte il video la pagina si spegne da sola.
+     Si aspetta un istante perche' l'apertura del modal resti leggibile. */
+  const conVideo = !!(trailer && trailer.key);
+  state.teatroAuto = conVideo;
+  clearTimeout(teatroTimer);
+  if (conVideo) teatroTimer = setTimeout(() => {
+    if (!el.modal.hidden && state.teatroAuto) setLuci(true);
+  }, 700);
   const closeBtn = el.modal.querySelector('[data-close].icon-btn');
   if (closeBtn) closeBtn.focus();
 }
 
 function closeTrailer(){
+  clearTimeout(teatroTimer);
+  state.teatroAuto = false;
   if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen();
   el.modal.hidden = true;
   state.pipAuto = false;
@@ -4332,7 +4592,7 @@ function setPip(attivo, silenzioso){
   if (document.body.classList.contains('pip-mode') === !!attivo) return;
   document.body.classList.toggle('pip-mode', !!attivo);
   document.body.classList.toggle('no-scroll', !attivo);
-  if (attivo) document.body.classList.remove('lights-out');
+  if (attivo){ clearTimeout(teatroTimer); setLuci(false); }
   el.pipBtn.querySelector('.lbl').textContent = attivo ? 'Ingrandisci' : 'Mini player';
   el.pipBtn.title = attivo ? 'Torna a schermo intero' : 'Riduci a mini player';
   if (!silenzioso) sfx.play('tap');
@@ -4413,12 +4673,19 @@ function syncFsBtn(){
   el.fsBtn.title = attivo ? 'Esci dal tutto schermo' : 'Guarda a tutto schermo';
 }
 
-function toggleLights(){
-  const on = !document.body.classList.contains('lights-out');
-  document.body.classList.toggle('lights-out', on);
-  el.lightsBtn.classList.toggle('on', on);
+function setLuci(on){
+  document.body.classList.toggle('lights-out', !!on);
+  el.lightsBtn.classList.toggle('on', !!on);
   el.lightsBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
   el.lightsBtn.querySelector('.lbl').textContent = on ? 'Luci accese' : 'Luci spente';
+}
+
+function toggleLights(){
+  const on = !document.body.classList.contains('lights-out');
+  setLuci(on);
+  /* spegnendo a mano le luci si disattiva anche il rientro automatico */
+  state.teatroAuto = false;
+  sfx.play('tap');
 }
 
 /* =========================================================
@@ -4451,6 +4718,7 @@ function showNotice(opts){
 function hideNotice(){ el.notice.hidden = true; }
 
 function showSkeleton(on){
+  state.caricando = !!on;
   if (on){
     if (skNode && !el.stage.contains(skNode)) el.stage.appendChild(skNode);
     el.skPanel.hidden = false;
@@ -4529,6 +4797,7 @@ function rebuild(preserveId){
 }
 
 function applyList(list, preserveId){
+  state.caricando = false;
   state.movies = list;
   if (!state.favOnly && state.mode !== 'search') rebuild(preserveId);
   else { buildChips(); updateFavUI(); }
@@ -5617,7 +5886,29 @@ function salvaRecente(m){
   const lista = recenti().filter(r => r.id !== m.id);
   lista.unshift({ id: m.id, title: m.title, poster_path: m.poster_path, release_date: m.release_date,
                   vote_average: m.vote_average, vote_count: m.vote_count, genre_ids: m.genre_ids });
-  store.set(RECENT_KEY, lista.slice(0, 3));
+  store.set(RECENT_KEY, lista.slice(0, 4));
+}
+
+/* --- Storico dei termini cercati: pillole rapide, cancellabili una a una --- */
+const TERMINI_KEY = 'cineglass:ricerche:v1';
+const MAX_TERMINI = 8;
+const termini = () => {
+  const t = store.get(TERMINI_KEY);
+  return Array.isArray(t) ? t.filter(x => typeof x === 'string' && x.trim()) : [];
+};
+
+function salvaTermine(q){
+  const v = String(q || '').trim();
+  if (v.length < 2) return;
+  const basso = v.toLowerCase();
+  const lista = termini().filter(t => t.toLowerCase() !== basso);
+  lista.unshift(v);
+  store.set(TERMINI_KEY, lista.slice(0, MAX_TERMINI));
+}
+
+function togliTermine(q){
+  const basso = String(q || '').toLowerCase();
+  store.set(TERMINI_KEY, termini().filter(t => t.toLowerCase() !== basso));
 }
 
 function renderRisultati(lista){
@@ -5647,10 +5938,24 @@ function renderRisultati(lista){
 }
 
 function mostraRecenti(){
+  const t = termini();
   const r = recenti();
-  if (!r.length){ el.results.hidden = true; return; }
-  el.results.innerHTML = '<div class="res-group">Ricerche recenti</div>' +
-    '<div class="recent">' + r.map(m => `<button type="button" data-recent="${m.id}">${esc(m.title)}</button>`).join('') + '</div>';
+  if (!t.length && !r.length){ el.results.hidden = true; return; }
+  let html = '';
+  if (t.length){
+    html += '<div class="res-group">Ricerche recenti' +
+      '<button type="button" class="res-clear" data-svuota="1">Cancella tutto</button></div>' +
+      '<div class="recent recent-term">' + t.map(q =>
+        `<span class="term"><button type="button" class="term-go" data-term="${esc(q)}">${esc(q)}</button>` +
+        `<button type="button" class="term-x" data-del="${esc(q)}" aria-label="Togli &quot;${esc(q)}&quot; dalle ricerche recenti">` +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>' +
+        '</button></span>').join('') + '</div>';
+  }
+  if (r.length){
+    html += '<div class="res-group">Film aperti di recente</div>' +
+      '<div class="recent">' + r.map(m => `<button type="button" data-recent="${m.id}">${esc(m.title)}</button>`).join('') + '</div>';
+  }
+  el.results.innerHTML = html;
   el.results.hidden = false;
   state.recenti = r;
 }
@@ -5704,6 +6009,30 @@ function badgeStato(m){
   const st = statoData(m);
   return `<span class="dstate ${st.tipo}">${st.icona} ${esc(st.testo)}</span>`;
 }
+/* Un film salvato che esce entro una settimana lampeggia in arancione */
+function imminente(m){
+  if (!isFav(m.id)) return false;
+  const d = parseISO(m.release_date);
+  if (!d) return false;
+  const giorni = (d.getTime() - startOfToday()) / 86400000;
+  return giorni >= 0 && giorni <= 7;
+}
+
+/* Applica (o toglie) l'impulso alle locandine e alle righe del drawer */
+function aggiornaImminenti(){
+  const lista = movies();
+  cards.forEach((card, i) => {
+    const m = lista[i];
+    card.classList.toggle('imminente', !!(m && imminente(m)));
+  });
+  if (state.layout === 'list' && el.tableBody){
+    Array.from(el.tableBody.children).forEach((tr, i) => {
+      const m = lista[i];
+      tr.classList.toggle('imminente', !!(m && imminente(m)));
+    });
+  }
+}
+
 function badgeDistanza(m){
   const d = distanza(m.release_date);
   if (!d) return '';
@@ -5738,6 +6067,7 @@ function buildChipsYear(){
 /* --- CineTimeline: nodi per anno, 2028+ raggruppato --- */
 function renderTimeline(){
   const annoFiltro = new Date(now()).getFullYear();
+  if (!movies().length && state.caricando){ el.timelineBody.innerHTML = skeletonTimeline(); return; }
   buildChipsYear();
   const lista = movies()
     .filter(m => !state.anno || chiaveAnno(m, annoFiltro) === state.anno)
@@ -5835,17 +6165,24 @@ async function invitaAmici(){
 
 /* --- Orari in sala su Google, con la città dell'utente --- */
 const CITTA_KEY = 'cineglass:citta:v1';
+function cercaOrari(citta){
+  const movie = movies()[state.activeIndex];
+  if (!movie) return;
+  const q = 'orari cinema ' + movie.title + (citta ? ' ' + citta : '') + ' biglietti';
+  window.open('https://www.google.com/search?q=' + encodeURIComponent(q), '_blank', 'noopener');
+  toast(citta ? `Orari di ${movie.title} a ${citta} 📍` : 'Cerco gli orari su Google 📍', 'ok');
+}
+
 function orariInSala(){
   const movie = movies()[state.activeIndex];
   if (!movie) return;
   sfx.play('tap');
-  let citta = store.get(CITTA_KEY) || '';
-  if (!citta){
-    citta = (window.prompt('In quale città cerchi gli orari?', '') || '').trim();
-    if (citta) store.set(CITTA_KEY, citta);
-  }
-  const q = 'orari cinema ' + movie.title + (citta ? ' ' + citta : '') + ' biglietti';
-  window.open('https://www.google.com/search?q=' + encodeURIComponent(q), '_blank', 'noopener');
+  const citta = store.get(CITTA_KEY) || '';
+  if (citta){ cercaOrari(citta); return; }
+  /* niente window.prompt: la richiesta e' un foglio in vetro come il resto */
+  el.cittaInput.value = '';
+  openSheet(el.cittaSheet);
+  setTimeout(() => el.cittaInput.focus(), 120);
 }
 
 /* --- Salto alla classifica degli incassi della settimana --- */
@@ -6132,6 +6469,127 @@ function svuotaWatchlist(){
    12-octies. NAVBAR, SPOTLIGHT, WATCHLIST, COUNTDOWN OLED
    ========================================================= */
 
+/* --- Trascinamento orizzontale sulla scheda: film successivo o precedente,
+   senza tornare al carosello. Si ignorano i gesti che partono da un controllo
+   o da una zona che scorre per conto suo (cast, generi, biglietto). --- */
+function initSwipeScheda(){
+  let inizio = null;
+  const esclusi = 'button, a, input, canvas, .cast-strip, .chips, .savemenu, .ticket, .spoiler, .filmstrip';
+
+  el.panel.addEventListener('touchstart', e => {
+    if (!e.touches || e.touches.length !== 1) return;
+    if (e.target.closest(esclusi)) return;
+    const t = e.touches[0];
+    inizio = { x: t.clientX, y: t.clientY, t: performance.now() };
+  }, { passive: true });
+
+  el.panel.addEventListener('touchmove', e => {
+    if (!inizio || !e.touches || !e.touches.length) return;
+    const t = e.touches[0];
+    const dx = t.clientX - inizio.x, dy = t.clientY - inizio.y;
+    /* verticale: e' scorrimento della pagina, si lascia perdere */
+    if (Math.abs(dy) > Math.abs(dx)){ inizio = null; return; }
+    if (Math.abs(dx) > 12) el.panelInner.style.transform = `translateX(${(dx * .28).toFixed(1)}px)`;
+  }, { passive: true });
+
+  const fine = e => {
+    if (!inizio) return;
+    const t = (e.changedTouches && e.changedTouches[0]) || null;
+    const dx = t ? t.clientX - inizio.x : 0;
+    const dy = t ? t.clientY - inizio.y : 0;
+    const durata = performance.now() - inizio.t;
+    inizio = null;
+    el.panelInner.style.transform = '';
+    if (!t || Math.abs(dx) < 56 || Math.abs(dy) > 70 || durata > 800) return;
+    if (movies().length < 2) return;
+    if (dx < 0) next(); else prev();
+    buzz(12);
+    sfx.play('swipe');
+  };
+  el.panel.addEventListener('touchend', fine, { passive: true });
+  el.panel.addEventListener('touchcancel', () => {
+    inizio = null;
+    el.panelInner.style.transform = '';
+  }, { passive: true });
+}
+
+/* --- Sorprendimi: un film a caso fra quelli con il punteggio piu' alto --- */
+let ultimoDado = 0;
+
+function sorprendimi(){
+  const lista = movies();
+  if (lista.length < 2){ toast('Servono pi\u00f9 film in lista per pescare', 'warn'); return; }
+  /* si pesca fra i titoli ben votati; se non ce ne sono abbastanza si allarga */
+  let pool = lista.filter(m => (Number(m.vote_count) || 0) >= MIN_VOTES && (Number(m.vote_average) || 0) >= 6.5);
+  if (pool.length < 2) pool = lista.filter(m => (Number(m.vote_count) || 0) >= MIN_VOTES);
+  if (pool.length < 2) pool = lista.slice();
+  const attuale = lista[state.activeIndex];
+  const scelte = pool.filter(m => !attuale || m.id !== attuale.id);
+  const scelto = scelte[Math.floor(Math.random() * scelte.length)];
+  if (!scelto) return;
+  const i = lista.findIndex(m => m.id === scelto.id);
+  if (i < 0) return;
+  el.diceBtn.classList.add('rolling');
+  setTimeout(() => el.diceBtn.classList.remove('rolling'), 650);
+  goTo(i);
+  markListRow();
+  buzz(18);
+  sfx.play('tap');
+  toast('\uD83C\uDFB2 ' + scelto.title, 'ok');
+  if (state.layout !== 'carousel') el.panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+/* Scuotere il telefono pesca un film: soglia alta per non partire da soli */
+function initScuotimento(){
+  if (typeof DeviceMotionEvent === 'undefined') return;
+  const aggancia = () => {
+    let ultimo = { x: 0, y: 0, z: 0 }, ultimoT = 0;
+    window.addEventListener('devicemotion', e => {
+      const a = e.accelerationIncludingGravity;
+      if (!a) return;
+      const t = performance.now();
+      if (t - ultimoT < 120) return;
+      ultimoT = t;
+      const delta = Math.abs((a.x || 0) - ultimo.x) + Math.abs((a.y || 0) - ultimo.y) + Math.abs((a.z || 0) - ultimo.z);
+      ultimo = { x: a.x || 0, y: a.y || 0, z: a.z || 0 };
+      if (delta < 38) return;
+      if (t - ultimoDado < 1400) return;
+      if (!el.modal.hidden || !el.spot.hidden || !el.wDrawer.hidden || !el.oled.hidden) return;
+      ultimoDado = t;
+      sorprendimi();
+    }, { passive: true });
+  };
+  const chiedi = DeviceMotionEvent.requestPermission;
+  if (typeof chiedi === 'function'){
+    chiedi.call(DeviceMotionEvent)
+      .then(esito => { if (esito === 'granted') aggancia(); })
+      .catch(() => { /* niente scuotimento: resta il tasto */ });
+  } else {
+    aggancia();
+  }
+}
+
+/* --- Stato della rete: la watchlist resta consultabile anche senza linea --- */
+function aggiornaRete(){
+  const giu = navigator.onLine === false;
+  el.netBadge.hidden = !giu;
+  document.body.classList.toggle('offline', giu);
+}
+
+function initRete(){
+  window.addEventListener('online', () => {
+    aggiornaRete();
+    toast('Di nuovo online 🌐', 'ok');
+    const key = resolveKey();
+    if (key && !state.demo) loadFromAPI(key, { silent: true });
+  });
+  window.addEventListener('offline', () => {
+    aggiornaRete();
+    toast('Sei offline: leggo dalla memoria locale 📡', 'warn');
+  });
+  aggiornaRete();
+}
+
 /* --- La navbar e' flottante: il corpo deve saperne l'altezza esatta --- */
 function misuraNavbar(){
   const h = Math.round(el.topbar.getBoundingClientRect().height);
@@ -6258,12 +6716,14 @@ function renderWatchlist(){
   }
   el.wList.innerHTML = lista.map(m => {
     const n = hypeOf(m.id);
-    return `<button type="button" class="w-row" data-id="${m.id}">` +
+    const vicino = imminente(m);
+    return `<button type="button" class="w-row${vicino ? ' imminente' : ''}" data-id="${m.id}">` +
       `<img src="${esc(img(m.poster_path, 'w92') || placeholderPoster(m.title))}" alt="" loading="lazy" decoding="async">` +
       '<span class="w-info">' +
         `<span class="w-title">${esc(m.title)}</span>` +
         `<span class="w-meta">${esc(dataEstesa(m.release_date))}</span>` +
       '</span>' +
+      (vicino ? '<span class="w-soon">questa settimana</span>' : '') +
       `<span class="w-hype">${n} 🍿</span>` +
     '</button>';
   }).join('');
@@ -6398,7 +6858,7 @@ el.prev.addEventListener('click', () => { prev(); buzz(12); sfx.play('swipe'); }
 /* --- Creatore, audio, mini player, classifiche, esportazioni --- */
 el.creatorBtn.addEventListener('click', () => openSheet(el.creatorSheet));
 $('#creatorLink').addEventListener('click', () => openSheet(el.creatorSheet));
-[el.creatorSheet, el.filmoSheet].forEach(sheet => {
+[el.creatorSheet, el.filmoSheet, el.cittaSheet].forEach(sheet => {
   sheet.addEventListener('click', e => { if (e.target.closest('[data-close]')) closeSheet(sheet); });
 });
 el.sfxBtn.addEventListener('click', () => {
@@ -6421,6 +6881,14 @@ el.cutBtn.addEventListener('click', () => {
   setTimeout(strappa, 340);
 });
 el.cinemaBtn.addEventListener('click', orariInSala);
+el.cittaForm.addEventListener('submit', e => {
+  e.preventDefault();
+  const v = el.cittaInput.value.trim();
+  if (v) store.set(CITTA_KEY, v);
+  closeSheet(el.cittaSheet);
+  cercaOrari(v);
+});
+el.cittaSkip.addEventListener('click', () => { closeSheet(el.cittaSheet); cercaOrari(''); });
 
 /* --- Suono cristallino al passaggio sulle schede --- */
 let ultimoHover = 0;
@@ -6549,6 +7017,30 @@ sfx.jingle = function(){
 /* --- Risultati della ricerca --- */
 el.hypeClear.addEventListener('click', svuotaHype);
 el.results.addEventListener('click', e => {
+  const svuota = e.target.closest('[data-svuota]');
+  if (svuota){
+    store.set(TERMINI_KEY, []);
+    sfx.play('tap');
+    mostraRecenti();
+    toast('Ricerche recenti cancellate 🧹', 'ok');
+    return;
+  }
+  const del = e.target.closest('[data-del]');
+  if (del){
+    e.stopPropagation();
+    togliTermine(del.dataset.del);
+    sfx.play('tap');
+    mostraRecenti();
+    return;
+  }
+  const term = e.target.closest('[data-term]');
+  if (term){
+    el.searchInput.value = term.dataset.term;
+    el.searchInput.focus();
+    clearTimeout(searchTimer);
+    runSearch(term.dataset.term);
+    return;
+  }
   const rec = e.target.closest('[data-recent]');
   if (rec){
     const m = (state.recenti || []).find(x => String(x.id) === rec.dataset.recent);
@@ -6592,6 +7084,7 @@ el.timelineBody.addEventListener('click', e => {
   const i = movies().findIndex(m => String(m.id) === it.dataset.id);
   if (i >= 0){ goTo(i); sfx.play('tap'); el.panel.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
 });
+el.diceBtn.addEventListener('click', sorprendimi);
 el.dimBtn.addEventListener('click', toggleDim);
 el.lightbox.addEventListener('click', chiudiLightbox);
 el.wipeAll.addEventListener('click', svuotaWatchlist);
@@ -6695,7 +7188,8 @@ document.addEventListener('keydown', e => {
     return;
   }
   if (!el.filterMenu.hidden && e.key === 'Escape'){ e.preventDefault(); toggleFiltri(false); el.filtersBtn.focus(); return; }
-  const sheetAperto = !el.creatorSheet.hidden ? el.creatorSheet : (!el.filmoSheet.hidden ? el.filmoSheet : null);
+  const sheetAperto = !el.creatorSheet.hidden ? el.creatorSheet
+    : (!el.filmoSheet.hidden ? el.filmoSheet : (!el.cittaSheet.hidden ? el.cittaSheet : null));
   if (sheetAperto){
     if (e.key === 'Escape'){ e.preventDefault(); closeSheet(sheetAperto); }
     return;
@@ -6715,6 +7209,7 @@ document.addEventListener('keydown', e => {
   else if (e.key === 'End'){ e.preventDefault(); goTo(Math.max(cards.length - 1, 0)); }
   else if ((e.key === 'Enter' || e.key === ' ') && e.target === el.stage){ e.preventDefault(); openTrailer(); }
   else if (e.key.toLowerCase() === 'w'){ e.preventDefault(); apriWatchlist(true); }
+  else if (e.key.toLowerCase() === 'r'){ e.preventDefault(); sorprendimi(); }
   else if (e.key.toLowerCase() === 't' && !el.oledBtn.hidden){ e.preventDefault(); apriOled(); }
 });
 
@@ -6748,6 +7243,8 @@ initBuckets();
 buildChipsExtra();
 state.perfBassa = rilevaPrestazioni();
 initRipple();
+initRete();
+initSwipeScheda();
 initMagnete();
 initAutoPip();
 misuraNavbar();
@@ -6755,7 +7252,7 @@ syncNav();
 setContrasto(store.get(STORE.hc) === true);
 window.addEventListener('load', misuraNavbar);
 /* il jingle parte al primo gesto: i browser bloccano l'audio prima */
-document.addEventListener('pointerdown', () => { sfx.jingle(); avviaGiroscopio(); }, { once: true });
+document.addEventListener('pointerdown', () => { sfx.jingle(); avviaGiroscopio(); initScuotimento(); }, { once: true });
 if (/[?&]debug/.test(location.search)){
   el.debugBox.hidden = false;
   /* ganci per i test automatici */

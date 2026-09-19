@@ -58,8 +58,13 @@ permette di incollare una key dall'interfaccia: in quel caso resta solo nel `loc
   **filtri per genere** generati dai film effettivamente caricati e **badge fluorescente**
   sulle uscite entro 7 giorni ("Da oggi in sala", "Domani in sala", "In uscita questo weekend",
   "Tra N giorni").
-- **Stati di errore** — skeleton screen animato, locandine generate in SVG quando l'immagine
-  manca, fallback sulla cache e modalità demo se TMDB non risponde.
+- **Nessuna attesa muta** — ogni caricamento ha la sua **sagoma in vetro con shimmer**, delle
+  stesse misure del contenuto che sostituirà: carosello, scheda, lista, CineTimeline, classifica
+  degli incassi, cast e risultati della ricerca. Niente salti di layout quando arrivano i dati.
+- **Stati di errore** — locandine generate in SVG quando l'immagine manca, fallback sulla cache
+  e modalità demo se TMDB non risponde. Se il browser perde la linea compare un badge discreto
+  sotto la navbar (*Modalità offline — consultazione dalla memoria locale*): watchlist, film già
+  scaricati e biglietti restano consultabili, e al ritorno online la lista si aggiorna da sola.
 
 ## Da dove arriva ogni dato
 
@@ -183,7 +188,20 @@ visivo invece di lasciare vuoti ai lati.
 
 **Ricerca Spotlight** — la lente in vetro (o `Ctrl/Cmd + K`, o `/`) apre un overlay centrale a
 `backdrop-filter: blur(30px)` che cerca mentre si digita, con miniature, data e separazione fra
-🎟️ *In sala* e ⏳ *In arrivo*; debounce di 300 ms e ultime 3 ricerche in `localStorage`.
+🎟️ *In sala* e ⏳ *In arrivo*; debounce di 300 ms. A campo vuoto mostra lo **storico delle
+ricerche** (fino a 8 termini in `localStorage`) come pillole che si rilanciano con un tocco e si
+cancellano una a una con la ×, più gli ultimi film aperti.
+
+**Sorprendimi 🎲** — il dado nella navbar (o il tasto `R`, o uno **scuotimento del telefono**
+via `DeviceMotionEvent`) pesca a caso fra i film meglio votati della lista e lo porta al centro.
+
+**Swipe sulla scheda** — su telefono si passa al film successivo o precedente trascinando in
+orizzontale sulla scheda, senza tornare al carosello; i gesti verticali restano scorrimento
+della pagina e quelli che partono da un controllo vengono ignorati.
+
+**Teatro Mode** — appena parte il trailer la pagina attorno al player scende al 10% di opacità
+e luminosità: resta acceso solo il film. Si riaccende chiudendo il trailer, passando al mini
+player o premendo *Luci accese*.
 
 **Biglietto con le forbici** — sulla perforazione c'è un'icona ✂️ che si può **trascinare lungo
 il taglio oppure toccare e basta**: parte il rumore di carta sintetizzato, la vibrazione aptica
@@ -233,12 +251,17 @@ Calendar e il download `.ics` (Apple Calendar e Outlook) con promemoria a un gio
 l'invito precompilato su WhatsApp e **invito 9:16 disegnato su Canvas** (locandina, data, "Andiamo al
 cinema?") condiviso con `navigator.share` o scaricato come PNG.
 
+**Impulso "questa settimana"** — le locandine salvate in watchlist che escono entro 7 giorni
+pulsano in arancione neon, nel carosello, nella lista e nel drawer (dove portano anche
+l'etichetta *questa settimana*).
+
 **Countdown a schermo intero** — dalla scheda di un film futuro, `⏱️ Countdown schermo intero`
 (o il tasto `T`) apre una schermata nera OLED con giorni, ore, minuti e secondi all'uscita, e
 tiene acceso lo schermo con la Screen Wake Lock API dove è disponibile.
 
-**Effetti Liquid Glass** — colore dominante estratto dalla locandina che ridefinisce l'accento
-dell'interfaccia **e l'alone dietro la card** (ambient glow), bordi con refrazione prismatica
+**Effetti Liquid Glass** — colore dominante estratto dalla locandina (media pesata su una
+griglia ridotta disegnata su `<canvas>`) che ridefinisce l'accento dell'interfaccia, **l'alone
+dietro la card** e **l'alone del tasto *Guarda il trailer***, bordi con refrazione prismatica
 ciano/magenta, badge a bolla 3D con punto luce e bordo `rgba(255,255,255,.2)`, pillole dei
 punteggi con `border-radius` asimmetrico animato (goccia organica), lampo diagonale lucido sulla
 card attiva, increspatura liquida al click dei pulsanti, attrazione magnetica entro 50px dal
@@ -259,8 +282,8 @@ l'API di ricerca di iTunes), animazioni disattivate con
 iPhone in home, scheda, Spotlight, drawer e timeline) e la pagina non scorre mai in orizzontale.
 
 **Scorciatoie da tastiera** — `←` `→` scorrono il carosello, `Home`/`End` saltano agli estremi,
-`/` oppure `Ctrl/Cmd + K` aprono lo Spotlight, `W` apre la watchlist, `T` il countdown a schermo
-intero, `L` spegne le luci nel trailer, `ESC` chiude qualsiasi overlay.
+`/` oppure `Ctrl/Cmd + K` aprono lo Spotlight, `W` apre la watchlist, `R` pesca un film a caso,
+`T` il countdown a schermo intero, `L` spegne le luci nel trailer, `ESC` chiude qualsiasi overlay.
 
 **Adattamento prestazionale** — all'avvio l'app legge `navigator.hardwareConcurrency`,
 `navigator.deviceMemory` e lo stato di risparmio dati: su hardware modesto riduce il raggio dei
@@ -270,7 +293,9 @@ dell'animazione che regala: meglio un cambio istantaneo). Dove il dispositivo re
 `document.startViewTransition()` anima l'espansione della locandina verso la vista ingrandita.
 
 `data/*.json` restano file separati perché i dati locali devono poter cambiare senza
-ripubblicare l'app: `index.html` funziona comunque da solo, senza di essi. Nessun service
+ripubblicare l'app: `index.html` funziona comunque da solo, senza di essi. Nessuna finestra di
+sistema: anche la richiesta della città per gli orari è un foglio in vetro, e ogni conferma passa
+dalle pillole *toast* traslucide ancorate in basso al centro. Nessun service
 worker e nessun manifest: è un sito statico puro, pronto per GitHub Pages o Vercel.
 
 ## Una nota sull'onestà dei numeri
