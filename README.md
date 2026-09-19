@@ -36,7 +36,9 @@ permette di incollare una key dall'interfaccia: in quel caso resta solo nel `loc
   data di uscita ufficiale italiana (tipo *theatrical* con fallback), trailer YouTube
   in italiano (fallback internazionale), budget, durata in ore e minuti, tagline e casa di produzione.
 - **Cache TTL zero-server** — lista in `localStorage` per 6 ore (avvio istantaneo, refresh
-  in background quando scade), dettagli per 24 ore. Tutto viene rispecchiato su **IndexedDB**:
+  in background quando scade), dettagli per 24 ore. All'avvio le voci troppo vecchie vengono
+  buttate via, senza toccare watchlist e preferenze, così la memoria non si satura e non si
+  rischia di vedere dati obsoleti. Tutto viene rispecchiato su **IndexedDB**:
   se il browser sfratta `localStorage` (succede su iOS dopo qualche settimana) l'app si
   ripesca la copia buona da lì e continua a funzionare anche senza rete.
 - **Carosello 3D** — card centrale con bordo liquido animato, card laterali con `rotateY`,
@@ -141,12 +143,19 @@ espone il proprio header `Date` alle richieste cross-origin, quindi se la data d
 
 ## Struttura e navigazione
 
-**Navbar flottante** (`position: fixed`, `z-index: 1000`, `backdrop-filter: blur(20px)`) con
-bordo frosted luminescente: a sinistra il logo SVG proprietario, al centro il segmented control
-`[ 🎟️ Ora in sala | ⏳ In arrivo | 🗓️ Timeline ]` con indicatore liquido "metaball" che si
-allunga durante il cambio, a destra `[ 🔍 Cerca ] [ 💡 Luci ] [ 🔊 Suoni ] [ ◐ Contrasto ]
-[ 🍿 Watchlist (N) ]`. Su schermo stretto il segmented control scende su una riga tutta sua e i
-tasti restano tutti da 44×44px.
+**Navbar flottante** (`position: fixed`, `z-index: 1000`) ridotta all'essenziale, su una riga
+sola che non va mai a capo (`flex-wrap: nowrap`): logo a sinistra, e a destra soltanto
+`[ 🔍 Cerca ]`, `[ 🍿 Watchlist (N) ]` e `[ ⚙️ ]`. Tutto il resto vive nel **menu impostazioni**,
+un foglio in vetro che sale dal basso con tema, effetti audio, luci in sala, film casuale,
+ricarica dati, profilo e Instagram — ogni voce con icona, titolo e stato corrente.
+
+**Segmented control** `[ 🎟️ Ora in sala | ⏳ In arrivo | 🗓️ Timeline ]` subito sotto la navbar,
+con indicatore liquido "metaball" che si allunga durante il cambio.
+
+**Tre temi** — chiaro, scuro e alto contrasto, scelti dal menu e ricordati in `localStorage`.
+Il chiaro non è un'inversione automatica: ridefinisce i token (`--bg`, `--txt`, `--glass`,
+`--stroke`…) perché il vetro resti vetro anche su fondo chiaro, con il tasto principale tenuto
+scuro per non perdere contrasto sul testo bianco.
 
 Due sezioni, senza ambiguità temporale:
 
@@ -272,13 +281,45 @@ su telefono all'inclinazione reale del dispositivo (`DeviceOrientationEvent`). P
 **suoni "vetro" sintetizzati con la Web Audio API** (nessun file audio, disattivabili dal tasto
 🔊 nella navbar, che spegne anche le vibrazioni).
 
+## Fluidità e risposta al tocco
+
+Nessun ritardo di 300 ms: `touch-action: manipulation` e `-webkit-tap-highlight-color: transparent`
+su ogni elemento interattivo, e un solo `transform: scale(.96)` all'`:active` come feedback —
+niente blur o ombre da ricalcolare sotto il dito. Tutti i listener di `touchstart`, `touchmove` e
+`wheel` sono `{ passive: true }`, così il thread principale non aspetta mai un eventuale
+`preventDefault()` durante lo scorrimento.
+
+**Su telefono (≤768px) il carosello passa a 2D**: niente `perspective` né `preserve-3d`, solo
+traslazioni e ridimensionamenti con `will-change: transform`. I `backdrop-filter` scendono a 8px
+con fondo `rgba(18,18,24,.85)`, grana e pulviscolo spariscono: stessa scena, molto meno lavoro
+per la GPU. Il contenitore del carosello usa `touch-action: pan-y`, così lo swipe orizzontale dei
+film non ruba lo scorrimento verticale della pagina.
+
+**Locandine a peso giusto** — quella al centro arriva in `w780` con `fetchpriority="high"`, le
+laterali e le miniature in `w342` con `loading="lazy"`; quando una card diventa centrale la sua
+immagine viene promossa all'alta risoluzione in background. Se TMDB non ha la locandina, al suo
+posto compare un **SVG generato al volo**: sfondo sfumato in vetro, prisma 3D con rifrazione
+ciano/magenta e titolo in evidenza.
+
+**Sotto la piega** footer, classifica e blocchi della timeline usano
+`content-visibility: auto` con `contain-intrinsic-size`, così il browser non calcola layout e
+rendering di quel che non si vede.
+
+**Aptica graduata** — 10 ms per i micro-tap su filtri e tab, 20 ms per l'apertura di modali e
+drawer, `[30, 40, 30]` per i gesti meccanici (strappo del biglietto, svuotamento della watchlist).
+
+**Pull-to-refresh** — trascinando verso il basso in cima alla pagina si allunga una goccia di
+vetro; al rilascio oltre la soglia le uscite si ricaricano da TMDB senza perdere lo stato
+dell'app. Il gesto è intercettato solo dove non c'è già qualcosa che scorre.
+
 ## Accessibilità e performance
 
 Un solo file, nessuna libreria (l'unico asset esterno è il font da Google Fonts; a runtime si
 parla solo con TMDB, con `image.tmdb.org` e — per la sola anteprima della colonna sonora — con
 l'API di ricerca di iTunes), animazioni disattivate con
 `prefers-reduced-motion`, `aria-label`/`aria-pressed` sui controlli e layout responsive fino a
-330px. **Ogni elemento interattivo misura almeno 44×44px** (verificato da un audit automatico su
+330px. Navbar e drawer rispettano `env(safe-area-inset-*)`, così Dynamic Island, notch e barra
+di sistema non coprono mai i comandi. **Ogni elemento interattivo misura almeno 44×44px** (verificato da un audit automatico su
 iPhone in home, scheda, Spotlight, drawer e timeline) e la pagina non scorre mai in orizzontale.
 
 **Scorciatoie da tastiera** — `←` `→` scorrono il carosello, `Home`/`End` saltano agli estremi,
