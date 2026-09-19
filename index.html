@@ -121,7 +121,7 @@ a{color:inherit;text-decoration:none}
 
 /* ---------- Topbar ---------- */
 .topbar{position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;align-items:center;justify-content:space-between;
-  flex-wrap:wrap;gap:12px;
+  flex-wrap:nowrap;gap:10px;
   padding:calc(12px + env(safe-area-inset-top)) max(clamp(12px,3.2vw,30px), env(safe-area-inset-left)) 12px max(clamp(12px,3.2vw,30px), env(safe-area-inset-right));
   backdrop-filter:blur(20px) saturate(1.5);-webkit-backdrop-filter:blur(20px) saturate(1.5);
   background:linear-gradient(180deg, rgba(8,6,14,.82), rgba(8,6,14,.42));
@@ -146,7 +146,8 @@ a{color:inherit;text-decoration:none}
 .brand-text em{font-style:normal;font-weight:600;
   background:linear-gradient(100deg, var(--neon), var(--c2) 70%, var(--c1));
   -webkit-background-clip:text;background-clip:text;color:transparent}
-.topbar-actions{display:flex;align-items:center;gap:9px}
+.topbar-actions{display:flex;flex-wrap:nowrap;align-items:center;gap:9px;flex:0 0 auto}
+.brand{flex:0 1 auto;min-width:0;overflow:hidden}
 
 .pill-btn{display:inline-flex;align-items:center;gap:8px;padding:9px 15px;border-radius:999px;font-size:13.5px;font-weight:500;
   background:var(--glass);border:1px solid var(--stroke);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
@@ -298,6 +299,7 @@ a{color:inherit;text-decoration:none}
 
 /* ---------- Carosello 3D ---------- */
 .carousel{position:relative;margin-top:clamp(10px,2.4vw,26px);touch-action:pan-y;
+  -webkit-user-select:none;user-select:none;
   /* le card in prospettiva escono dai lati: si ritagliano senza creare
      una barra di scorrimento (e senza allargare la pagina, che altrimenti
      spingerebbe fuori schermo anche la navbar fissa) */
@@ -911,7 +913,12 @@ body.lights-out .beam{opacity:0}
 .date-badge.ok{color:#8df0b8;border-color:rgba(110,231,168,.35);background:rgba(110,231,168,.1)}
 
 /* --- Target tattili e stati hover solo su puntatore --- */
-button,.btn,a.btn,.chip,.frame,.dot-btn{-webkit-tap-highlight-color:transparent}
+/* niente evidenziazione azzurra e niente attesa di 300 ms per il doppio tap */
+*{-webkit-tap-highlight-color:transparent}
+button,a,input,select,textarea,summary,label,[role="button"],
+.chip,.frame,.dot-btn,.card,.card-play,.card-quick,.card-bucket,.cast-pill,.res-row,.w-row,
+.tl-item,.bo-row,.filmo-row,.menu-row,.term-go,.term-x,.qr-btn,.scissors,.ost-disc,.rat,.prov-row{
+  touch-action:manipulation}
 @media (hover:none){
   .btn:hover,.chip:hover,.pill-btn:hover,.icon-btn:hover,.cast-pill:hover,.bo-row:hover,
   .filmo-row:hover,.cal-item:hover,.res-row:hover{transform:none}
@@ -1016,6 +1023,7 @@ body.dim .card.is-active .card-inner{box-shadow:0 44px 90px -30px #000, 0 0 90px
 
 /* ---------- Segmented control della navbar ---------- */
 .navseg{position:relative;display:flex;align-items:center;gap:2px;padding:4px;border-radius:999px;isolation:isolate;
+  align-self:center;margin:clamp(10px,2vw,18px) auto 0;max-width:100%;
   background:linear-gradient(150deg, rgba(255,255,255,.11), rgba(255,255,255,.028));
   border:1px solid var(--stroke);backdrop-filter:blur(20px) saturate(1.5);-webkit-backdrop-filter:blur(20px) saturate(1.5);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.24), 0 18px 44px -30px #000}
@@ -1153,7 +1161,6 @@ body.hc .topbar,body.hc .navseg,body.hc .panel-inner,body.hc .spot-box,body.hc .
 body.hc .card-inner,body.hc .sheet-box,body.hc .bo-wrap{
   background:rgba(6,5,12,.94)!important;backdrop-filter:blur(8px)!important;-webkit-backdrop-filter:blur(8px)!important}
 body.hc .tagline,body.hc .overview,body.hc .rel-val{color:#fff}
-#contrastBtn.on{background:#fff;color:#07060d;border-color:#fff}
 #sfxBtn.off{opacity:.55}
 
 /* ---------- Badge piattaforme streaming ---------- */
@@ -1385,9 +1392,7 @@ a.prov-row:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,
 /* ---------- Navbar flottante su schermi stretti ---------- */
 @media (max-width:860px){
   .topbar{gap:9px}
-  /* il segmented control scende su una riga tutta sua */
-  .navseg{order:3;flex:1 0 100%;justify-content:center}
-  .topbar-actions{flex-wrap:wrap;justify-content:flex-end;gap:6px;min-width:0}
+  .topbar-actions{gap:7px}
 }
 @media (max-width:640px){
   .navseg{padding:3px;gap:1px;width:100%}
@@ -1400,9 +1405,9 @@ a.prov-row:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,
   .layout-mini button{padding:7px 12px}
 }
 @media (max-width:430px){
-  /* sette tasti non ci stanno: il creatore resta nel piè di pagina */
-  #creatorBtn{display:none}
   .topbar-actions{gap:5px}
+  /* senza etichetta la lente resta un'icona: va comunque garantita da 44px */
+  .lens{padding:9px;min-width:44px;justify-content:center}
   .navseg button{font-size:11.5px;padding:9px 6px;gap:4px}
   .navseg button .ic{font-size:13px}
 }
@@ -1658,6 +1663,225 @@ tr.imminente td:first-child{box-shadow:inset 3px 0 0 rgba(255,160,60,.9)}
 .term-x:hover{color:#ff8fa3}
 .term-x svg{width:10px;height:10px}
 
+/* ==========================================================
+   v10.3 — Header essenziale, menu impostazioni, temi
+   ========================================================== */
+
+/* ---------- Menu impostazioni ---------- */
+.menu-title{font-size:19px;font-weight:600;letter-spacing:-.02em;padding-right:44px}
+.menu-sec{margin-top:16px}
+.menu-lab{display:block;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);
+  padding:0 2px 8px}
+.tema-seg{display:flex;gap:3px;padding:3px;border-radius:14px;
+  background:rgba(255,255,255,.05);border:1px solid var(--stroke-soft)}
+.tema-seg button{flex:1;min-height:42px;border-radius:11px;font-size:13px;font-weight:500;color:var(--muted);
+  transition:color .2s, background .2s}
+.tema-seg button.on{color:var(--txt);background:rgba(255,255,255,.14);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.26)}
+.tema-seg button:active{transform:scale(.96)}
+
+.menu-list{display:flex;flex-direction:column;gap:6px;margin-top:16px}
+.menu-row{display:flex;align-items:center;gap:13px;width:100%;min-height:56px;padding:11px 14px;border-radius:15px;
+  text-align:left;color:var(--txt);
+  background:rgba(255,255,255,.05);border:1px solid var(--stroke-soft);
+  transition:background .18s, border-color .18s}
+.menu-row:hover{background:rgba(255,255,255,.1)}
+.menu-row:active{transform:scale(.97)}
+.menu-row.on{border-color:color-mix(in oklab, var(--c1) 45%, transparent);
+  background:linear-gradient(120deg, color-mix(in oklab, var(--c1) 18%, transparent), rgba(255,255,255,.06))}
+.menu-ico{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;flex:0 0 auto;font-size:17px;
+  background:rgba(255,255,255,.07);border:1px solid var(--stroke-soft)}
+.menu-ico svg{width:18px;height:18px}
+.menu-txt{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.menu-txt b{font-size:14px;font-weight:600}
+.menu-txt small{font-size:11.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.menu-go{flex:0 0 auto;color:var(--faint);font-size:14px}
+#menuSheet .menu-row + .menu-row{margin-top:0}
+#menuSheet > .sheet-box > .menu-row{margin-top:16px}
+
+/* ---------- Tema chiaro ---------- */
+body.tema-chiaro{
+  --bg:#eef0f7;
+  --bg-soft:#e3e6f2;
+  --txt:#15131f;
+  --muted:rgba(21,19,31,.68);
+  --faint:rgba(21,19,31,.45);
+  --glass:rgba(255,255,255,.62);
+  --glass-strong:rgba(255,255,255,.82);
+  --stroke:rgba(21,19,31,.16);
+  --stroke-soft:rgba(21,19,31,.09);
+  --neon:#0089a8;
+  --shadow:0 30px 70px -32px rgba(30,26,60,.42);
+}
+body.tema-chiaro .bg{filter:saturate(.75) brightness(1.5)}
+body.tema-chiaro .vignette{background:radial-gradient(110% 80% at 50% 45%, transparent 40%, rgba(230,232,244,.8) 100%)}
+body.tema-chiaro .grain{opacity:.03;mix-blend-mode:multiply}
+body.tema-chiaro .dust{opacity:.16}
+body.tema-chiaro .topbar{background:linear-gradient(180deg, rgba(255,255,255,.88), rgba(255,255,255,.6));
+  border-bottom-color:rgba(21,19,31,.1)}
+body.tema-chiaro .navseg,body.tema-chiaro .lens,body.tema-chiaro .pill-btn,body.tema-chiaro .icon-btn,
+body.tema-chiaro .chip,body.tema-chiaro .layout-mini,body.tema-chiaro .metabar,body.tema-chiaro .qbar,
+body.tema-chiaro .menu-row,body.tema-chiaro .tema-seg,body.tema-chiaro .filtermenu,body.tema-chiaro .savemenu,
+body.tema-chiaro .spot-box,body.tema-chiaro .wdrawer-box,body.tema-chiaro .sheet-box,body.tema-chiaro .ost,
+body.tema-chiaro .prov-row,body.tema-chiaro .rat,body.tema-chiaro .term{
+  background:linear-gradient(150deg, rgba(255,255,255,.9), rgba(255,255,255,.66));
+  border-color:rgba(21,19,31,.14);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9), 0 14px 34px -24px rgba(30,26,60,.5)}
+body.tema-chiaro .panel-inner{background:linear-gradient(155deg, rgba(255,255,255,.86), rgba(255,255,255,.72));
+  backdrop-filter:blur(30px) saturate(1.3);-webkit-backdrop-filter:blur(30px) saturate(1.3)}
+body.tema-chiaro .panel-bg.on{opacity:.3}
+body.tema-chiaro .panel-bg::after{background:linear-gradient(170deg, rgba(240,242,250,.55), rgba(240,242,250,.9) 72%)}
+body.tema-chiaro .card-inner{background:linear-gradient(160deg, rgba(255,255,255,.55), rgba(255,255,255,.2));
+  border-color:rgba(21,19,31,.14)}
+body.tema-chiaro .card-meta h3,body.tema-chiaro .card-date,body.tema-chiaro .card-sub{color:#fff}
+body.tema-chiaro .spot-bd{background:rgba(232,234,245,.6)}
+body.tema-chiaro .sheet-bd,body.tema-chiaro .wdrawer-bd{background:rgba(232,234,245,.66)}
+body.tema-chiaro .toast{background:rgba(255,255,255,.9);color:#15131f;border-color:rgba(21,19,31,.16)}
+body.tema-chiaro .hero h1{filter:saturate(1.15) brightness(.82)}
+body.tema-chiaro .modal-backdrop{background:rgba(232,234,245,.72)}
+body.tema-chiaro .lightbox{background:rgba(232,234,245,.78)}
+body.tema-chiaro .frost{background:linear-gradient(170deg, rgba(255,255,255,.4), rgba(220,222,238,.3))}
+body.tema-chiaro .spoiler-glass{background:linear-gradient(150deg, #dfe3f5, #b9c0e0);color:rgba(14,12,26,.85)}
+body.tema-chiaro .foot-links button,body.tema-chiaro .foot-links a,body.tema-chiaro .status{
+  background:rgba(255,255,255,.7);border-color:rgba(21,19,31,.12)}
+body.tema-chiaro .oled{background:#05050a;color:#fff}
+/* il titolo in gradiente su bianco sparirebbe: sul chiaro vira allo scuro */
+body.tema-chiaro .hero h1{
+  background:linear-gradient(100deg,#141226 14%, color-mix(in oklab, var(--c1) 55%, #241f3a) 58%, color-mix(in oklab, var(--c3) 58%, #1a1830) 100%);
+  -webkit-background-clip:text;background-clip:text;
+  filter:drop-shadow(0 6px 22px rgba(60,50,120,.22))}
+body.tema-chiaro .hero p.sub em{color:#15131f}
+body.tema-chiaro .chip,body.tema-chiaro .navseg button,body.tema-chiaro .layout-mini button,
+body.tema-chiaro .term-go,body.tema-chiaro .menu-txt small,body.tema-chiaro .res-meta{color:rgba(21,19,31,.74)}
+body.tema-chiaro .chip.on,body.tema-chiaro .navseg button.on,body.tema-chiaro .layout-mini button.on{color:#15131f}
+body.tema-chiaro .navseg-slider{background:linear-gradient(135deg, color-mix(in oklab, var(--c1) 28%, #fff), color-mix(in oklab, var(--c2) 28%, #fff));
+  border-color:rgba(21,19,31,.16)}
+body.tema-chiaro .eyebrow,body.tema-chiaro .search-tag{background:rgba(255,255,255,.78);border-color:rgba(21,19,31,.12)}
+body.tema-chiaro .tagline{color:#26213c;text-shadow:none}
+body.tema-chiaro .overview{color:rgba(21,19,31,.82)}
+body.tema-chiaro .fact,body.tema-chiaro .release-row,body.tema-chiaro .ticket,body.tema-chiaro .hype,
+body.tema-chiaro .cast-pill,body.tema-chiaro .bo-row,body.tema-chiaro .tl-item,body.tema-chiaro .empty,
+body.tema-chiaro .w-row,body.tema-chiaro .gpill,body.tema-chiaro .tag-glass{
+  background:rgba(255,255,255,.72);border-color:rgba(21,19,31,.12);color:inherit}
+body.tema-chiaro .movie-table tbody tr{background:rgba(255,255,255,.7)}
+body.tema-chiaro .sk-line{background:linear-gradient(90deg, rgba(21,19,31,.07), rgba(21,19,31,.12), rgba(21,19,31,.07));
+  background-size:220% 100%}
+body.tema-chiaro .sk-card,body.tema-chiaro .sk-thumb,body.tema-chiaro .sk-pic{
+  background:rgba(255,255,255,.7);border-color:rgba(21,19,31,.12)}
+body.tema-chiaro .net-badge{background:linear-gradient(140deg, rgba(255,190,110,.4), rgba(255,255,255,.8));
+  border-color:rgba(190,120,20,.45);color:rgba(21,19,31,.78)}
+body.tema-chiaro .net-badge b{color:#15131f}
+/* il tasto principale resta scuro: il testo bianco deve restare leggibile */
+body.tema-chiaro .btn.primary{color:#fff;
+  background:linear-gradient(160deg, rgba(255,255,255,.14), rgba(255,255,255,0) 50%),
+             linear-gradient(120deg, color-mix(in oklab, var(--c1) 78%, #1a1730), color-mix(in oklab, var(--c2) 76%, #1a1730) 62%, color-mix(in oklab, var(--c3) 72%, #1a1730));
+  border-color:transparent;
+  box-shadow:0 16px 36px -20px rgba(40,30,90,.7), inset 0 1px 0 rgba(255,255,255,.28)}
+body.tema-chiaro .btn.primary .tag{background:rgba(255,255,255,.22);color:#fff}
+body.tema-chiaro .qbar .trailer-title{color:#fff}
+body.tema-chiaro .revolut{color:#04121a}
+body.tema-chiaro .score-num,body.tema-chiaro .rat-val{color:#15131f}
+body.tema-chiaro .rat-imdb .rat-ico{color:#9a7900}
+
+/* ==========================================================
+   v10.3 — Risposta al tocco immediata e resa piu' leggera
+   ========================================================== */
+
+/* ---------- Feedback tattile: una sola trasformazione, niente blur ---------- */
+.btn,.pill-btn,.icon-btn,.chip,.lens,.navseg button,.layout-mini button,.menu-row,.tema-seg button,
+.card-play,.card-quick,.cast-pill,.res-row,.w-row,.tl-item,.bo-row,.filmo-row,.term-go,.term-x,
+.qr-btn,.ost-disc,.scissors,.fs-btn,.sheet-x,.dot-btn,.frame,.foot-links button,.foot-links a,
+.social-btn,.wdrawer-foot .btn,.res-clear,.fm-reset,.ask-skip{
+  -webkit-user-select:none;user-select:none}
+.btn:active,.pill-btn:active,.icon-btn:active,.chip:active,.lens:active,.navseg button:active,
+.layout-mini button:active,.menu-row:active,.tema-seg button:active,.cast-pill:active,
+.res-row:active,.w-row:active,.tl-item:active,.bo-row:active,.filmo-row:active,.term-go:active,
+.qr-btn:active,.fs-btn:active,.sheet-x:active,.foot-links button:active,.foot-links a:active,
+.social-btn:active,.res-clear:active,.fm-reset:active{
+  transform:scale(.96);transition-duration:.06s}
+
+/* ---------- Rendering selettivo di quel che sta sotto la piega ---------- */
+footer,#boxoffice{content-visibility:auto;contain-intrinsic-size:1px 400px}
+.tl-year{content-visibility:auto;contain-intrinsic-size:1px 420px}
+
+/* ---------- Protezione del contrasto sotto ai titoli ---------- */
+.card-grad{background:linear-gradient(to top, rgba(10,10,15,.95) 10%, rgba(10,10,15,.72) 34%,
+  rgba(10,10,15,.22) 62%, transparent 100%)}
+
+/* ==========================================================
+   Mobile: niente 3D pesante, sfocature contenute
+   ========================================================== */
+@media (max-width:768px){
+  /* il carosello passa a 2D: stesse posizioni, costo GPU molto minore */
+  .stage{perspective:none}
+  .card{transform-style:flat;backface-visibility:visible;will-change:transform,opacity}
+  .card-inner,.card-lens,.glare{transform:none}
+  .card-lens{display:none}
+
+  /* una sfocatura larga su telefono costa piu' di quanto renda */
+  .topbar,.navseg,.lens,.pill-btn,.icon-btn,.chip,.layout-mini,.metabar,.qbar,.menu-row,
+  .filtermenu,.savemenu,.spot-box,.wdrawer-box,.sheet-box,.ost,.prov-row,.panel-inner,
+  .ticket,.frost,.card-play,.card-quick,.modal-backdrop,.lightbox,.spot-bd,.sheet-bd,
+  .wdrawer-bd,.toast,.net-badge,.eyebrow,.status,.rip,.term{
+    backdrop-filter:blur(8px)!important;-webkit-backdrop-filter:blur(8px)!important}
+  .topbar{background:rgba(18,18,24,.88)}
+  .panel-inner{background:rgba(18,18,24,.85)}
+  .spot-box,.wdrawer-box,.sheet-box{background:rgba(20,20,27,.92)}
+  body.tema-chiaro .topbar{background:rgba(250,251,255,.93)}
+  body.tema-chiaro .panel-inner{background:rgba(252,252,255,.9)}
+  body.tema-chiaro .spot-box,body.tema-chiaro .wdrawer-box,body.tema-chiaro .sheet-box{
+    background:rgba(252,252,255,.95)}
+  .grain,.dust{display:none}
+  .blob{filter:blur(44px)}
+  .shine::after{animation:none;opacity:0}
+
+  /* su telefono la testata si stringe: il carosello deve entrare nella prima schermata */
+  .hero{padding:6px 0 2px}
+  .hero h1{margin-top:9px;font-size:clamp(25px,7.4vw,34px)}
+  .hero p.sub{margin-top:8px;font-size:13.5px}
+  .eyebrow{font-size:10px;letter-spacing:.18em;padding:6px 12px}
+  .toolbar{margin-top:8px;gap:7px}
+  .navseg{margin-top:8px}
+}
+
+/* ---------- Goccia del pull-to-refresh ---------- */
+.pull-drop{position:fixed;left:50%;top:0;z-index:950;translate:-50% 0;pointer-events:none;
+  width:46px;height:46px;display:grid;place-items:center;opacity:0;
+  transform:translateY(calc(var(--pull, 0px) - 46px)) scale(.7);
+  transition:opacity .25s var(--ease), transform .35s var(--elastic)}
+.pull-drop.tira{opacity:1;transform:translateY(calc(var(--pull, 0px) - 12px)) scale(1)}
+.pull-ring{width:34px;height:34px;border-radius:50%;
+  background:linear-gradient(150deg, rgba(255,255,255,.3), rgba(255,255,255,.08));
+  border:1px solid rgba(255,255,255,.34);
+  backdrop-filter:blur(14px) saturate(1.5);-webkit-backdrop-filter:blur(14px) saturate(1.5);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.5), 0 12px 26px -14px #000;
+  transition:transform .3s var(--elastic), box-shadow .3s, border-radius .3s}
+/* si allunga come una goccia mentre si tira */
+.pull-drop.tira .pull-ring{border-radius:52% 48% 44% 56% / 60% 58% 42% 40%}
+.pull-drop.pronta .pull-ring{transform:scale(1.18) rotate(180deg);border-radius:50%;
+  border-color:color-mix(in oklab, var(--c1) 70%, transparent);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.6), 0 0 26px -6px color-mix(in oklab, var(--c1) 90%, transparent)}
+body.tema-chiaro .pull-ring{background:linear-gradient(150deg, rgba(255,255,255,.95), rgba(255,255,255,.7));
+  border-color:rgba(21,19,31,.18)}
+
+/* ==========================================================
+   Scheda su telefono: azioni in colonna, locandina in pila
+   ========================================================== */
+@media (max-width:600px){
+  /* la locandina va sopra, centrata, e la sinossi prende tutta la larghezza */
+  .panel-cols{grid-template-columns:1fr;gap:16px}
+  .panel-poster{grid-column:1;grid-row:1;width:min(46vw,168px);margin:0 auto}
+  .panel-main{grid-column:1;grid-row:2}
+  /* i tasti non devono mai uscire dal bordo: uno sotto l'altro, a tutta larghezza */
+  .qbar{flex-direction:column;align-items:stretch;padding:9px;gap:8px}
+  .qbar .btn,.qbar .savewrap,.qbar .savewrap > .btn{width:100%;flex:1 1 auto;min-width:0}
+  .qbar .btn{justify-content:center;white-space:normal;text-align:center}
+  .qbar .trailer-card{justify-content:flex-start;text-align:left;padding:7px 16px 7px 7px}
+  .qbar .savemenu{left:0;right:0;translate:0 0;min-width:0;width:100%}
+  .actions{flex-direction:column;align-items:stretch}
+  .actions .btn{width:100%;justify-content:center}
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width:860px){
   .panel-head{gap:16px}
@@ -1782,59 +2006,92 @@ tr.imminente td:first-child{box-shadow:inset 3px 0 0 rgba(255,160,60,.9)}
     <span class="brand-text">Cine<em>Glass</em></span>
   </div>
 
-  <nav class="navseg" id="navSeg" role="group" aria-label="Vista principale">
-    <span class="navseg-slider" id="navSlider" aria-hidden="true"></span>
-    <button type="button" data-nav="now" aria-pressed="false"><span class="ic">🎟️</span><span class="lbl">Ora in sala</span></button>
-    <button type="button" data-nav="soon" class="on" aria-pressed="true"><span class="ic">⏳</span><span class="lbl">In arrivo</span></button>
-    <button type="button" data-nav="timeline" aria-pressed="false"><span class="ic">🗓️</span><span class="lbl">Timeline</span></button>
-  </nav>
-
   <div class="topbar-actions">
-    <button id="searchBtn" class="lens ripple magnetic" aria-expanded="false" title="Cerca un film  (Ctrl+K)" aria-label="Cerca un film">
+    <button id="searchBtn" class="lens" aria-expanded="false" title="Cerca un film  (Ctrl+K)" aria-label="Cerca un film">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="11" cy="11" r="6.6"/><path d="m16.2 16.2 4.6 4.6"/><path d="M8.6 8.4a3.6 3.6 0 0 1 2.6-1.5" opacity=".65"/>
       </svg>
       <span class="lbl">Cerca</span>
     </button>
-    <button id="dimBtn" class="icon-btn plain" title="Luci in sala" aria-pressed="false" aria-label="Abbassa le luci">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 1 3.6 10.8c-.6.5-.9 1.1-.9 1.8H9.3c0-.7-.3-1.3-.9-1.8A6 6 0 0 1 12 3Z"/>
-      </svg>
-    </button>
-    <button id="sfxBtn" class="icon-btn plain sfx-toggle" aria-pressed="true" title="Suoni e vibrazione" aria-label="Suoni e vibrazione">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M11 5 6.5 9H3.5v6h3L11 19z"/><path d="M15.5 9.2a4 4 0 0 1 0 5.6"/><path d="M18.2 6.4a8 8 0 0 1 0 11.2"/>
-      </svg>
-    </button>
-    <button id="contrastBtn" class="icon-btn plain" aria-pressed="false" title="Alto contrasto" aria-label="Alto contrasto">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17a8.5 8.5 0 0 0 0-17Z" fill="currentColor"/></svg>
-    </button>
-    <button id="diceBtn" class="icon-btn plain" title="Sorprendimi: un film a caso (o scuoti il telefono)" aria-label="Sorprendimi: scegli un film a caso">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">
-        <rect x="3.6" y="3.6" width="16.8" height="16.8" rx="4.4"/>
-        <circle cx="8.6" cy="8.6" r="1.35" fill="currentColor" stroke="none"/>
-        <circle cx="15.4" cy="15.4" r="1.35" fill="currentColor" stroke="none"/>
-        <circle cx="12" cy="12" r="1.35" fill="currentColor" stroke="none"/>
-      </svg>
-    </button>
-    <button id="favFilter" class="pill-btn ripple magnetic" title="Apri la watchlist">
-      <span aria-hidden="true" style="font-size:14px;line-height:1">🍿</span>
+    <button id="favFilter" class="pill-btn" title="Apri la watchlist" aria-label="Apri la watchlist">
+      <span aria-hidden="true" style="font-size:15px;line-height:1">🍿</span>
       <span class="lbl">Watchlist</span>
       <span class="badge" id="favCount">0</span>
     </button>
-    <button id="creatorBtn" class="pill-btn" title="Chi ha fatto CineGlass">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px">
-        <circle cx="12" cy="8.5" r="3.6"/><path d="M4.8 20a7.4 7.4 0 0 1 14.4 0"/>
-      </svg>
-      <span class="lbl">Creatore</span>
-    </button>
-    <button id="refreshBtn" class="icon-btn" title="Aggiorna i dati da TMDB" aria-label="Aggiorna i dati">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M20 11a8 8 0 1 0-1.6 5.7"/><path d="M20 4v7h-7"/>
+    <button id="menuBtn" class="icon-btn" aria-expanded="false" aria-haspopup="true"
+            title="Impostazioni e altro" aria-label="Impostazioni e altro">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3.1"/>
+        <path d="M19.4 14.6a1.6 1.6 0 0 0 .32 1.77l.06.06a1.95 1.95 0 1 1-2.76 2.76l-.06-.06a1.6 1.6 0 0 0-1.77-.32 1.6 1.6 0 0 0-.97 1.47v.17a1.95 1.95 0 1 1-3.9 0v-.09a1.6 1.6 0 0 0-1.05-1.47 1.6 1.6 0 0 0-1.77.32l-.06.06a1.95 1.95 0 1 1-2.76-2.76l.06-.06a1.6 1.6 0 0 0 .32-1.77 1.6 1.6 0 0 0-1.47-.97H3.4a1.95 1.95 0 1 1 0-3.9h.09a1.6 1.6 0 0 0 1.47-1.05 1.6 1.6 0 0 0-.32-1.77l-.06-.06a1.95 1.95 0 1 1 2.76-2.76l.06.06a1.6 1.6 0 0 0 1.77.32h.08a1.6 1.6 0 0 0 .97-1.47V3.4a1.95 1.95 0 1 1 3.9 0v.09a1.6 1.6 0 0 0 .97 1.47 1.6 1.6 0 0 0 1.77-.32l.06-.06a1.95 1.95 0 1 1 2.76 2.76l-.06.06a1.6 1.6 0 0 0-.32 1.77v.08a1.6 1.6 0 0 0 1.47.97h.17a1.95 1.95 0 1 1 0 3.9h-.09a1.6 1.6 0 0 0-1.47.97Z"/>
       </svg>
     </button>
   </div>
 </header>
+
+
+<!-- ====================== MENU IMPOSTAZIONI ====================== -->
+<div class="sheet drawer" id="menuSheet" hidden>
+  <div class="sheet-bd" data-close></div>
+  <div class="sheet-box" role="dialog" aria-modal="true" aria-labelledby="menuTitle">
+    <button class="sheet-x" data-close aria-label="Chiudi">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+    <h3 id="menuTitle" class="menu-title">Impostazioni</h3>
+
+    <div class="menu-sec">
+      <span class="menu-lab">🌓 Tema</span>
+      <div class="tema-seg" id="temaSeg" role="group" aria-label="Tema dell'interfaccia">
+        <button type="button" data-tema="chiaro">Chiaro</button>
+        <button type="button" data-tema="scuro" class="on" aria-pressed="true">Scuro</button>
+        <button type="button" data-tema="contrasto">Contrasto</button>
+      </div>
+    </div>
+
+    <div class="menu-list">
+      <button id="sfxBtn" class="menu-row" aria-pressed="true" title="Suoni e vibrazione" aria-label="Suoni e vibrazione">
+        <span class="menu-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M11 5 6.5 9H3.5v6h3L11 19z"/><path d="M15.5 9.2a4 4 0 0 1 0 5.6"/><path d="M18.2 6.4a8 8 0 0 1 0 11.2"/>
+      </svg></span>
+        <span class="menu-txt"><b>Effetti audio</b><small class="menu-stato">Attivi</small></span>
+      </button>
+      <button id="dimBtn" class="menu-row" title="Luci in sala" aria-pressed="false" aria-label="Abbassa le luci">
+        <span class="menu-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 1 3.6 10.8c-.6.5-.9 1.1-.9 1.8H9.3c0-.7-.3-1.3-.9-1.8A6 6 0 0 1 12 3Z"/>
+      </svg></span>
+        <span class="menu-txt"><b>Luci in sala</b><small class="menu-stato">Accese</small></span>
+      </button>
+      <button id="diceBtn" class="menu-row" title="Sorprendimi: un film a caso (o scuoti il telefono)" aria-label="Sorprendimi: scegli un film a caso">
+        <span class="menu-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">
+        <rect x="3.6" y="3.6" width="16.8" height="16.8" rx="4.4"/>
+        <circle cx="8.6" cy="8.6" r="1.35" fill="currentColor" stroke="none"/>
+        <circle cx="15.4" cy="15.4" r="1.35" fill="currentColor" stroke="none"/>
+        <circle cx="12" cy="12" r="1.35" fill="currentColor" stroke="none"/>
+      </svg></span>
+        <span class="menu-txt"><b>Film casuale</b><small class="menu-stato">Sorprendimi con un titolo a caso</small></span>
+      </button>
+      <button id="refreshBtn" class="menu-row" title="Aggiorna i dati da TMDB" aria-label="Aggiorna i dati">
+        <span class="menu-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 11a8 8 0 1 0-1.6 5.7"/><path d="M20 4v7h-7"/>
+      </svg></span>
+        <span class="menu-txt"><b>Ricarica dati</b><small class="menu-stato">Riscarica le uscite da TMDB</small></span>
+      </button>
+      <button id="creatorBtn" class="menu-row" title="Chi ha fatto CineGlass">
+        <span class="menu-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px">
+        <circle cx="12" cy="8.5" r="3.6"/><path d="M4.8 20a7.4 7.4 0 0 1 14.4 0"/>
+      </svg></span>
+        <span class="menu-txt"><b>Profilo e crediti</b><small class="menu-stato">Chi ha fatto CineGlass</small></span>
+      </button>
+    </div>
+
+    <a class="menu-row" href="https://instagram.com/acrisci05" target="_blank" rel="noopener noreferrer">
+      <span class="menu-ico" aria-hidden="true">📸</span>
+      <span class="menu-txt"><b>Instagram</b><small>@acrisci05</small></span>
+      <span class="menu-go" aria-hidden="true">↗</span>
+    </a>
+  </div>
+</div>
+
+<div class="pull-drop" id="pullDrop" aria-hidden="true"><span class="pull-ring"></span></div>
 
 <div class="net-badge" id="netBadge" role="status" aria-live="polite" hidden>
   <span class="net-dot" aria-hidden="true"></span>
@@ -1861,6 +2118,13 @@ tr.imminente td:first-child{box-shadow:inset 3px 0 0 rgba(255,160,60,.9)}
 <div class="shell">
 
   <div class="top">
+
+  <nav class="navseg" id="navSeg" role="group" aria-label="Vista principale">
+    <span class="navseg-slider" id="navSlider" aria-hidden="true"></span>
+    <button type="button" data-nav="now" aria-pressed="false"><span class="ic">🎟️</span><span class="lbl">Ora in sala</span></button>
+    <button type="button" data-nav="soon" class="on" aria-pressed="true"><span class="ic">⏳</span><span class="lbl">In arrivo</span></button>
+    <button type="button" data-nav="timeline" aria-pressed="false"><span class="ic">🗓️</span><span class="lbl">Timeline</span></button>
+  </nav>
 
   <!-- ====================== HERO ====================== -->
   <section class="hero">
@@ -2363,7 +2627,7 @@ const STORE = {
   details: 'cineglass:details:v2',
   favs:    'cineglass:favs:v1',
   layout:  'cineglass:layout:v1',
-  hc:      'cineglass:contrasto:v1',
+  tema:    'cineglass:tema:v1',
   key:     'cineglass:apikey:v1'
 };
 
@@ -2510,9 +2774,14 @@ function placeholderPoster(title){
 </linearGradient>
 <radialGradient id="r" cx="50%" cy="32%" r="60%"><stop offset="0" stop-color="hsl(${h2},90%,62%)" stop-opacity=".45"/><stop offset="1" stop-color="hsl(${h},90%,50%)" stop-opacity="0"/></radialGradient></defs>
 <rect width="500" height="750" fill="url(#g)"/><rect width="500" height="750" fill="url(#r)"/>
-<g opacity=".82" fill="none" stroke="rgba(255,255,255,.75)" stroke-width="9" stroke-linecap="round">
-<circle cx="250" cy="268" r="74"/><circle cx="250" cy="268" r="18" fill="rgba(255,255,255,.75)" stroke="none"/>
-<path d="M250 178v34M250 324v34M160 268h34M306 268h34"/></g>
+<g transform="translate(250 262)">
+<path d="M0 -104 90 -52 90 52 0 104 -90 52 -90 -52Z" fill="rgba(255,255,255,.1)" stroke="rgba(255,255,255,.62)" stroke-width="7" stroke-linejoin="round"/>
+<path d="M0 -104 90 -52 0 0 -90 -52Z" fill="rgba(255,255,255,.3)"/>
+<path d="M-90 -52 0 0 0 104 -90 52Z" fill="rgba(255,255,255,.07)"/>
+<path d="M-52 -18 6 14" stroke="rgba(122,244,255,.9)" stroke-width="8" stroke-linecap="round"/>
+<path d="M6 14 62 -4" stroke="rgba(255,95,224,.9)" stroke-width="8" stroke-linecap="round"/>
+<circle cx="0" cy="34" r="27" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="7"/>
+<circle cx="0" cy="34" r="9" fill="rgba(255,255,255,.75)"/></g>
 ${text}
 <text x="250" y="${452 + show.length * 52}" fill="rgba(255,255,255,.45)" font-family="Outfit,Segoe UI,sans-serif" font-size="22" letter-spacing="6" text-anchor="middle">CINEGLASS</text>
 </svg>`;
@@ -2642,7 +2911,7 @@ const state = {
   view: [], genre: null, mode: 'upcoming', searchList: [], searchQuery: '',
   layout: 'carousel', ultimaPiatta: 'carousel', anno: null, providers: {}, boxoffice: [], boTab: 'it', credits: {}, custom: null,
   section: 'soon', nowPlaying: [], durata: null, storiaVera: false,
-  tiltX: 0, tiltY: 0, perfBassa: false,
+  tiltX: 0, tiltY: 0, perfBassa: false, tema: 'scuro',
   current: 0, target: 0, activeIndex: 0, activeId: null, activeDetails: null,
   demo: false, caricando: true, teatroAuto: false, raf: 0, drag: null, cardW: 260, spacing: 180, lastRelease: null
 };
@@ -2655,7 +2924,7 @@ const el = {
   ratRow:$('#ratRow'), mbFacts:$('#mbFacts'),
   panelBg:$('#panelBg'), panelPoster:$('#panelPoster'), panelPosterImg:$('#panelPosterImg'),
   cutBtn:$('#cutBtn'),
-  netBadge:$('#netBadge'), diceBtn:$('#diceBtn'),
+  netBadge:$('#netBadge'), diceBtn:$('#diceBtn'), pullDrop:$('#pullDrop'),
   cittaSheet:$('#cittaSheet'), cittaForm:$('#cittaForm'), cittaInput:$('#cittaInput'), cittaSkip:$('#cittaSkip'),
   filtersBtn:$('#filtersBtn'), filterMenu:$('#filterMenu'),
   filtersCount:$('#filtersCount'), filtersReset:$('#filtersReset'),
@@ -2689,7 +2958,8 @@ const el = {
   saveBtn:$('#saveBtn'), saveMenu:$('#saveMenu'),
   chipsExtra:$('#chipsExtra'),
   timelineView:$('#timelineView'), timelineBody:$('#timelineBody'),
-  dimBtn:$('#dimBtn'), contrastBtn:$('#contrastBtn'), oledBtn:$('#oledBtn'),
+  dimBtn:$('#dimBtn'), oledBtn:$('#oledBtn'),
+  menuBtn:$('#menuBtn'), menuSheet:$('#menuSheet'), temaSeg:$('#temaSeg'),
   spot:$('#spot'),
   wDrawer:$('#wDrawer'), wList:$('#wList'), wLevel:$('#wLevel'), wOnly:$('#wOnly'),
   wShare:$('#wShare'), wClear:$('#wClear'),
@@ -3267,8 +3537,12 @@ async function loadCustomFeed(){
 function custom(id){ return state.custom ? state.custom.get(Number(id)) : null; }
 
 /* =========================================================
-   6. CAROSELLO 3D
+   6. CAROSELLO 3D (2D su telefono, dove il 3D costa troppo)
    ========================================================= */
+const mqPiatto = window.matchMedia ? window.matchMedia('(max-width: 768px)') : null;
+if (mqPiatto && mqPiatto.addEventListener){
+  mqPiatto.addEventListener('change', () => { measure(); render(); });
+}
 function measure(){
   const probe = cards[0];
   state.cardW = probe ? probe.getBoundingClientRect().width || 260 : 260;
@@ -3321,6 +3595,20 @@ async function accentoAzioni(movie){
   }catch(err){ /* si resta sull'accento del genere */ }
 }
 
+/* La card centrale merita la versione grande: le altre restano a w342 */
+function alzaRisoluzione(card, m){
+  if (!m || card.dataset.hd === '1') return;
+  const poster = card.querySelector('.poster');
+  const url = img(m.poster_path, 'w780');
+  if (!poster || !url) return;
+  card.dataset.hd = '1';
+  poster.setAttribute('fetchpriority', 'high');
+  const pre = new Image();
+  pre.decoding = 'async';
+  pre.onload = () => { if (card.isConnected) poster.src = url; };
+  pre.src = url;
+}
+
 function buildCards(){
   const list = movies();
   el.stage.innerHTML = '';
@@ -3332,7 +3620,9 @@ function buildCards(){
     const badge = m.__demo ? 'Esempio' : releaseBadge(m.release_date);
     card.innerHTML =
       '<div class="card-inner sweep">' +
-        `<img class="poster" alt="Locandina di ${esc(m.title)}" loading="lazy" decoding="async" src="${esc(img(m.poster_path, 'w500') || placeholderPoster(m.title))}">` +
+        `<img class="poster" alt="Locandina di ${esc(m.title)}" decoding="async"` +
+          ` loading="${i === 0 ? 'eager' : 'lazy'}" fetchpriority="${i === 0 ? 'high' : 'low'}"` +
+          ` src="${esc(img(m.poster_path, i === 0 ? 'w780' : 'w342') || placeholderPoster(m.title))}">` +
         '<div class="frost"></div><div class="shine"></div><div class="glare"></div>' +
         '<div class="card-lens"></div><div class="card-grad"></div>' +
         (badge ? `<span class="card-badge${m.__demo ? ' demo' : ''}">${esc(badge)}</span>` : '') +
@@ -3367,23 +3657,24 @@ function buildCards(){
       if (clickSuppressed) return;
       e.stopPropagation();
       /* laterale: la si porta al centro; centrale: si ingrandisce la locandina */
-      if (i !== wrapIndex(state.current, cards.length)){ goTo(i); sfx.play('tap'); buzz(10); return; }
+      if (i !== wrapIndex(state.current, cards.length)){ goTo(i); sfx.play('tap'); buzz(APTICA.micro); return; }
       apriLightbox(m);
     });
     const play = card.querySelector('.card-play');
     if (play){
-      const apri = e => { e.stopPropagation(); e.preventDefault(); openTrailer(); };
-      play.addEventListener('click', apri);
-      play.addEventListener('touchstart', apri, { passive: false });
-      play.addEventListener('pointerdown', e => e.stopPropagation());
+      /* touch-action:manipulation toglie i 300 ms di attesa: basta il click */
+      play.addEventListener('click', e => { e.stopPropagation(); openTrailer(); });
+      play.addEventListener('pointerdown', e => e.stopPropagation(), { passive: true });
     }
     /* Play al volo: apre il trailer anche da una locandina non in primo piano */
     const quick = card.querySelector('.card-quick');
     if (quick){
-      const subito = e => { e.stopPropagation(); e.preventDefault(); sfx.play('tap'); buzz(12); openTrailerFor(m); };
-      quick.addEventListener('click', subito);
-      quick.addEventListener('touchstart', subito, { passive: false });
-      quick.addEventListener('pointerdown', e => e.stopPropagation());
+      quick.addEventListener('click', e => {
+        e.stopPropagation();
+        sfx.play('tap'); buzz(APTICA.micro);
+        openTrailerFor(m);
+      });
+      quick.addEventListener('pointerdown', e => e.stopPropagation(), { passive: true });
     }
     el.stage.appendChild(card);
     tingiCard(card, m);
@@ -3439,7 +3730,7 @@ el.stripTrack.addEventListener('click', e => {
   const f = e.target.closest('.frame');
   if (!f) return;
   sfx.play('tap');
-  buzz(12);
+  buzz(APTICA.micro);
   goTo(Number(f.dataset.i));
 });
 
@@ -3458,6 +3749,7 @@ function buildDots(n){
 function render(){
   const n = cards.length;
   if (!n) return;
+  const piatto = mqPiatto ? mqPiatto.matches : false;
   const spacing = state.spacing;
   const vel = clamp(state.target - state.current, -1.8, 1.8);
   const wrap = n > 4;
@@ -3485,15 +3777,28 @@ function render(){
     const sc = 1 - ca * 0.075;
     const tx = i === active ? state.tiltX : 0;
     const ty = i === active ? state.tiltY : 0;
-    card.style.transform =
-      `translate3d(-50%,-50%,0) translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, ${z.toFixed(2)}px) ` +
-      `rotateX(${tx.toFixed(2)}deg) rotateY(${(ry + ty).toFixed(2)}deg) rotateZ(${rz.toFixed(2)}deg) scale(${sc.toFixed(3)})`;
+    if (piatto){
+      /* Su telefono la prospettiva costa piu' di quanto renda: stesse
+         posizioni, ma con sole traslazioni e ridimensionamenti 2D. */
+      /* senza prospettiva le vicine resterebbero grandi e addosso alla
+         centrale: si allarga il passo e si stringe di piu' la scala */
+      const sc2 = clamp(1 - ca * 0.2, 0.42, 1);
+      card.style.transform =
+        `translate3d(-50%,-50%,0) translate3d(${(x * 1.34).toFixed(2)}px, ${(y * 0.5).toFixed(2)}px, 0) ` +
+        `scale(${sc2.toFixed(3)})`;
+    } else {
+      card.style.transform =
+        `translate3d(-50%,-50%,0) translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, ${z.toFixed(2)}px) ` +
+        `rotateX(${tx.toFixed(2)}deg) rotateY(${(ry + ty).toFixed(2)}deg) rotateZ(${rz.toFixed(2)}deg) scale(${sc.toFixed(3)})`;
+    }
     card.style.opacity = String(clamp(1 - ca * 0.2, 0, 1).toFixed(3));
     card.style.zIndex = String(120 - Math.round(a * 12));
     card.style.setProperty('--frost', String(clamp((a - 0.15) * 0.6, 0, 0.88).toFixed(3)));
     const eraAttiva = card.classList.contains('is-active');
     card.classList.toggle('is-active', i === active);
     card.classList.toggle('vicina', a <= 1.05);
+    /* la locandina al centro passa all'alta risoluzione, le altre restano leggere */
+    if (i === active) alzaRisoluzione(card, movies()[i]);
     if (i === active && cardBucketEl && cardBucketEl.parentNode !== card.firstChild){
       card.firstChild.appendChild(cardBucketEl);
       if (!eraAttiva){
@@ -3646,7 +3951,7 @@ function endDrag(e, cancel){
   let idx = Math.round(state.current);
   if (Math.abs(v) > 0.45) idx = dx > 0 ? Math.floor(state.current) : Math.ceil(state.current);
   setTarget(idx);
-  buzz(12);
+  buzz(APTICA.micro);
   sfx.play('swipe');
   suppressClick();
 }
@@ -4264,7 +4569,7 @@ function applicaLayout(mode){
   el.chipsYear.hidden = !tl;
   syncNav();
   store.set(STORE.layout, state.layout);
-  buzz(15);
+  buzz(APTICA.micro);
   sfx.play('tap');
   if (lista) renderListView();
   else if (tl) renderTimeline();
@@ -4433,7 +4738,7 @@ function openSearch(on){
   el.searchBtn.setAttribute('aria-expanded', on ? 'true' : 'false');
   document.body.classList.toggle('no-scroll', !!on);
   if (on){
-    if (!gia) sfx.play('open');
+    if (!gia){ sfx.play('open'); buzz(APTICA.apri); }
     el.searchInput.focus();
     el.searchInput.select();
     if (!el.searchInput.value.trim()) mostraRecenti();
@@ -4870,7 +5175,30 @@ function enterDemo(reason){
   });
 }
 
+/* Le voci scadute occupano spazio e rischiano di mostrare dati vecchi:
+   all'avvio si buttano via, senza toccare watchlist e preferenze. */
+function pulisciCache(){
+  const ora = Date.now();
+  const limiti = [[STORE.details, TTL_DET], [PROV_KEY, TTL_PROV]];
+  limiti.forEach(([chiave, ttl]) => {
+    const dati = store.get(chiave);
+    if (!dati || typeof dati !== 'object') return;
+    let tolte = 0;
+    Object.keys(dati).forEach(k => {
+      const v = dati[k];
+      if (!v || typeof v.ts !== 'number' || ora - v.ts > ttl * 4){ delete dati[k]; tolte++; }
+    });
+    if (tolte) store.set(chiave, dati);
+  });
+  const lista = store.get(STORE.list);
+  if (lista && lista.ts && ora - lista.ts > 7 * 24 * 3600 * 1000){
+    store.del(STORE.list);
+    idbSet(STORE.list, null);
+  }
+}
+
 async function boot(){
+  pulisciCache();
   state.favs = store.get(STORE.favs) || [];
   const dc = store.get(STORE.details);
   state.detailsCache = (dc && typeof dc === 'object') ? dc : {};
@@ -4965,10 +5293,13 @@ const sfx = {
 };
 
 /* --- Aptica: un tocco secco sui dispositivi che la supportano --- */
-function buzz(ms){
+/* Tre intensita': tocco leggero, apertura, gesto meccanico */
+const APTICA = { micro: 10, apri: 20, meccanico: [30, 40, 30] };
+
+function buzz(pattern){
   /* un solo interruttore per suoni e aptica: e' quello che dice l'etichetta */
   if (!sfx.on) return;
-  try{ if (navigator.vibrate) navigator.vibrate(ms || 15); }catch(err){ /* non supportata */ }
+  try{ if (navigator.vibrate) navigator.vibrate(pattern || APTICA.micro); }catch(err){ /* non supportata */ }
 }
 
 /* --- Colore dominante della locandina (media pesata su griglia ridotta) --- */
@@ -5351,6 +5682,7 @@ function openSheet(sheet){
   sheet.hidden = false;
   document.body.classList.add('no-scroll');
   sfx.play('open');
+  buzz(APTICA.apri);
   const x = sheet.querySelector('.sheet-x');
   if (x) x.focus();
 }
@@ -5785,10 +6117,8 @@ function initBuckets(){
   bucketCard = new Bucket(cv);
   /* i due controlli fermano la propagazione: né tilt né swipe devono rubarli */
   [[el.hypeBucket, 'panel'], [cardBucketEl, 'card']].forEach(([nodo]) => {
-    const azione = e => { e.stopPropagation(); e.preventDefault(); popcorn(); };
-    nodo.addEventListener('click', azione);
-    nodo.addEventListener('touchstart', azione, { passive: false });
-    nodo.addEventListener('pointerdown', e => e.stopPropagation());
+    nodo.addEventListener('click', e => { e.stopPropagation(); popcorn(); });
+    nodo.addEventListener('pointerdown', e => e.stopPropagation(), { passive: true });
     nodo.addEventListener('keydown', e => {
       if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); popcorn(); }
     });
@@ -5803,7 +6133,7 @@ function popcorn(){
   bucketPanel.pop(3);
   bucketCard.pop(3);
   sfx.play('tap');
-  buzz(primo ? 30 : 12);
+  buzz(primo ? APTICA.meccanico : APTICA.micro);
   if (primo && !isFav(movie.id)){
     state.favs.unshift(JSON.parse(JSON.stringify(movie)));
     store.set(STORE.favs, state.favs);
@@ -5839,7 +6169,7 @@ function svuotaHype(){
     store.set(STORE.favs, state.favs);
   }
   sfx.play('close');
-  buzz(12);
+  buzz(APTICA.micro);
   updateFavUI();
   if (state.favOnly) rebuild(state.activeId);
   else renderHype(movie);
@@ -6209,7 +6539,7 @@ function initSpoiler(){
     if (pulizia >= 1){
       el.spoiler.classList.add('pulito');
       sfx.play('hover');
-      buzz(10);
+      buzz(APTICA.micro);
     }
   };
   el.spoiler.addEventListener('pointermove', strofina);
@@ -6368,7 +6698,7 @@ function strappa(){
   el.ticket.classList.add('strappato');
   esplodiSchegge();
   sfx.paper();
-  buzz(15);
+  buzz(APTICA.meccanico);
   setTimeout(() => el.ticket.classList.remove('strappato'), 1400);
   if (!isFav(movie.id)){
     state.favs.unshift(JSON.parse(JSON.stringify(movie)));
@@ -6388,7 +6718,7 @@ async function condividiQR(){
   const url = el.ticket.dataset.link || deepLink(movie);
   const testo = `🎬 ${movie.title} — ${dataEstesa(state.lastRelease || movie.release_date)}`;
   sfx.play('tap');
-  buzz(12);
+  buzz(APTICA.micro);
   let copiato = false;
   try{ await navigator.clipboard.writeText(url); copiato = true; }
   catch(err){ /* appunti non disponibili: resta la condivisione */ }
@@ -6442,6 +6772,7 @@ function toggleDim(){
   store.set('cineglass:dim:v1', on);
   sfx.play('tap');
   toast(on ? 'Luci abbassate 🌙' : 'Luci accese ☀️', 'ok');
+  aggiornaStatiMenu();
 }
 
 /* --- Titolo dell'hype in base ai popcorn --- */
@@ -6458,7 +6789,7 @@ function svuotaWatchlist(){
   store.set(STORE.favs, []);
   store.set(HYPE_KEY, {});
   sfx.play('close');
-  buzz(20);
+  buzz(APTICA.meccanico);
   updateFavUI();
   if (state.favOnly) setFavOnly(false);
   else { const m = movies()[state.activeIndex]; if (m) renderHype(m); }
@@ -6503,7 +6834,7 @@ function initSwipeScheda(){
     if (!t || Math.abs(dx) < 56 || Math.abs(dy) > 70 || durata > 800) return;
     if (movies().length < 2) return;
     if (dx < 0) next(); else prev();
-    buzz(12);
+    buzz(APTICA.micro);
     sfx.play('swipe');
   };
   el.panel.addEventListener('touchend', fine, { passive: true });
@@ -6533,7 +6864,7 @@ function sorprendimi(){
   setTimeout(() => el.diceBtn.classList.remove('rolling'), 650);
   goTo(i);
   markListRow();
-  buzz(18);
+  buzz(APTICA.apri);
   sfx.play('tap');
   toast('\uD83C\uDFB2 ' + scelto.title, 'ok');
   if (state.layout !== 'carousel') el.panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -6567,6 +6898,59 @@ function initScuotimento(){
   } else {
     aggancia();
   }
+}
+
+/* --- Trascinamento dall'alto per aggiornare: una goccia di vetro che si
+   allunga, e al rilascio ricarica le uscite senza perdere lo stato. --- */
+function initPullRefresh(){
+  const goccia = el.pullDrop;
+  if (!goccia) return;
+  let y0 = null, dist = 0, attivo = false;
+  const SOGLIA = 78;
+
+  const azzera = () => {
+    goccia.classList.remove('tira', 'pronta');
+    goccia.style.setProperty('--pull', '0px');
+    y0 = null; dist = 0; attivo = false;
+  };
+
+  window.addEventListener('touchstart', e => {
+    if (!e.touches || e.touches.length !== 1) return;
+    if (window.scrollY > 2) return;
+    if (!el.modal.hidden || !el.spot.hidden || !el.wDrawer.hidden || !el.oled.hidden) return;
+    if (e.target.closest('.carousel, .chips, .cast-strip, .filmstrip, .sheet, .spot, .wdrawer')) return;
+    y0 = e.touches[0].clientY;
+    dist = 0;
+  }, { passive: true });
+
+  window.addEventListener('touchmove', e => {
+    if (y0 === null || !e.touches || !e.touches.length) return;
+    const dy = e.touches[0].clientY - y0;
+    if (dy <= 0 || window.scrollY > 2){ if (attivo) azzera(); return; }
+    dist = Math.min(dy * 0.55, 120);
+    if (dist > 8){
+      attivo = true;
+      goccia.classList.add('tira');
+      goccia.style.setProperty('--pull', dist.toFixed(1) + 'px');
+      goccia.classList.toggle('pronta', dist >= SOGLIA);
+    }
+  }, { passive: true });
+
+  const rilascia = () => {
+    if (!attivo){ y0 = null; return; }
+    const pronto = dist >= SOGLIA;
+    azzera();
+    if (!pronto) return;
+    buzz(APTICA.apri);
+    sfx.play('tap');
+    const key = resolveKey();
+    if (!key){ toast('Serve una API key TMDB per aggiornare', 'warn'); return; }
+    toast('Aggiorno le uscite…', 'ok');
+    store.del(STORE.list);
+    loadFromAPI(key, { notify: true }).then(ok => { if (ok) loadBoxOffice(); });
+  };
+  window.addEventListener('touchend', rilascia, { passive: true });
+  window.addEventListener('touchcancel', azzera, { passive: true });
 }
 
 /* --- Stato della rete: la watchlist resta consultabile anche senza linea --- */
@@ -6676,11 +7060,48 @@ function initRipple(){
 }
 
 /* --- Alto contrasto: trasparenze piu' scure, testo piu' netto --- */
-function setContrasto(on){
-  document.body.classList.toggle('hc', !!on);
-  el.contrastBtn.classList.toggle('on', !!on);
-  el.contrastBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
-  store.set(STORE.hc, !!on);
+const TEMI = ['chiaro', 'scuro', 'contrasto'];
+
+function setTema(t, silenzioso){
+  const tema = TEMI.includes(t) ? t : 'scuro';
+  state.tema = tema;
+  document.body.classList.toggle('tema-chiaro', tema === 'chiaro');
+  document.body.classList.toggle('hc', tema === 'contrasto');
+  $$('[data-tema]', el.temaSeg).forEach(b => {
+    const on = b.dataset.tema === tema;
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+  store.set(STORE.tema, tema);
+  if (!silenzioso){
+    const nomi = { chiaro: 'Tema chiaro ☀️', scuro: 'Tema scuro 🌙', contrasto: 'Alto contrasto ◐' };
+    toast(nomi[tema], 'ok');
+  }
+}
+
+/* --- Menu impostazioni: un solo tasto in alto, tutto il resto qui dentro --- */
+function apriMenu(on){
+  if (on){
+    aggiornaStatiMenu();
+    openSheet(el.menuSheet);
+    el.menuBtn.setAttribute('aria-expanded', 'true');
+  } else {
+    closeSheet(el.menuSheet);
+    el.menuBtn.setAttribute('aria-expanded', 'false');
+  }
+}
+
+/* Le righe del menu dichiarano lo stato corrente sotto al titolo */
+function aggiornaStatiMenu(){
+  const stato = (btn, testo, attivo) => {
+    if (!btn) return;
+    const s = btn.querySelector('.menu-stato');
+    if (s) s.textContent = testo;
+    btn.classList.toggle('on', !!attivo);
+  };
+  stato(el.sfxBtn, sfx.on ? 'Attivi' : 'Muto', sfx.on);
+  const luci = document.body.classList.contains('dim');
+  stato(el.dimBtn, luci ? 'Abbassate' : 'Accese', luci);
 }
 
 /* =============== Drawer unico della watchlist =============== */
@@ -6735,7 +7156,7 @@ function apriWatchlist(on){
     el.wDrawer.hidden = false;
     document.body.classList.add('no-scroll');
     sfx.play('open');
-    buzz(12);
+    buzz(APTICA.apri);
     const primo = el.wDrawer.querySelector('.w-row, .sheet-x');
     if (primo) primo.focus();
   } else {
@@ -6824,7 +7245,7 @@ async function apriOled(){
   el.oled.hidden = false;
   document.body.classList.add('no-scroll');
   sfx.play('open');
-  buzz(15);
+  buzz(APTICA.apri);
   clearInterval(oledTimer);
   oledTimer = setInterval(aggiornaOled, 1000);
   el.oledClose.focus();
@@ -6852,13 +7273,15 @@ function aggiornaOledBtn(){
 /* =========================================================
    13. EVENTI
    ========================================================= */
-el.next.addEventListener('click', () => { next(); buzz(12); sfx.play('swipe'); });
-el.prev.addEventListener('click', () => { prev(); buzz(12); sfx.play('swipe'); });
+el.next.addEventListener('click', () => { next(); buzz(APTICA.micro); sfx.play('swipe'); });
+el.prev.addEventListener('click', () => { prev(); buzz(APTICA.micro); sfx.play('swipe'); });
 
 /* --- Creatore, audio, mini player, classifiche, esportazioni --- */
 el.creatorBtn.addEventListener('click', () => openSheet(el.creatorSheet));
 $('#creatorLink').addEventListener('click', () => openSheet(el.creatorSheet));
-[el.creatorSheet, el.filmoSheet, el.cittaSheet].forEach(sheet => {
+el.creatorBtn.addEventListener('click', () => closeSheet(el.menuSheet), true);
+[el.diceBtn, el.refresh].forEach(b => b && b.addEventListener('click', () => apriMenu(false)));
+[el.creatorSheet, el.filmoSheet, el.cittaSheet, el.menuSheet].forEach(sheet => {
   sheet.addEventListener('click', e => { if (e.target.closest('[data-close]')) closeSheet(sheet); });
 });
 el.sfxBtn.addEventListener('click', () => {
@@ -6866,6 +7289,7 @@ el.sfxBtn.addEventListener('click', () => {
   el.sfxBtn.classList.toggle('off', !on);
   el.sfxBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
   toast(on ? 'Suoni e vibrazione attivi 🔊' : 'Suoni e vibrazione disattivati 🔇', 'ok');
+  aggiornaStatiMenu();
 });
 el.pipBtn.addEventListener('click', togglePip);
 el.fsBtn.addEventListener('click', schermoIntero);
@@ -7104,12 +7528,19 @@ el.wShare.addEventListener('click', condividiWatchlist);
 el.wClear.addEventListener('click', () => { svuotaWatchlist(); renderWatchlist(); });
 
 /* --- Contrasto, countdown a schermo intero --- */
-el.contrastBtn.addEventListener('click', () => {
-  const on = !document.body.classList.contains('hc');
-  setContrasto(on);
+el.menuBtn.addEventListener('click', () => apriMenu(el.menuSheet.hidden));
+el.temaSeg.addEventListener('click', e => {
+  const b = e.target.closest('[data-tema]');
+  if (!b) return;
+  setTema(b.dataset.tema);
+  buzz(APTICA.apri);
   sfx.play('tap');
-  toast(on ? 'Alto contrasto attivo' : 'Alto contrasto disattivato', 'ok');
 });
+el.menuSheet.addEventListener('click', e => {
+  /* chiudendo si aggiorna lo stato: le voci restano coerenti alla riapertura */
+  if (e.target.closest('.menu-row') && !e.target.closest('a')) setTimeout(aggiornaStatiMenu, 60);
+});
+
 el.oledBtn.addEventListener('click', apriOled);
 el.oledClose.addEventListener('click', chiudiOled);
 
@@ -7189,7 +7620,8 @@ document.addEventListener('keydown', e => {
   }
   if (!el.filterMenu.hidden && e.key === 'Escape'){ e.preventDefault(); toggleFiltri(false); el.filtersBtn.focus(); return; }
   const sheetAperto = !el.creatorSheet.hidden ? el.creatorSheet
-    : (!el.filmoSheet.hidden ? el.filmoSheet : (!el.cittaSheet.hidden ? el.cittaSheet : null));
+    : (!el.filmoSheet.hidden ? el.filmoSheet
+    : (!el.cittaSheet.hidden ? el.cittaSheet : (!el.menuSheet.hidden ? el.menuSheet : null)));
   if (sheetAperto){
     if (e.key === 'Escape'){ e.preventDefault(); closeSheet(sheetAperto); }
     return;
@@ -7203,8 +7635,8 @@ document.addEventListener('keydown', e => {
   if (tag === 'input' || tag === 'textarea') return;
   if (e.key === '/'){ e.preventDefault(); openSearch(true); return; }
   if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k'){ e.preventDefault(); openSearch(true); return; }
-  if (e.key === 'ArrowRight'){ e.preventDefault(); next(); buzz(12); }
-  else if (e.key === 'ArrowLeft'){ e.preventDefault(); prev(); buzz(12); }
+  if (e.key === 'ArrowRight'){ e.preventDefault(); next(); buzz(APTICA.micro); }
+  else if (e.key === 'ArrowLeft'){ e.preventDefault(); prev(); buzz(APTICA.micro); }
   else if (e.key === 'Home'){ e.preventDefault(); goTo(0); }
   else if (e.key === 'End'){ e.preventDefault(); goTo(Math.max(cards.length - 1, 0)); }
   else if ((e.key === 'Enter' || e.key === ' ') && e.target === el.stage){ e.preventDefault(); openTrailer(); }
@@ -7244,12 +7676,13 @@ buildChipsExtra();
 state.perfBassa = rilevaPrestazioni();
 initRipple();
 initRete();
+initPullRefresh();
 initSwipeScheda();
 initMagnete();
 initAutoPip();
 misuraNavbar();
 syncNav();
-setContrasto(store.get(STORE.hc) === true);
+setTema(store.get(STORE.tema) || 'scuro', true);
 window.addEventListener('load', misuraNavbar);
 /* il jingle parte al primo gesto: i browser bloccano l'audio prima */
 document.addEventListener('pointerdown', () => { sfx.jingle(); avviaGiroscopio(); initScuotimento(); }, { once: true });
