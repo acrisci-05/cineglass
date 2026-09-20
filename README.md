@@ -98,14 +98,21 @@ livelli**: prima il territorio, poi il periodo.
 
 Qui serve essere precisi, perché l'API non dà quello che sembrerebbe ovvio. **TMDB espone un solo
 dato d'incasso per film: `revenue`, che è l'incasso mondiale.** Non esiste un incasso domestico
-statunitense né uno italiano nell'API. Quindi:
+statunitense né uno italiano nell'API. Quindi ogni classifica prende i dati da dove esistono
+davvero:
 
-- il territorio cambia **davvero quali film compaiono**, perché guida `region` in
-  `/movie/now_playing` e `/discover`: la programmazione italiana e quella americana sono liste
-  diverse, e lo sono anche le uscite di un dato anno in un paese o nell'altro;
-- il territorio **non può cambiare da solo la cifra**. Se il repository fornisce un file con gli
-  incassi di quel mercato la cifra diventa quella, in valuta locale; altrimenti resta l'incasso
-  mondiale e **l'etichetta della riga lo dichiara**.
+| Classifica | Da dove vengono i numeri |
+|---|---|
+| **Tutti i tempi** | Elenchi curati nel codice, uno per territorio: mondiale, italiano in euro, domestico USA in dollari. Qui il territorio cambia lista **e** cifre |
+| **In sala ora** | Lista da TMDB con `region`; cifre dal file di mercato se c'è, altrimenti l'incasso mondiale dichiarato come tale |
+| **Per anno** | `/discover` con `region`: cambia la lista (uscite di quel paese), la cifra resta mondiale |
+
+Le bandiere nei pulsanti sono **SVG disegnati nel file**, non emoji: Windows non ha un font per
+le bandiere e le renderizza come le due lettere del codice paese, `IT` e `US`.
+
+Dove la cifra non può essere locale, **l'etichetta della riga lo dichiara**: si legge
+`12,5 M€ · Incasso Italia` quando il dato è di mercato, `$410 M · Incasso mondiale` quando viene
+da TMDB, e non c'è modo di confonderli.
 
 Così una riga può leggersi `12,5 M€ · Incasso weekend · Italia` (dato di mercato reale) oppure
 `$410 M · Incasso mondiale` (dato TMDB), e non c'è modo di confonderli. È la stessa regola del
@@ -144,9 +151,31 @@ pochi giorni ha davvero zero su TMDB, e al posto di una cifra finta compare la p
 
 ### 🏆 Tutti i tempi
 
-Questa è l'unica delle tre che **non cambia** col territorio, e la nota sotto la classifica lo
-dice: né TMDB né l'elenco curato forniscono una classifica storica italiana o statunitense, quindi
-anche scegliendo Italia resta quella mondiale. Meglio scriverlo che fingere una differenza.
+Tre elenchi curati a mano, uno per territorio, perché TMDB ordina per `revenue` solo la prima
+pagina e su molti titoli storici il campo è vuoto o sbagliato: **la top all-time non si può
+costruire dall'API**.
+
+| Territorio | Fonte | Valuta | Voci |
+|---|---|---|---|
+| 🌐 Mondiale | Box Office Mojo / Wikipedia | USD | 30 |
+| 🇮🇹 Italia | Cinetel / ANICA | EUR | 18 |
+| 🇺🇸 USA | Box Office Mojo (*domestic*) | USD | 20 |
+
+**Sull'attendibilità delle cifre.** Quelle statunitensi e mondiali sono ampiamente pubblicate e
+stabili. Quelle italiane lo sono meno: Cinetel rileva il botteghino dal 1995, quindi i film
+precedenti (*La vita è bella*, *Titanic*) sono ricostruiti da importi in lire, e il primo posto
+è storicamente conteso fra *Avatar* e *Quo vado?*, che stanno a poche centinaia di migliaia di
+euro di distanza e cambiano ordine a seconda che si contino o no le riedizioni. La nota sotto la
+classifica lo scrive, e ogni riga ha il link 🌐 per controllare alla fonte.
+
+Gli elenchi non portano l'identificativo TMDB di ogni film — indovinarlo sarebbe peggio che non
+averlo — quindi i film senza `tmdb_id` vengono **cercati per titolo e anno**, accettando solo un
+risultato con l'anno giusto a meno di uno. E quando il film è stato trovato cercando, **il titolo
+curato non viene sostituito** da quello di TMDB: una ricerca può sbagliare film, e una cifra
+giusta sotto un titolo sbagliato è peggio di nessuna locandina.
+
+Ogni elenco si può sovrascrivere con un file del repository: `data/alltime.json` per il mondiale,
+`data/alltime-it.json` e `data/alltime-us.json` per i due mercati.
 
 TMDB ordina per `revenue` solo la prima pagina e su molti titoli storici il campo è vuoto o
 sbagliato: **la top all-time non si può costruire dall'API**. La tab parte quindi da un elenco
@@ -435,10 +464,20 @@ e un tremolio quando lo si toglie. Al tocco l'icona fa **POP!** e si sdoppia: un
 fissa come stato salvato sulla scheda, un clone vola lungo una **parabola** fino al secchiello
 🍿 nell'header, che rimbalza e fa scattare il contatore di +1. Vedi sotto per i dettagli.
 
-**CinePass con le forbici** — il biglietto in vetro si apre tagliandolo: la forbice ✂️ percorre
-la perforazione tratteggiata e a fine corsa svela il tagliando col QR, con la vibrazione aptica
-e una **pioggia di micro-schegge di vetro disegnata su `<canvas>`**. In silenzio: l'unico suono
-dell'app è il POP del popcorn (vedi sotto).
+**CinePass con le forbici** — il biglietto in vetro si apre tagliandolo, e si capisce subito:
+a riposo la forbice sta **ferma sul tratteggio**, centrata in verticale e pulsante piano, con
+accanto la scritta *✂️ Clicca per strappare il biglietto*; al posto del tagliando c'è la guida
+*Clicca sulla linea tratteggiata qui sopra per rivelare il tuo CinePass*. Al passaggio del mouse
+la linea si accende in rosso cinema e la forbice apre e chiude le lame. Al clic la forbice corre
+**da destra a sinistra** lungo la riga, la linea si spegne e il tagliando col QR scende con un
+fade-in — il biglietto passa da 384 a 680px, quindi lo scorrimento si vede davvero. Con la
+vibrazione aptica e una **pioggia di micro-schegge di vetro disegnata su `<canvas>`**, in
+silenzio: l'unico suono dell'app è il POP del popcorn (vedi sotto).
+
+Prima la forbice era `opacity: 0` a riposo: invisibile, e nessuno poteva intuire che la riga
+fosse cliccabile. Il tagliando ora è compresso a `max-height: 0` finché non si taglia, così
+l'area vuota è alta quanto la guida e non quanto il QR, e condivide la stessa cella di griglia
+con la guida: niente doppia altezza, niente salto di layout.
 
 **Altro** — vetro appannato anti-spoiler sulla scena post-credit (si pulisce strofinando),
 locandina a schermo intero al tap, interruttore "luci in sala" e **anteprima di 30 secondi della

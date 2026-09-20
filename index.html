@@ -291,7 +291,12 @@ a{color:inherit;text-decoration:none}
 .bo-terr button{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 17px;
   border-radius:999px;font-size:13px;font-weight:500;color:var(--muted);white-space:nowrap;
   transition:color .25s, background .25s}
-.bo-terr button .terr-f{font-size:15px;line-height:1}
+/* Bandiere disegnate in SVG e non con gli emoji: Windows non ha un font
+   per le bandiere e le rende come le due lettere del codice paese. */
+.bo-terr button .terr-f{width:21px;height:14px;flex:0 0 auto;display:block;
+  border-radius:2px;overflow:hidden}
+.bo-terr button[data-terr="ww"] .terr-f{color:var(--muted);transition:color .25s}
+.bo-terr button[data-terr="ww"].on .terr-f{color:var(--txt)}
 .bo-terr button:hover{color:var(--txt)}
 .bo-terr button.on{color:var(--txt);
   background:linear-gradient(120deg, color-mix(in oklab, var(--c1) 32%, transparent), color-mix(in oklab, var(--c2) 32%, transparent));
@@ -918,52 +923,93 @@ body.lights-out .beam{opacity:0}
 .cp-fact{padding:4px 9px;border-radius:999px;font-size:10.5px;color:var(--muted);
   background:rgba(255,255,255,.06);border:1px solid var(--stroke-soft);white-space:nowrap}
 .cp-fact.voto{color:#ffd67a;border-color:rgba(255,214,122,.32)}
-/* --- Separatore perforato con la forbice --- */
-.cp-taglio{position:relative;height:26px;margin:16px -22px 4px;cursor:pointer;
+/* --- Separatore perforato: qui si strappa il biglietto ---------------
+   Il punto e' l'affordance. Prima la forbice era invisibile a riposo e
+   nessuno poteva intuire che la riga fosse cliccabile: adesso sta ferma
+   sul tratteggio, pulsa piano e ha accanto la scritta che dice cosa fare. */
+.cp-taglio{position:relative;height:38px;margin:16px -22px 4px;cursor:pointer;
   touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .cp-linea{position:absolute;left:0;right:0;top:50%;height:2px;translate:0 -50%;width:100%;overflow:visible}
-.cp-linea line{stroke:rgba(255,255,255,.32);stroke-width:2;stroke-dasharray:7 6;stroke-linecap:round;
-  vector-effect:non-scaling-stroke}
-.cp-taglio:hover .cp-linea line{stroke:rgba(255,45,111,.6)}
+.cp-linea line{stroke:rgba(255,255,255,.34);stroke-width:2;stroke-dasharray:7 6;stroke-linecap:round;
+  vector-effect:non-scaling-stroke;transition:stroke .28s var(--ease)}
 /* anelli luminosi che bordano i due incavi: la maschera ne lascia solo la metà interna */
 .cp-taglio::before,.cp-taglio::after{content:'';position:absolute;top:50%;width:var(--notch,26px);
   height:var(--notch,26px);translate:0 -50%;border-radius:50%;pointer-events:none;
   box-shadow:inset 0 0 0 1px rgba(255,45,111,.42), inset 0 0 14px -4px rgba(255,45,111,.8)}
 .cp-taglio::before{left:calc(var(--notch,26px) / -2)}
 .cp-taglio::after{right:calc(var(--notch,26px) / -2)}
-.cp-forbice{position:absolute;top:0;left:0;width:30px;height:30px;display:grid;place-items:center;
-  font-size:16px;line-height:1;border-radius:50%;
+
+/* La scritta guida: sta sulla riga, con un velo dietro che buca il
+   tratteggio, cosi' si legge senza coprire la linea. */
+.tear-hint{position:absolute;left:50%;top:50%;translate:-50% -50%;z-index:2;
+  display:inline-flex;align-items:center;gap:7px;padding:5px 13px;border-radius:999px;
+  font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;
+  color:rgba(255,255,255,.72);background:rgba(18,18,24,.92);
+  border:1px solid rgba(255,45,111,.3);pointer-events:none;
+  /* lo spazio a destra e' della forbice: la scritta non ci finisce sotto */
+  max-width:calc(100% - 104px);overflow:hidden;text-overflow:ellipsis;
+  transition:color .28s var(--ease), border-color .28s var(--ease), opacity .3s var(--ease)}
+.cp-taglio:hover .tear-hint{color:#fff;border-color:rgba(255,59,92,.75)}
+
+/* La forbice: ferma a destra sulla riga, centrata in verticale. */
+.cp-forbice{position:absolute;right:16px;top:50%;translate:0 -50%;z-index:3;
+  width:32px;height:32px;display:grid;place-items:center;
+  font-size:16px;line-height:1;border-radius:50%;cursor:pointer;
   background:linear-gradient(150deg,#ffffff,#cfe9ff);
-  box-shadow:0 8px 20px -8px #000, 0 0 20px -5px rgba(0,242,254,.8);
-  opacity:0;pointer-events:none;will-change:offset-distance,rotate,scale,opacity;
-  offset-path:path("M 14 13 H 306");offset-distance:0%;offset-rotate:0deg}
-.cp-taglio.taglia .cp-linea line{stroke:rgba(255,45,111,.75)}
-/* La corsa della forbice: offset-distance la porta da un capo all'altro del
-   tracciato. rotate e scale restano proprieta' separate perche' transform e'
-   gia' occupato da offset-path e sovrascriverlo bloccherebbe la corsa. */
-.cp-taglio.taglia .cp-forbice{animation:cgTaglio var(--cp-ms,760ms) cubic-bezier(.6,.02,.35,1) forwards}
+  box-shadow:0 8px 20px -8px #000, 0 0 18px -6px rgba(255,59,92,.9);
+  pointer-events:none;will-change:transform,opacity;
+  animation:cgForbicePulse 2.6s ease-in-out infinite}
+@keyframes cgForbicePulse{
+  0%,100%{box-shadow:0 8px 20px -8px #000, 0 0 16px -7px rgba(255,59,92,.8);scale:1}
+  50%{box-shadow:0 8px 22px -8px #000, 0 0 26px -4px rgba(255,59,92,1);scale:1.08}}
+
+/* Hover: la riga si accende e la forbice apre e chiude le lame */
+.cp-taglio:hover .cp-linea line{stroke:#ff3b5c}
+.cp-taglio:hover{filter:drop-shadow(0 0 10px rgba(255,59,92,.5))}
+.cp-taglio:hover .cp-forbice{animation:cgForbiceApre .7s ease-in-out infinite}
+@keyframes cgForbiceApre{0%,100%{rotate:-11deg}50%{rotate:11deg}}
+
+/* Taglio: la forbice corre da destra a sinistra lungo la riga, la linea
+   si spegne e il tagliando si svela. */
+.cp-taglio.taglia{cursor:default}
+.cp-taglio.taglia .tear-hint{opacity:0}
+.cp-taglio.taglia .cp-linea line{stroke:#ff3b5c;animation:cgLineaTagliata var(--cp-ms,760ms) ease-in forwards}
+@keyframes cgLineaTagliata{
+  0%{stroke-opacity:1;transform:translateY(0)}
+  70%{stroke-opacity:.5}
+  100%{stroke-opacity:0;transform:translateY(-3px)}}
+.cp-taglio.taglia .cp-forbice{animation:cgTaglio var(--cp-ms,760ms) cubic-bezier(.55,.02,.35,1) forwards}
 @keyframes cgTaglio{
-  0%{offset-distance:0%;opacity:0;scale:.55;rotate:-20deg}
-  13%{opacity:1;scale:1;rotate:-9deg}
-  38%{rotate:9deg}
-  62%{rotate:-8deg}
-  86%{rotate:7deg}
-  93%{opacity:1;scale:1}
-  100%{offset-distance:100%;opacity:0;scale:.6;rotate:16deg}}
-/* Senza CSS Motion Path la forbice scorre con una traslazione: stesso gesto, meno curva. */
-@supports not (offset-path: path("M 0 0 H 10")){
-  .cp-forbice{top:50%;left:15px;margin:-15px 0 0 -15px}
-  .cp-taglio.taglia .cp-forbice{animation:cgTaglioPiano var(--cp-ms,760ms) cubic-bezier(.6,.02,.35,1) forwards}
-  @keyframes cgTaglioPiano{
-    0%{translate:0 0;opacity:0;scale:.55}
-    13%{opacity:1;scale:1}
-    93%{opacity:1;scale:1}
-    100%{translate:var(--cp-w,280px) 0;opacity:0;scale:.6}}
-}
+  0%{transform:translateX(0);rotate:-14deg;scale:1;opacity:1}
+  12%{rotate:12deg;scale:1.12}
+  30%{rotate:-12deg}
+  50%{rotate:12deg}
+  70%{rotate:-12deg}
+  88%{rotate:10deg;opacity:1;scale:1}
+  100%{transform:translateX(calc(-1 * var(--cp-corsa,260px)));rotate:16deg;scale:.75;opacity:0}}
+
 /* --- Tagliando: si svela a taglio finito --- */
-.cp-body{visibility:hidden;opacity:0;transform:translate3d(0,-10px,0) scale(.97);
-  transition:opacity .42s var(--ease), transform .5s var(--elastic), visibility 0s linear .5s}
-.cinepass.aperto .cp-body{visibility:visible;opacity:1;transform:none;transition-delay:0s}
+/* A riposo il tagliando e' compresso a zero: cosi' prima del taglio
+   l'area vuota e' alta quanto la guida e non quanto il QR, e aprendolo
+   si ottiene lo scorrimento verso il basso invece di un lampo. */
+.cp-body{max-height:0;overflow:hidden;visibility:hidden;opacity:0;
+  transform:translate3d(0,-14px,0) scale(.97);
+  transition:max-height .55s var(--ease), opacity .45s var(--ease),
+             transform .55s var(--elastic), visibility 0s linear .55s}
+.cinepass.aperto .cp-body{max-height:1400px;visibility:visible;opacity:1;transform:none;transition-delay:0s}
+/* Prima del taglio al posto del tagliando c'e' la guida, non il vuoto.
+   Le due cose stanno nella stessa cella di griglia: cosi' l'area non
+   raddoppia e il tagliando non fa saltare il layout quando compare. */
+.cp-slot{display:grid}
+.cp-slot > *{grid-area:1 / 1}
+.cp-attesa{display:grid;place-items:center;align-content:center;gap:9px;min-height:156px;
+  padding:22px 18px;text-align:center;overflow:hidden;
+  font-size:12px;line-height:1.6;color:rgba(255,255,255,.4);
+  transition:max-height .45s var(--ease), min-height .45s var(--ease),
+             padding .45s var(--ease), opacity .3s var(--ease), visibility 0s linear .45s}
+.cp-attesa .cp-attesa-ico{font-size:26px;opacity:.5}
+.cinepass.aperto .cp-attesa{max-height:0;min-height:0;padding:0;opacity:0;visibility:hidden;pointer-events:none}
+
 .cp-qr{display:block;margin:16px auto 0;padding:11px;border-radius:16px;background:#fff;line-height:0;
   box-shadow:0 16px 34px -18px #000, 0 0 0 1px rgba(255,255,255,.5);
   transition:transform .4s var(--elastic), box-shadow .3s}
@@ -1027,6 +1073,8 @@ body.tema-chiaro .cinepass .pop-btn.salvato,body.hc .cinepass .pop-btn.salvato{c
   .cp-badge{position:static;display:inline-block;margin-bottom:12px}
   .cp-head{padding-right:0}
   .cp-taglio{margin-left:-16px;margin-right:-16px}
+  .hint-long{display:none}
+  .tear-hint{font-size:9.5px;letter-spacing:.04em;padding:5px 11px;max-width:calc(100% - 92px)}
   .cp-actions .btn{flex:1 1 100%}
   .cp-qr canvas{width:150px;height:150px}
   .creator-head{gap:12px}
@@ -2702,13 +2750,22 @@ body.trascina .card-play,body.trascina .card-quick,body.trascina .card-bucket{po
           </div>
         </header>
 
-        <!-- Separatore perforato: la forbice lo percorre e svela il tagliando -->
+        <!-- Separatore perforato: si clicca qui, la forbice lo percorre e svela il tagliando -->
         <div class="cp-taglio" id="cpTaglio" role="button" tabindex="0"
-             aria-label="Taglia il biglietto e mostra il codice QR" title="Taglia il biglietto">
+             aria-label="Strappa il biglietto e mostra il codice QR" title="Clicca per strappare il biglietto">
           <svg class="cp-linea" viewBox="0 0 320 2" preserveAspectRatio="none" aria-hidden="true">
             <line x1="0" y1="1" x2="320" y2="1"></line>
           </svg>
+          <span class="tear-hint" id="cpHint">✂️ Clicca per strappare<span class="hint-long"> il biglietto</span></span>
           <span class="cp-forbice" id="cpForbice" aria-hidden="true">✂️</span>
+        </div>
+
+        <!-- Guida e tagliando occupano la stessa cella: prima del taglio si
+             vede la guida, dopo il QR, e l'altezza non cambia sotto i piedi -->
+        <div class="cp-slot">
+        <div class="cp-attesa" id="cpAttesa" aria-hidden="true">
+          <span class="cp-attesa-ico">🎫</span>
+          <span>Clicca sulla linea tratteggiata qui sopra<br>per rivelare il tuo CinePass</span>
         </div>
 
         <div class="cp-body" id="cpBody">
@@ -2735,6 +2792,7 @@ body.trascina .card-play,body.trascina .card-quick,body.trascina .card-bucket{po
 
           <div class="cp-pop" id="cpPop"></div>
         </div>
+        </div><!-- /.cp-slot -->
 
         <canvas class="shards" id="cpShards" aria-hidden="true"></canvas>
       </section>
@@ -2762,11 +2820,47 @@ body.trascina .card-play,body.trascina .card-quick,body.trascina .card-bucket{po
     <div class="bo-filtri">
       <div class="bo-terr" id="boTerr" role="group" aria-label="Territorio">
         <button type="button" data-terr="it" class="on" aria-pressed="true">
-          <span class="terr-f" aria-hidden="true">🇮🇹</span><span class="terr-n">Italia</span></button>
+          <svg class="terr-f" viewBox="0 0 21 14" aria-hidden="true" focusable="false">
+            <rect width="21" height="14" rx="2" fill="#f5f5f5"/>
+            <path d="M0 2a2 2 0 0 1 2-2h5v14H2a2 2 0 0 1-2-2Z" fill="#008C45"/>
+            <path d="M14 0h5a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-5Z" fill="#CD212A"/>
+            <rect width="21" height="14" rx="2" fill="none" stroke="rgba(0,0,0,.25)" stroke-width=".7"/>
+          </svg><span class="terr-n">Italia</span></button>
         <button type="button" data-terr="us" aria-pressed="false">
-          <span class="terr-f" aria-hidden="true">🇺🇸</span><span class="terr-n">USA</span></button>
+          <svg class="terr-f" viewBox="0 0 21 14" aria-hidden="true" focusable="false">
+            <defs><clipPath id="cgUS"><rect width="21" height="14" rx="2"/></clipPath></defs>
+            <g clip-path="url(#cgUS)">
+              <rect width="21" height="14" fill="#f5f5f5"/>
+              <g fill="#B22234">
+                <rect width="21" height="1.08" y="0"/><rect width="21" height="1.08" y="2.15"/>
+                <rect width="21" height="1.08" y="4.31"/><rect width="21" height="1.08" y="6.46"/>
+                <rect width="21" height="1.08" y="8.62"/><rect width="21" height="1.08" y="10.77"/>
+                <rect width="21" height="1.08" y="12.92"/>
+              </g>
+              <rect width="9" height="7.54" fill="#3C3B6E"/>
+              <g fill="#fff">
+                <circle cx="1.6" cy="1.3" r=".45"/><circle cx="3.6" cy="1.3" r=".45"/>
+                <circle cx="5.6" cy="1.3" r=".45"/><circle cx="7.6" cy="1.3" r=".45"/>
+                <circle cx="2.6" cy="2.6" r=".45"/><circle cx="4.6" cy="2.6" r=".45"/>
+                <circle cx="6.6" cy="2.6" r=".45"/>
+                <circle cx="1.6" cy="3.9" r=".45"/><circle cx="3.6" cy="3.9" r=".45"/>
+                <circle cx="5.6" cy="3.9" r=".45"/><circle cx="7.6" cy="3.9" r=".45"/>
+                <circle cx="2.6" cy="5.2" r=".45"/><circle cx="4.6" cy="5.2" r=".45"/>
+                <circle cx="6.6" cy="5.2" r=".45"/>
+                <circle cx="1.6" cy="6.5" r=".45"/><circle cx="3.6" cy="6.5" r=".45"/>
+                <circle cx="5.6" cy="6.5" r=".45"/><circle cx="7.6" cy="6.5" r=".45"/>
+              </g>
+            </g>
+            <rect width="21" height="14" rx="2" fill="none" stroke="rgba(0,0,0,.25)" stroke-width=".7"/>
+          </svg><span class="terr-n">USA</span></button>
         <button type="button" data-terr="ww" aria-pressed="false">
-          <span class="terr-f" aria-hidden="true">🌐</span><span class="terr-n">Mondiale</span></button>
+          <svg class="terr-f" viewBox="0 0 21 14" aria-hidden="true" focusable="false"
+               fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round">
+            <circle cx="10.5" cy="7" r="6"/>
+            <path d="M4.5 7h12"/>
+            <path d="M10.5 1c2.4 2.1 2.4 9.9 0 12-2.4-2.1-2.4-9.9 0-12Z"/>
+            <path d="M6 3.2c2.7 1.4 6.3 1.4 9 0M6 10.8c2.7-1.4 6.3-1.4 9 0" opacity=".65"/>
+          </svg><span class="terr-n">Mondiale</span></button>
       </div>
       <div class="bo-tabs" id="boTabs" role="group" aria-label="Periodo">
         <button type="button" data-botab="sala" class="on" aria-pressed="true">🎟️ In sala ora</button>
@@ -3300,6 +3394,7 @@ const el = {
   cinePass:$('#cinePass'), cpPoster:$('#cpPoster'), cpTitle:$('#cpTitle'), cpMeta:$('#cpMeta'),
   cpFacts:$('#cpFacts'), cpTaglio:$('#cpTaglio'), cpForbice:$('#cpForbice'), cpBody:$('#cpBody'),
   cpQr:$('#cpQr'), cpQrBtn:$('#cpQrBtn'), cpUrl:$('#cpUrl'), cpCode:$('#cpCode'),
+  cpAttesa:$('#cpAttesa'),
   cpCopy:$('#cpCopy'), cpCopyLbl:$('#cpCopyLbl'), cpSave:$('#cpSave'), cpPop:$('#cpPop'),
   cpShards:$('#cpShards'), cpRicevuto:$('#cpRicevuto'), cprPop:$('#cprPop'),
   icsBtn:$('#icsBtn'), cinemaBtn:$('#cinemaBtn'), inviteBtn:$('#inviteBtn'),
@@ -5128,7 +5223,7 @@ const linkWiki = t => 'https://it.wikipedia.org/w/index.php?search=' + encodeURI
    con { fonte, aggiornato, film: [{titolo, anno, incasso, tmdb_id}] }.
    --------------------------------------------------------- */
 const ALLTIME_AGGIORNATO = '2026-05-31';
-const ALLTIME = [
+const ALLTIME_WW = [
   { titolo: 'Avatar',                                    anno: 2009, incasso: 2923706026, tmdb_id: 19995 },
   { titolo: 'Avengers: Endgame',                         anno: 2019, incasso: 2799439100, tmdb_id: 299534 },
   { titolo: 'Avatar: La via dell\u2019acqua',              anno: 2022, incasso: 2320250281, tmdb_id: 76600 },
@@ -5160,6 +5255,82 @@ const ALLTIME = [
   { titolo: 'Cattivissimo me \u2013 Minions',              anno: 2015, incasso: 1159444662, tmdb_id: 211672 },
   { titolo: 'Captain America: Civil War',                anno: 2016, incasso: 1153337496, tmdb_id: 271110 }
 ];
+
+/* ---------------------------------------------------------------------
+   Classifica storica ITALIANA, in euro.
+   Incassi nelle sale italiane, nominali (non adeguati all'inflazione).
+   La fonte di riferimento e' Cinetel, che rileva il botteghino italiano
+   dal 1995: i film precedenti sono ricostruiti da cifre in lire e vanno
+   presi con piu' cautela, come dice la nota sotto la classifica.
+   Il primo posto e' storicamente conteso fra Avatar e Quo vado?, che
+   stanno a poche centinaia di migliaia di euro di distanza e cambiano
+   ordine a seconda che si contino o no le riedizioni.
+   --------------------------------------------------------------------- */
+const ALLTIME_IT = [
+  { titolo: 'Avatar',                                anno: 2009, incasso: 65700000 },
+  { titolo: 'Quo vado?',                             anno: 2016, incasso: 65300000 },
+  { titolo: 'Sole a catinelle',                      anno: 2013, incasso: 51900000 },
+  { titolo: 'Tolo Tolo',                             anno: 2020, incasso: 46200000 },
+  { titolo: 'Che bella giornata',                    anno: 2011, incasso: 43400000 },
+  { titolo: 'Titanic',                               anno: 1998, incasso: 39400000 },
+  { titolo: 'C\u2019\u00e8 ancora domani',                   anno: 2023, incasso: 36600000 },
+  { titolo: 'Natale sul Nilo',                       anno: 2002, incasso: 32800000 },
+  { titolo: 'La vita \u00e8 bella',                      anno: 1997, incasso: 31300000 },
+  { titolo: 'Il Signore degli Anelli: Il ritorno del re', anno: 2003, incasso: 31200000 },
+  { titolo: 'Avengers: Endgame',                     anno: 2019, incasso: 30300000 },
+  { titolo: 'Benvenuti al Sud',                      anno: 2010, incasso: 29800000 },
+  { titolo: 'Harry Potter e la pietra filosofale',   anno: 2001, incasso: 27100000 },
+  { titolo: 'Quasi amici \u2013 Intouchables',           anno: 2011, incasso: 26000000 },
+  { titolo: 'Frozen II \u2013 Il segreto di Arendelle',  anno: 2019, incasso: 25900000 },
+  { titolo: 'Inside Out 2',                          anno: 2024, incasso: 23100000 },
+  { titolo: 'Perfetti sconosciuti',                  anno: 2016, incasso: 17300000 },
+  { titolo: 'Cado dalle nubi',                       anno: 2009, incasso: 14000000 }
+];
+
+/* ---------------------------------------------------------------------
+   Classifica storica STATUNITENSE, in dollari.
+   Incasso "domestic" (Stati Uniti e Canada), nominale e comprensivo
+   delle riedizioni, come lo pubblica Box Office Mojo.
+   --------------------------------------------------------------------- */
+const ALLTIME_US = [
+  { titolo: 'Star Wars: Il risveglio della Forza',   anno: 2015, incasso: 936662225, tmdb_id: 140607 },
+  { titolo: 'Avengers: Endgame',                     anno: 2019, incasso: 858373000, tmdb_id: 299534 },
+  { titolo: 'Spider-Man: No Way Home',               anno: 2021, incasso: 814866759, tmdb_id: 634649 },
+  { titolo: 'Avatar',                                anno: 2009, incasso: 785221649, tmdb_id: 19995 },
+  { titolo: 'Top Gun: Maverick',                     anno: 2022, incasso: 718732821, tmdb_id: 361743 },
+  { titolo: 'Black Panther',                         anno: 2018, incasso: 700426566, tmdb_id: 284054 },
+  { titolo: 'Avatar: La via dell\u2019acqua',           anno: 2022, incasso: 684075767, tmdb_id: 76600 },
+  { titolo: 'Titanic',                               anno: 1997, incasso: 674292608, tmdb_id: 597 },
+  { titolo: 'Jurassic World',                        anno: 2015, incasso: 653406625, tmdb_id: 135397 },
+  { titolo: 'Inside Out 2',                          anno: 2024, incasso: 652980194, tmdb_id: 1022789 },
+  { titolo: 'Deadpool & Wolverine',                  anno: 2024, incasso: 636745858, tmdb_id: 533535 },
+  { titolo: 'Barbie',                                anno: 2023, incasso: 636238421, tmdb_id: 346698 },
+  { titolo: 'The Avengers',                          anno: 2012, incasso: 623357910, tmdb_id: 24428 },
+  { titolo: 'Star Wars: Gli ultimi Jedi',            anno: 2017, incasso: 620181382, tmdb_id: 181808 },
+  { titolo: 'Gli Incredibili 2',                     anno: 2018, incasso: 608581744, tmdb_id: 260513 },
+  { titolo: 'Super Mario Bros. \u2013 Il film',         anno: 2023, incasso: 574934330, tmdb_id: 502356 },
+  { titolo: 'Il Re Leone',                           anno: 2019, incasso: 543638043, tmdb_id: 420818 },
+  { titolo: 'Il cavaliere oscuro',                   anno: 2008, incasso: 535234033, tmdb_id: 155 },
+  { titolo: 'Rogue One: A Star Wars Story',          anno: 2016, incasso: 532177324, tmdb_id: 330459 },
+  { titolo: 'La Bella e la Bestia',                  anno: 2017, incasso: 504014165, tmdb_id: 321612 }
+];
+
+/* Ogni territorio ha il suo elenco, la sua valuta e la sua fonte. */
+const ALLTIME = {
+  ww: { film: ALLTIME_WW, valuta: 'USD',
+        fonte: 'elenco curato \u00b7 Box Office Mojo / Wikipedia',
+        nota: 'Incassi mondiali lordi in dollari, riedizioni comprese.' },
+  it: { film: ALLTIME_IT, valuta: 'EUR',
+        fonte: 'elenco curato \u00b7 Cinetel / ANICA',
+        nota: 'Incassi nelle sale italiane in euro, nominali. Cinetel rileva il botteghino ' +
+              'italiano dal 1995: le cifre dei film precedenti sono ricostruite da importi in ' +
+              'lire e vanno prese con pi\u00f9 cautela. Il primo posto \u00e8 storicamente conteso fra ' +
+              'Avatar e Quo vado?, a poche centinaia di migliaia di euro di distanza.' },
+  us: { film: ALLTIME_US, valuta: 'USD',
+        fonte: 'elenco curato \u00b7 Box Office Mojo (domestic)',
+        nota: 'Incasso domestico, cio\u00e8 Stati Uniti e Canada, in dollari e comprensivo delle ' +
+              'riedizioni. Non \u00e8 l\u2019incasso mondiale: per quello c\u2019\u00e8 la scheda Mondiale.' }
+};
 
 /* --- Cache locale: una classifica al giorno basta e avanza --- */
 const BO_CACHE = 'cineglass:classifiche:v1';
@@ -5212,16 +5383,24 @@ async function loadLocalBoxOffice(terr){
 }
 
 /* L'elenco storico si puo' sovrascrivere senza ricompilare nulla */
-async function caricaAllTime(){
+/* L'elenco storico di ogni territorio si puo' sovrascrivere con un file
+   del repository, senza ricompilare niente: data/alltime-it.json,
+   data/alltime-us.json, data/alltime.json per il mondiale. */
+async function caricaAllTime(terr){
+  const k = (terr && ALLTIME[terr]) ? terr : 'ww';
+  const base = ALLTIME[k];
+  const via = k === 'ww' ? './data/alltime.json' : `./data/alltime-${k}.json`;
   try{
-    const res = await fetch('./data/alltime.json', { cache: 'no-cache' });
+    const res = await fetch(via, { cache: 'no-cache' });
     if (res.ok){
       const d = await res.json();
       if (d && Array.isArray(d.film) && d.film.length)
-        return { fonte: d.fonte || 'data/alltime.json', aggiornato: d.aggiornato || ALLTIME_AGGIORNATO, film: d.film };
+        return { fonte: d.fonte || via, aggiornato: d.aggiornato || ALLTIME_AGGIORNATO,
+                 film: d.film, valuta: d.valuta || base.valuta, nota: d.nota || base.nota };
     }
   }catch(err){ /* file assente: vale l'elenco integrato */ }
-  return { fonte: 'elenco curato \u00b7 Box Office Mojo / Wikipedia', aggiornato: ALLTIME_AGGIORNATO, film: ALLTIME };
+  return { fonte: base.fonte, aggiornato: ALLTIME_AGGIORNATO,
+           film: base.film, valuta: base.valuta, nota: base.nota };
 }
 
 const normTitle = t => String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
@@ -5341,29 +5520,30 @@ async function loadBoxOfficeSala(key, mio){
   boCacheSet('sala:' + t.chiave, righe);
 }
 
-/* --- B. La classifica storica di sempre --- */
+/* --- B. La classifica storica del territorio scelto --- */
 async function loadBoxOfficeStorico(key, mio){
   const t = territorio();
-  const fonte = await caricaAllTime();
+  const fonte = await caricaAllTime(t.chiave);
   if (mio !== boSeq) return;
-  el.boTitle.textContent = '\ud83c\udfc6 I maggiori incassi di sempre';
+  const dove = t.chiave === 'ww' ? 'nel mondo' : t.chiave === 'it' ? 'in Italia' : 'negli Stati Uniti';
+  el.boTitle.textContent = `\ud83c\udfc6 I maggiori incassi di sempre ${dove}`;
   el.boSource.textContent = 'Fonte: ' + fonte.fonte;
-  el.boIntro.textContent = `I ${fonte.film.length} film che hanno incassato di pi\u00f9 nella storia del cinema mondiale.`;
-  el.boNote.textContent = 'Incassi mondiali lordi in dollari, riedizioni comprese e senza adeguamento ' +
-    'all\u2019inflazione: un film del 1997 e uno del 2025 non si confrontano davvero alla pari. Elenco curato ' +
-    'a mano su Box Office Mojo / Wikipedia e aggiornato al ' + fmtDate(fonte.aggiornato) +
-    '; tocca \ud83c\udf10 su una riga per controllare la cifra alla fonte. Locandine e schede vengono da TMDB.' +
-    (t.chiave === 'ww' ? '' :
-      ` Non esiste una classifica storica ${t.chiave === 'it' ? 'italiana' : 'statunitense'}: ` +
-      `n\u00e9 TMDB n\u00e9 l\u2019elenco curato la forniscono, quindi anche scegliendo ${t.nome} ` +
-      `questa resta la classifica mondiale.`);
+  el.boIntro.textContent = t.chiave === 'ww'
+    ? `I ${fonte.film.length} film che hanno incassato di pi\u00f9 nella storia del cinema mondiale.`
+    : `I ${fonte.film.length} film che hanno incassato di pi\u00f9 di sempre nelle sale ${t.aggettivo}.`;
+  el.boNote.textContent = fonte.nota + ' Cifre nominali, non adeguate all\u2019inflazione: un film del ' +
+    '1997 e uno del 2025 non si confrontano davvero alla pari. Elenco curato a mano e aggiornato al ' +
+    fmtDate(fonte.aggiornato) + '; tocca \ud83c\udf10 su una riga per controllare la cifra alla fonte. ' +
+    'Locandine e schede vengono da TMDB.';
 
-  const cache = boCacheGet('storica');
+  const ambito = t.chiave;
+  const chiave = 'storica:' + ambito;
+  const cache = boCacheGet(chiave);
   if (cache && cache.length === fonte.film.length){ pubblica(cache, mio); return; }
 
   const righe = fonte.film
     .map(f => ({ movie: null, titolo: f.titolo, anno: f.anno || null,
-                 totale: Number(f.incasso) || 0, tmdb: f.tmdb_id || 0, ambito: 'ww' }))
+                 totale: Number(f.incasso) || 0, tmdb: f.tmdb_id || 0, ambito }))
     .filter(r => r.totale > 0)
     .sort((a, b) => b.totale - a.totale);
   if (!righe.length){ classificaVuota('L\u2019elenco storico non contiene cifre valide.'); return; }
@@ -5371,20 +5551,56 @@ async function loadBoxOfficeStorico(key, mio){
   /* La classifica si vede subito: le locandine arrivano un attimo dopo */
   if (!pubblica(righe, mio)) return;
   await inBatches(righe, 5, async r => {
-    if (!r.tmdb) return;
     try{
-      const d = await fetchJSON(`${API_BASE}/movie/${r.tmdb}?api_key=${encodeURIComponent(key)}&language=it-IT`);
-      if (d && d.id){
-        r.movie = slimMovie(Object.assign({}, d, { genre_ids: (d.genres || []).map(g => g.id) }));
-        if (d.title) r.titolo = d.title;
-      }
+      /* Senza tmdb_id il film si cerca per titolo e anno invece di
+         indovinare un identificativo: meglio una ricerca in piu' che una
+         locandina sbagliata accanto a una cifra giusta. */
+      const cercato = !r.tmdb;
+      const id = r.tmdb || await cercaIdTmdb(key, r.titolo, r.anno);
+      if (!id) return;
+      const d = await fetchJSON(`${API_BASE}/movie/${id}?api_key=${encodeURIComponent(key)}&language=it-IT`);
+      if (!d || !d.id) return;
+      r.movie = slimMovie(Object.assign({}, d, { genre_ids: (d.genres || []).map(g => g.id) }));
+      /* Il titolo curato si sostituisce solo quando l'identificativo era
+         nell'elenco. Se il film e' stato trovato cercando, il titolo resta
+         quello verificato a mano: una ricerca puo' sbagliare film, e una
+         cifra giusta sotto un titolo sbagliato e' peggio di nessuna
+         locandina. */
+      if (!cercato && d.title) r.titolo = d.title;
     }catch(err){ /* resta il titolo curato e la locandina generata al volo */ }
   });
   if (!pubblica(righe, mio)) return;
-  boCacheSet('storica', righe);
+  boCacheSet(chiave, righe);
 }
 
-/* --- C. Top box office anno per anno, nel territorio scelto --- */
+/* Risoluzione titolo -> id TMDB, con memoria: gli elenchi curati non
+   portano l'identificativo di ogni film e indovinarlo sarebbe peggio. */
+const IDS_KEY = 'cineglass:idtmdb:v1';
+async function cercaIdTmdb(key, titolo, anno){
+  const memoria = store.get(IDS_KEY) || {};
+  const k = normTitle(titolo) + ':' + (anno || '');
+  if (memoria[k] !== undefined) return memoria[k];
+  let id = 0;
+  try{
+    const q = `${API_BASE}/search/movie?api_key=${encodeURIComponent(key)}&language=it-IT` +
+              `&query=${encodeURIComponent(titolo)}` + (anno ? `&year=${anno}` : '');
+    const d = await fetchJSON(q);
+    /* Si accetta solo un risultato con l'anno giusto a meno di uno: TMDB
+       restituisce comunque qualcosa anche quando il film non c'e'. */
+    const primo = (d && d.results ? d.results : []).find(x => {
+      if (!x || !x.id) return false;
+      if (!anno) return true;
+      const y = Number(String(x.release_date || '').slice(0, 4));
+      return !y || Math.abs(y - anno) <= 1;
+    });
+    if (primo) id = primo.id;
+  }catch(err){ /* nessun risultato: si resta con la locandina generata */ }
+  memoria[k] = id;
+  store.set(IDS_KEY, memoria);
+  return id;
+}
+
+/* --- C. Top box office anno per anno, nel territorio scelto --- *//* --- C. Top box office anno per anno, nel territorio scelto --- */
 async function loadBoxOfficeAnno(key, mio){
   const t = territorio();
   const anno = state.boAnno || new Date(now()).getFullYear();
@@ -7575,13 +7791,14 @@ function rimbalzaSecchiello(){
    ========================================================= */
 /* La forbice corre su un percorso calcolato sulla larghezza reale del
    biglietto: con un path fisso offset-distance andrebbe fuori misura. */
+/* La forbice parte ferma a destra e corre verso sinistra: la lunghezza
+   della corsa dipende dalla larghezza reale del biglietto, quindi si
+   misura invece di indovinarla. */
 function misuraTaglio(){
   const box = el.cpTaglio.getBoundingClientRect();
   if (!box.width) return;
-  const bordo = 15, y = Math.round(box.height / 2);
-  const largo = Math.max(40, Math.round(box.width) - bordo * 2);
-  el.cpForbice.style.offsetPath = 'path("M ' + bordo + ' ' + y + ' H ' + (bordo + largo) + '")';
-  el.cpTaglio.style.setProperty('--cp-w', largo + 'px');
+  const corsa = Math.max(40, Math.round(box.width) - 48);
+  el.cpTaglio.style.setProperty('--cp-corsa', corsa + 'px');
   /* gli incavi vanno esattamente all'altezza della perforazione */
   const alto = el.cpTaglio.offsetTop + el.cpTaglio.offsetHeight / 2;
   el.cinePass.style.setProperty('--cut', Math.round(alto) + 'px');
@@ -7589,15 +7806,15 @@ function misuraTaglio(){
 
 function apriCinePass(id){
   el.cinePass.classList.add('aperto');
+  el.cpAttesa.setAttribute('aria-hidden', 'true');
   el.cinePass.dataset.tagliato = String(id == null ? (el.cinePass.dataset.id || '') : id);
 }
 
 const CP_TAGLIO_MS = 760;
 
-/* Il taglio: la forbice percorre il tratteggio e a fine corsa svela il QR.
-   Il tracciato e' un CSS Motion Path — offset-path lo definisce, misuraTaglio
-   lo adatta alla larghezza reale del biglietto e le keyframe fanno avanzare
-   offset-distance da 0% a 100% ruotando la forbice lungo la linea. */
+/* Il taglio: la forbice parte da destra, dove sta ferma a riposo, e corre
+   verso sinistra lungo il tratteggio aprendo e chiudendo le lame. A fine
+   corsa la linea si spegne e il tagliando col QR si svela. */
 function tagliaCinePass(){
   const movie = movies()[state.activeIndex];
   if (!movie) return;
@@ -7660,6 +7877,7 @@ function renderCinePass(movie, details){
   if (el.cinePass.dataset.tagliato !== String(movie.id)){
     el.cinePass.classList.remove('aperto');
     el.cpTaglio.classList.remove('taglia');
+    el.cpAttesa.setAttribute('aria-hidden', 'false');
     if (REDUCED) apriCinePass(movie.id);
   }
   sincronizzaPop();
