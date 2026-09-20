@@ -1,7 +1,13 @@
 # CineGlass
 
-Web app single-page (un solo file `index.html`, zero build, zero server) con interfaccia
-**Liquid Glass** per scoprire i film prossimamente al cinema in Italia tramite le API di TMDB.
+Web app single-page (un solo file `index.html`, zero build, zero dipendenze esterne) con
+interfaccia **Liquid Glass** per scoprire i film prossimamente al cinema in Italia tramite le
+API di TMDB.
+
+Accanto a `index.html` ci sono solo file statici, nessuno dei quali va compilato: `manifest.json`
+e `sw.js` servono a installare l'app sulla schermata Home (vedi
+[Installare CineGlass sul telefono](#installare-cineglass-sul-telefono)), `icons/` tiene le icone,
+`data/` i file facoltativi per correggere gli incassi senza toccare il codice.
 
 ## Avvio rapido
 
@@ -190,7 +196,11 @@ pulsante 🌐 che apre la ricerca su Box Office Mojo: la cifra si verifica alla 
 senza doversi fidare dell'elenco integrato. La stessa coppia di link (🌐 Box Office Mojo,
 📖 Scheda Wikipedia) compare anche nella scheda di dettaglio di ogni film.
 
-Per aggiornare l'elenco senza toccare il codice basta un `data/alltime.json`:
+Per aggiornare un elenco senza toccare il codice basta il file del territorio. Il caricatore
+accetta **due formati**, perché i dati arrivano sia scritti a mano sia esportati da un foglio
+di calcolo.
+
+Formato esteso, con la fonte e la data del controllo:
 
 ```json
 {
@@ -201,6 +211,28 @@ Per aggiornare l'elenco senza toccare il codice basta un `data/alltime.json`:
   ]
 }
 ```
+
+Formato tabellare, quello dei file `data/alltime-it.json` e `data/alltime-us.json`
+già presenti nel repository:
+
+```json
+[
+  {
+    "title": "Avatar",
+    "original_title": "Avatar",
+    "year": 2009,
+    "revenue": 65700000,
+    "currency": "EUR",
+    "tmdb_id": 19995,
+    "source_note": "Dato Cinetel/ANICA · include le riedizioni 2010 e 2022"
+  }
+]
+```
+
+Gli importi sono **interi puri** nella valuta del territorio (`65700000` = 65,7 M€), le righe
+vengono riordinate per incasso al caricamento, e `tmdb_id` può essere `null`: in quel caso il
+film si cerca per titolo e anno, con `original_title` come secondo tentativo — *Quasi amici* su
+TMDB sta come *Intouchables*, e senza il titolo originale resterebbe senza locandina.
 
 ### 📅 Per anno
 
@@ -657,6 +689,95 @@ ripubblicare l'app: `index.html` funziona comunque da solo, senza di essi. Nessu
 sistema: anche la richiesta della città per gli orari è un foglio in vetro, e ogni conferma passa
 dalle pillole *toast* traslucide ancorate in basso al centro. Nessun service
 worker e nessun manifest: è un sito statico puro, pronto per GitHub Pages o Vercel.
+
+## Installare CineGlass sul telefono
+
+L'app si può aggiungere alla schermata Home e aprirsi a schermo intero, senza barra del browser.
+Servono tre pezzi, tutti nel repository:
+
+| File | A cosa serve |
+|---|---|
+| `manifest.json` | nome, colori, orientamento e icone (192, 512 e una **maskable** 512) |
+| `sw.js` | service worker minimo: rende l'app installabile e la fa aprire anche offline |
+| `icons/` | le icone PNG, generate dal marchio in testata |
+
+`start_url` e `scope` sono `"./"` e non `"/"`: su GitHub Pages il sito vive in una sottocartella
+(`/cineglass/`), e un percorso assoluto punterebbe alla radice del dominio, fuori dall'app.
+
+**Il service worker non tocca TMDB.** Mette in cache solo le risorse di questa origine, e con la
+strategia *rete prima, cache dopo*: online si vede sempre l'ultima versione, offline si apre
+quello che c'era. Incassi, date e programmazione devono essere freschi — una cache silenziosa
+mostrerebbe la programmazione della settimana scorsa senza dirlo a nessuno.
+
+### Il foglio "Installa CineGlass"
+
+Due strade, perché i browser non sono uguali:
+
+- **Chrome ed Edge** emettono `beforeinstallprompt`. Si chiama `preventDefault()` per fermare il
+  banner di sistema e si tiene l'evento da parte: l'installazione parte dal pulsante
+  *Installa ora*, con `prompt()` e l'esito letto da `userChoice`. L'evento vale **una volta
+  sola**, quindi dopo l'uso si azzera.
+- **Safari su iPhone e iPad** non ha quell'evento e non lo avrà. Lì installare è un gesto manuale:
+  l'unica cosa onesta è mostrare i due passaggi del menu **Condividi**, con le icone giuste.
+  Il pulsante primario diventa *Ho capito*, perché non c'è niente da lanciare.
+
+Regole di comparsa, tutte e tre necessarie:
+
+1. **Mai** se l'app è già installata (`display-mode: standalone`, `minimal-ui` o
+   `navigator.standalone`). iPadOS 13+ si dichiara `MacIntel`, quindi il riconoscimento controlla
+   anche `maxTouchPoints`.
+2. **Mai all'apertura**: il foglio aspetta 8 secondi, oppure il primo gesto che conta davvero
+   (strappare un CinePass, entrare nelle classifiche), quello che arriva prima.
+3. **Chiuso è chiuso**: *Non ora* o la ✕ scrivono il timestamp in `localStorage`
+   (`pwa_prompt_dismissed`) e il foglio non torna per **14 giorni**. La voce **Installa app**
+   resta nel menu Impostazioni per chi cambia idea prima.
+
+Il foglio è una superficie ferma, quindi tiene il `backdrop-filter` anche su telefono: sta fra le
+superfici ferme della media query, non fra quelle in movimento (vedi *La regola del vetro*).
+
+## Scheda del film: i tre punti che ingannavano
+
+**Budget senza suffisso.** `fmtBudget` scriveva `$400M` attaccato e la casella del fatto taglia
+con l'ellissi: bastava un pixel in meno perché a schermo restasse `$400`, che è una cifra
+sbagliata di sei ordini di grandezza. Ora fra numero e suffisso c'è uno **spazio unificatore**
+(`\u00a0`), così `400` e `M` non si separano mai: `$400 M`, `$2,92 Mld`, `$356 M`. A budget
+zero — cioè dato assente, non film a costo zero — la casella dice `Non dichiarato`.
+
+**"Data da annunciare" in tre punti.** Quando la distribuzione italiana non ha ancora una data lo
+dicevano la riga grande, il badge di stato e il countdown: tre volte la stessa cosa con parole
+diverse. Ora lo dice **una riga sola** — `📅 Uscita italiana non ancora confermata` — e il badge,
+il separatore e il countdown si spengono. Il pulsante calendario era già disabilitato.
+
+**Riedizioni (Encore, Extended, Director's Cut).** TMDB le apre come schede nuove: sinossi vuota,
+zero voti, spesso nessun trailer. *Avengers: Endgame Encore* — in sala in Italia dal 24 settembre,
+Endgame con scene aggiuntive — è esattamente questo caso. Il titolo però dichiara la riedizione,
+e dal titolo si risale al film originale: si toglie il marchio finale, si cerca su TMDB
+**scartando l'identificativo di partenza** e tenendo il risultato con più voti (la riedizione ne
+ha due, il film vero ventiseimila), e si prende in prestito **solo ciò che manca** — sinossi,
+voti, durata, budget. Il prestito viene poi dichiarato a schermo:
+
+> 🔄 Riedizione cinematografica di Avengers: Endgame (2019) · sinossi e voti dal film originale
+
+Quando invece il titolo non dichiara niente ma la data italiana è molto più tarda dell'uscita
+originale, resta il vecchio riconoscimento a due anni di distanza.
+
+## I tre badge dei voti
+
+Erano un cerchio con il livello liquido (TMDB) più due pillole (IMDb, RT): tre forme diverse, e
+al ridursi del cerchio il testo finiva sotto il riflesso. Ora sono **tre pillole identiche** —
+stessa griglia, stessa altezza minima, stesso raggio — con il colore solo sul marchio:
+
+| Badge | Colore | Valore | Onestà |
+|---|---|---|---|
+| ★ TMDB | `#01B4E4`, stella `#FFC107` | `7,8/10` | **dato reale**, media degli utenti |
+| IMDb | `#F5C518` | `~7,8/10` | stima dal voto TMDB, marcata con la tilde |
+| 🍅 Tomatometer | `#FA320A` fresh / `#6A9325` rotten | `~88%` | stima dal voto TMDB, marcata con la tilde |
+
+TMDB non espone i voti di IMDb né di Rotten Tomatoes: l'unico numero certo è il suo. Le altre due
+pillole portano alla scheda ufficiale e dichiarano la stima nel sottotitolo e nel tooltip —
+nessun numero inventato viene spacciato per ufficiale. Sotto i 10 voti la pillola diventa
+**spenta** (`opacity: .5`, valore `—`) e il sottotitolo smette di promettere una stima che non
+c'è.
 
 ## Una nota sull'onestà dei numeri
 

@@ -6,6 +6,13 @@
 <meta name="theme-color" content="#07060d">
 <title>CineGlass — Prossimamente al Cinema</title>
 <meta name="description" content="CineGlass: esplora i film prossimamente al cinema in Italia con un carosello 3D in Liquid Glass, trailer ufficiali, countdown live e promemoria calendario.">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<!-- iOS non legge il manifest: vuole i suoi meta per aprirsi a schermo pieno -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CineGlass">
+<meta name="mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://api.themoviedb.org">
 <link rel="preconnect" href="https://image.tmdb.org">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -521,30 +528,9 @@ body.trascina .aurora,body.trascina .blob{animation-play-state:paused}
   font-size:11px;letter-spacing:.06em;color:#ffd9a0;background:rgba(255,176,60,.12);border:1px solid rgba(255,176,60,.3)}
 .rerelease[hidden]{display:none}
 
-/* Voto: anello di progresso con dentro il livello liquido */
-.rating-wrap{display:flex;flex-direction:column;align-items:center;gap:8px;flex:0 0 auto}
-.score{position:relative;width:106px;height:106px;border-radius:50%;overflow:hidden;
-  background:linear-gradient(160deg, rgba(255,255,255,.1), rgba(255,255,255,.02));
-  border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-  box-shadow:inset 0 4px 18px rgba(0,0,0,.5), 0 16px 36px -20px rgba(0,0,0,.95)}
-.score-fill{position:absolute;left:-12%;right:-12%;bottom:0;height:var(--fill,0%);opacity:.5;
-  background:linear-gradient(180deg, var(--lq1,#4ade80), var(--lq2,#16a34a));
-  transition:height 1.1s var(--ease), background .7s var(--ease)}
-.score-fill::before{content:'';position:absolute;left:0;right:0;top:-9px;height:10px;background:inherit;
-  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='10'%3E%3Cpath d='M0 5 C 11 0, 11 10, 22 5 C 33 0, 33 10, 44 5 L44 10 L0 10 Z' fill='%23fff'/%3E%3C/svg%3E") repeat-x;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='10'%3E%3Cpath d='M0 5 C 11 0, 11 10, 22 5 C 33 0, 33 10, 44 5 L44 10 L0 10 Z' fill='%23fff'/%3E%3C/svg%3E") repeat-x;-webkit-mask-size:44px 10px;mask-size:44px 10px;
-  animation:waveX 3.2s linear infinite}
-@keyframes waveX{to{-webkit-mask-position:44px 0;mask-position:44px 0}}
-.score-ring{position:absolute;inset:0;transform:rotate(-90deg)}
-.score-ring circle{fill:none;stroke-width:6;stroke-linecap:round}
-.score-ring .track{stroke:rgba(255,255,255,.12)}
-.score-ring .prog{stroke:var(--lq1,#4ade80);stroke-dasharray:264;
-  stroke-dashoffset:calc(264 - 264 * var(--p, 0));transition:stroke-dashoffset 1.1s var(--ease), stroke .7s var(--ease);
-  filter:drop-shadow(0 0 6px color-mix(in oklab, var(--lq1, #4ade80) 70%, transparent))}
-.score-core{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
-.score-core svg{width:14px;height:14px;opacity:.9;filter:drop-shadow(0 1px 4px rgba(0,0,0,.6))}
-.score-num{font-size:25px;font-weight:700;letter-spacing:-.03em;line-height:1;text-shadow:0 2px 12px rgba(0,0,0,.7)}
-.score-num small{font-size:13px;font-weight:500;opacity:.75;margin-left:1px}
-.rating-cap{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);text-align:center;max-width:150px;line-height:1.5}
+/* Il cerchio liquido del voto non c'e' piu': i tre punteggi stanno
+   in tre pillole identiche, vedi .rat piu' sotto. */
+.rating-cap{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);text-align:center;max-width:none;line-height:1.5}
 
 /* Generi come pillole: nessun testo troncato */
 .genres{display:flex;flex-wrap:wrap;gap:7px;margin-top:15px}
@@ -572,6 +558,10 @@ body.trascina .aurora,body.trascina .blob{animation-play-state:paused}
   background:linear-gradient(120deg, color-mix(in oklab, var(--c2) 14%, transparent), color-mix(in oklab, var(--c1) 10%, transparent));
   border:1px solid var(--stroke-soft);transition:background .9s var(--ease)}
 .rel-lab{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)}
+/* Data non confermata: resta la sola riga, senza separatore ne' countdown vuoto */
+.release-row.senza-data .rel-sep,
+.release-row.senza-data .countdown{display:none}
+.release-row.senza-data .rel-val{font-size:clamp(15px,2vw,18px);font-weight:500;color:var(--faint)}
 .rel-val{font-size:clamp(17px,2.4vw,22px);font-weight:600;margin-top:4px;letter-spacing:-.02em}
 .countdown{display:flex;align-items:center;gap:10px}
 .cd-unit{min-width:66px;padding:10px 12px;border-radius:14px;text-align:center;
@@ -1440,22 +1430,82 @@ a.prov-row:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,
   backdrop-filter:blur(25px) saturate(.9);-webkit-backdrop-filter:blur(25px) saturate(.9);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.22), inset 0 -1px 0 rgba(0,0,0,.4)}
 
-/* ---------- Tripla valutazione: TMDB + IMDb + Rotten Tomatoes ---------- */
-.rat-row{display:flex;justify-content:center;gap:7px;width:100%;min-width:184px}
+/* ---------- Tripla valutazione: TMDB + IMDb + Rotten Tomatoes ----------
+   Tre pillole identiche: stessa griglia, stessa altezza minima, stesso
+   raggio. Niente overlay sferico sopra il testo: era quello a tagliare
+   le scritte in basso quando il numero cresceva. Il colore lo porta solo
+   il marchio, non lo sfondo, cosi' le tre restano una famiglia sola. */
+.rat-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;min-width:212px}
 .rat-row:empty{display:none}
-.rat{display:inline-flex;flex:1 1 0;flex-direction:column;align-items:center;gap:1px;min-width:0;min-height:44px;
-  padding:7px 8px;border-radius:14px;text-align:center;
-  background:linear-gradient(150deg, rgba(255,255,255,.14), rgba(255,255,255,.04));
-  border:1px solid rgba(255,255,255,.2);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.3);
-  transition:transform .4s var(--elastic), border-color .3s, box-shadow .3s}
-.rat:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.34);box-shadow:inset 0 1px 0 rgba(255,255,255,.4), 0 12px 26px -18px #000}
-.rat-ico{display:block;font-size:9.5px;font-weight:700;letter-spacing:.08em}
+.rat{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  min-width:0;min-height:58px;padding:9px 8px;border-radius:14px;text-align:center;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  transition:transform .2s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease}
+.rat:hover{transform:translateY(-2px);background:rgba(255,255,255,.09);
+  border-color:rgba(255,255,255,.2);box-shadow:0 12px 26px -18px #000}
+.rat-ico{display:block;max-width:100%;font-size:9.5px;font-weight:800;letter-spacing:.08em;line-height:1.3;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rat-tmdb .rat-ico{color:#01b4e4}
+.rat-tmdb .rat-ico .stella{color:#ffc107}
 .rat-imdb .rat-ico{color:#f5c518}
-.rat-rt .rat-ico{font-size:12px;letter-spacing:0}
-.rat-val{display:block;font-size:14px;font-weight:600;line-height:1.1}
-.rat-val small{font-size:9.5px;font-weight:400;color:var(--faint)}
-.rat-note{display:block;font-size:8.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--faint)}
+.rat-rt .rat-ico{font-size:11.5px;letter-spacing:0}
+.rat-rt.fresh .rat-ico{color:#fa320a}
+.rat-rt.rotten .rat-ico{color:#6a9325}
+/* La riga del valore non si taglia mai: ha la sua altezza e non sta
+   sotto nessuna sovrapposizione. */
+.rat-val{display:block;max-width:100%;font-size:15px;font-weight:700;line-height:1.25;
+  letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rat-val small{font-size:9.5px;font-weight:400;color:var(--faint);margin-left:1px}
+.rat-note{display:block;max-width:100%;font-size:8.5px;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--faint);line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Dato assente: pillola spenta, senza sottotitoli che promettono una stima */
+.rat.vuota{opacity:.5}
+.rat.vuota .rat-val{color:var(--faint);font-weight:600}
+
+/* ---------- Installa CineGlass: foglio in basso ----------
+   E' una superficie ferma e sopra tutto: qui il vetro sfocato si puo'
+   tenere anche su telefono, perche' non si muove mentre e' aperto (la
+   regola sta nella media query piu' sotto). */
+.pwa-sheet{position:fixed;left:0;right:0;bottom:0;z-index:3200;
+  padding:0 12px calc(12px + env(safe-area-inset-bottom)) 12px;
+  display:flex;justify-content:center;pointer-events:none}
+.pwa-sheet[hidden]{display:none}
+.pwa-box{position:relative;pointer-events:auto;width:min(520px,100%);
+  display:grid;grid-template-columns:auto 1fr;gap:12px 14px;align-items:start;
+  padding:16px 18px;border-radius:22px;
+  background:linear-gradient(160deg, rgba(26,22,40,.92), rgba(15,15,21,.94));
+  border:1px solid rgba(255,59,92,.42);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  box-shadow:0 -6px 40px -12px rgba(255,59,92,.45), 0 24px 60px -24px #000, inset 0 1px 0 rgba(255,255,255,.16);
+  transform:translate3d(0,120%,0);opacity:0;
+  transition:transform .5s var(--elastic), opacity .35s var(--ease)}
+.pwa-sheet.su .pwa-box{transform:none;opacity:1}
+.pwa-ico{width:44px;height:44px;flex:0 0 auto;display:grid;place-items:center;border-radius:14px;
+  background:linear-gradient(150deg, rgba(0,242,254,.2), rgba(255,95,224,.14));
+  border:1px solid rgba(0,242,254,.35)}
+.pwa-ico svg{width:26px;height:26px}
+.pwa-txt{min-width:0}
+.pwa-txt h3{margin:0;font-size:16px;font-weight:600;letter-spacing:-.01em}
+.pwa-txt p{margin:4px 0 0;font-size:12.5px;line-height:1.5;color:var(--faint)}
+.pwa-ios{margin:10px 0 0;padding:0;list-style:none;display:grid;gap:8px}
+.pwa-ios[hidden]{display:none}
+.pwa-ios li{display:flex;align-items:flex-start;gap:9px;font-size:12.5px;line-height:1.55;color:var(--soft)}
+.pwa-n{flex:0 0 auto;width:19px;height:19px;margin-top:1px;border-radius:50%;display:grid;place-items:center;
+  font-size:10.5px;font-weight:700;background:rgba(255,59,92,.22);border:1px solid rgba(255,59,92,.42);color:#ffd2da}
+.pwa-glyph{display:inline-block;width:15px;height:15px;vertical-align:-3px;margin:0 2px;color:#7af4ff}
+.pwa-actions{grid-column:1 / -1;display:flex;gap:9px;margin-top:2px}
+.pwa-actions .btn{flex:1 1 0;min-height:44px;justify-content:center;font-size:13.5px}
+.pwa-x{position:absolute;top:8px;right:8px;width:32px;height:32px;border-radius:50%;
+  display:grid;place-items:center;color:var(--faint);background:transparent;
+  -webkit-tap-highlight-color:transparent}
+.pwa-x svg{width:15px;height:15px}
+.pwa-x:hover{color:#fff;background:rgba(255,255,255,.1)}
+@media (max-width:420px){
+  .pwa-box{grid-template-columns:1fr;gap:10px}
+  .pwa-ico{display:none}
+  .pwa-actions{flex-direction:column-reverse}
+}
 
 /* ---------- Quick score sotto la locandina ---------- */
 .qscore{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
@@ -1716,13 +1766,8 @@ a.prov-row:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,
 .mb-fact{white-space:nowrap}
 .mb-dot{color:var(--faint);font-size:12px}
 .mb-rat{display:flex;align-items:center;gap:9px;margin-left:auto;flex-wrap:wrap}
-/* il cerchio TMDB entra nella barra: stesso effetto, misura da badge */
-.metabar .score{width:58px;height:58px;flex:0 0 auto}
-.metabar .score-core svg{width:11px;height:11px}
-.metabar .score-num{font-size:15px}
-.metabar .score-num small{font-size:8.5px}
+/* Nella barra le tre pillole restano della stessa misura fra loro */
 .metabar .rat-row{width:auto;min-width:0;gap:8px}
-.metabar .rat{flex:0 0 auto;min-width:76px}
 .rating-cap{display:block;margin-top:6px;padding-right:4px;font-size:10.5px;letter-spacing:.06em;
   color:var(--faint);text-align:right;max-width:none;text-transform:none}
 
@@ -2057,7 +2102,7 @@ body.tema-chiaro .btn.primary{color:#fff;
 body.tema-chiaro .btn.primary .tag{background:rgba(255,255,255,.22);color:#fff}
 body.tema-chiaro .qbar .trailer-title{color:#fff}
 body.tema-chiaro .revolut{color:#04121a}
-body.tema-chiaro .score-num,body.tema-chiaro .rat-val{color:#15131f}
+body.tema-chiaro .rat-val{color:#15131f}
 body.tema-chiaro .rat-imdb .rat-ico{color:#9a7900}
 
 /* ==========================================================
@@ -2106,7 +2151,7 @@ footer,#boxoffice{content-visibility:auto;contain-intrinsic-size:1px 400px}
 
   /* 1. Superfici ferme: barra fissa e pannelli aperti sopra la pagina.
         Qui il vetro si vede e si paga una volta sola. */
-  .topbar,.navseg,.cinepass,.modal-box,.sheet-box,.spot-box,.wdrawer-box,
+  .topbar,.navseg,.cinepass,.modal-box,.sheet-box,.spot-box,.wdrawer-box,.pwa-box,
   .filtermenu,.savemenu,.lightbox,.modal-backdrop,.spot-bd,.sheet-bd,.wdrawer-bd{
     backdrop-filter:blur(8px)!important;-webkit-backdrop-filter:blur(8px)!important}
 
@@ -2116,7 +2161,7 @@ footer,#boxoffice{content-visibility:auto;contain-intrinsic-size:1px 400px}
   .lens,.pill-btn,.icon-btn,.chip,.layout-mini,.metabar,.qbar,.menu-row,.btn,
   .ost,.prov-row,.panel-inner,.frost,.card-play,.card-quick,.pop-btn,.sk-panel,
   .toast,.net-badge,.eyebrow,.status,.rip,.term,.filmstrip,.cast-pill,.tl-item,
-  .bo-row,.rat,.score,.cd-unit,.tag-glass,.empty,.w-empty,.tl-empty,.notice,
+  .bo-row,.rat,.cd-unit,.tag-glass,.empty,.w-empty,.tl-empty,.notice,
   .nav,.view-toggle,.social-btn,.foot-links button,.foot-links a,.fs-btn,
   .pill-incasso,.cp-ricevuto,.brand,.pull-ring,.spoiler-glass{
     backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
@@ -2127,7 +2172,7 @@ footer,#boxoffice{content-visibility:auto;contain-intrinsic-size:1px 400px}
   .spot-box,.wdrawer-box,.sheet-box{background:rgba(20,20,27,.94)}
   .lens,.pill-btn,.icon-btn,.layout-mini,.view-toggle,.nav,.fs-btn,.pop-btn,
   .foot-links button,.foot-links a{background:rgba(24,22,34,.86)}
-  .chip,.cast-pill,.tag-glass,.rat,.score,.cd-unit,.pill-incasso{background:rgba(24,22,34,.8)}
+  .chip,.cast-pill,.tag-glass,.rat,.cd-unit,.pill-incasso{background:rgba(24,22,34,.8)}
   .btn,.social-btn{background:rgba(26,24,36,.86)}
   .metabar,.qbar,.bo-row,.tl-item,.prov-row,.ost,.notice,.empty,.w-empty,.tl-empty,
   .filmstrip,.cp-ricevuto{background:rgba(20,19,29,.9)}
@@ -2248,9 +2293,8 @@ body.trascina .card-play,body.trascina .card-quick,body.trascina .card-bucket{po
   .actions{gap:8px}
   .actions .btn{flex:1 1 calc(50% - 4px);min-width:0;padding:12px 14px;font-size:13px;
     white-space:normal;line-height:1.25;text-align:center}
-  .metabar .score{width:52px;height:52px}
-  .metabar .score-num{font-size:14px}
-  .metabar .rat{min-width:70px;padding:6px}
+  .metabar .rat{padding:8px 6px;min-height:54px}
+  .metabar .rat-val{font-size:14px}
   .hero{padding-top:10px}
   .hero p.sub{margin-top:9px}
   .sub-long{display:none}          /* su telefono il carosello deve restare vicino */
@@ -2415,6 +2459,12 @@ body.trascina .card-play,body.trascina .card-quick,body.trascina .card-bucket{po
         <path d="M20 11a8 8 0 1 0-1.6 5.7"/><path d="M20 4v7h-7"/>
       </svg></span>
         <span class="menu-txt"><b>Ricarica dati</b><small class="menu-stato">Riscarica le uscite da TMDB</small></span>
+      </button>
+      <button id="installBtn" class="menu-row" title="Aggiungi CineGlass alla schermata Home" hidden>
+        <span class="menu-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="6.5" y="2.6" width="11" height="18.8" rx="2.6"/><path d="M10.6 5.4h2.8"/><path d="M12 10v6m0 0 2.4-2.4M12 16l-2.4-2.4"/>
+      </svg></span>
+        <span class="menu-txt"><b>Installa app</b><small class="menu-stato">Aggiungi CineGlass alla schermata Home</small></span>
       </button>
       <button id="creatorBtn" class="menu-row" title="Chi ha fatto CineGlass">
         <span class="menu-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px">
@@ -2596,17 +2646,6 @@ body.trascina .card-play,body.trascina .card-quick,body.trascina .card-bucket{po
       <div class="metabar">
         <div class="mb-facts" id="mbFacts"></div>
         <div class="mb-rat">
-          <div class="score" id="score" role="img" aria-label="Gradimento del pubblico">
-            <div class="score-fill" id="scoreFill"></div>
-            <svg class="score-ring" viewBox="0 0 100 100" aria-hidden="true">
-              <circle class="track" cx="50" cy="50" r="42"></circle>
-              <circle class="prog" id="scoreProg" cx="50" cy="50" r="42"></circle>
-            </svg>
-            <div class="score-core">
-              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 3.6 2.5 5.3 5.8.8-4.2 4.1 1 5.8-5.1-2.8-5.1 2.8 1-5.8L3.7 9.7l5.8-.8z"/></svg>
-              <span class="score-num" id="pVote">—</span>
-            </div>
-          </div>
           <div class="rat-row" id="ratRow"></div>
         </div>
       </div>
@@ -2688,7 +2727,7 @@ body.trascina .card-play,body.trascina .card-quick,body.trascina .card-bucket{po
         <a class="fonte-link" id="pWiki" href="#" target="_blank" rel="noopener noreferrer">📖 Scheda Wikipedia</a>
       </div>
 
-      <div class="release-row">
+      <div class="release-row" id="relRow">
         <div class="rel-main">
         <div>
           <div class="rel-lab">Uscita nelle sale italiane</div>
@@ -2751,8 +2790,10 @@ body.trascina .card-play,body.trascina .card-quick,body.trascina .card-bucket{po
         </header>
 
         <!-- Separatore perforato: si clicca qui, la forbice lo percorre e svela il tagliando -->
-        <div class="cp-taglio" id="cpTaglio" role="button" tabindex="0"
-             aria-label="Strappa il biglietto e mostra il codice QR" title="Clicca per strappare il biglietto">
+        <div class="cp-taglio" id="cpTaglio" role="button" tabindex="0" aria-expanded="false"
+             aria-controls="cpBody"
+             aria-label="Strappa il biglietto CinePass per mostrare il codice QR"
+             title="Clicca per strappare il biglietto">
           <svg class="cp-linea" viewBox="0 0 320 2" preserveAspectRatio="none" aria-hidden="true">
             <line x1="0" y1="1" x2="320" y2="1"></line>
           </svg>
@@ -2891,6 +2932,46 @@ body.trascina .card-play,body.trascina .card-quick,body.trascina .card-bucket{po
          title="Sostieni lo sviluppo di CineGlass (anche solo 0,50€ ☕)">☕ Sostieni il Progetto</a>
     </p>
   </footer>
+</div>
+
+<!-- ====================== INSTALLA CINEGLASS ======================
+     Foglio in basso, non invasivo: compare solo se l'app non e' gia'
+     installata, solo dopo che l'utente ha fatto qualcosa, e non torna
+     prima di due settimane se viene chiuso. -->
+<div class="pwa-sheet" id="pwaSheet" hidden>
+  <div class="pwa-box" role="dialog" aria-labelledby="pwaTitle" aria-describedby="pwaSub">
+    <button type="button" class="pwa-x" id="pwaX" aria-label="Chiudi l'invito a installare">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg>
+    </button>
+    <span class="pwa-ico" aria-hidden="true">
+      <svg viewBox="0 0 32 32" fill="none">
+        <path d="M16 3.4 27 9.6v12.8L16 28.6 5 22.4V9.6Z" fill="rgba(122,244,255,.22)" stroke="#7af4ff" stroke-width="1.5" stroke-linejoin="round"/>
+        <circle cx="16" cy="19" r="5.1" stroke="#ff5fe0" stroke-width="1.6"/>
+        <circle cx="16" cy="19" r="1.9" fill="#7af4ff"/>
+      </svg>
+    </span>
+    <div class="pwa-txt">
+      <h3 id="pwaTitle">Installa CineGlass</h3>
+      <p id="pwaSub">Accedi ai tuoi biglietti offline e alla programmazione senza aprire il browser</p>
+      <ol class="pwa-ios" id="pwaIos" hidden>
+        <li><span class="pwa-n">1</span>
+          <span>Tocca <b>Condividi</b>
+            <svg class="pwa-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 3v12"/><path d="m8.4 6.6 3.6-3.6 3.6 3.6"/><path d="M6 11H4.8A1.8 1.8 0 0 0 3 12.8v6.4A1.8 1.8 0 0 0 4.8 21h14.4a1.8 1.8 0 0 0 1.8-1.8v-6.4A1.8 1.8 0 0 0 19.2 11H18"/>
+            </svg>
+            nella barra in basso di Safari</span></li>
+        <li><span class="pwa-n">2</span>
+          <span>Scorri e scegli <b>Aggiungi alla schermata Home</b>
+            <svg class="pwa-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true">
+              <rect x="3.5" y="3.5" width="17" height="17" rx="4.6"/><path d="M12 8.4v7.2M8.4 12h7.2"/>
+            </svg></span></li>
+      </ol>
+    </div>
+    <div class="pwa-actions">
+      <button type="button" class="btn primary sweep ripple" id="pwaGo">Installa ora</button>
+      <button type="button" class="btn ghost" id="pwaLater">Non ora</button>
+    </div>
+  </div>
 </div>
 
 <!-- ====================== MODAL TRAILER ====================== -->
@@ -3252,13 +3333,19 @@ function fmtDateLong(iso){
   return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
 }
 function fmtYear(iso){ const d = parseISO(iso); return d ? d.getFullYear() : '—'; }
+/* Budget e incassi della scheda. Fra cifra e suffisso c'e' uno spazio
+   unificatore (\u00a0): la casella del fatto taglia con l'ellissi, e con
+   uno spazio normale il browser puo' mandare a capo la "M" e farla
+   sparire, lasciando a schermo "$400" invece di "$400 M". Cosi' cifra e
+   suffisso restano una cosa sola. */
 function fmtBudget(n){
   const v = Number(n) || 0;
   if (v <= 0) return 'Non dichiarato';
-  if (v >= 1e9) return '$' + (v / 1e9).toFixed(v % 1e9 === 0 ? 0 : 1) + 'B';
-  if (v >= 1e6) return '$' + Math.round(v / 1e6) + 'M';
-  if (v >= 1e3) return '$' + Math.round(v / 1e3) + 'K';
-  return '$' + v;
+  const nbsp = '\u00a0';
+  if (v >= 1e9) return '$' + (v / 1e9).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + nbsp + 'Mld';
+  if (v >= 1e6) return '$' + (v / 1e6).toLocaleString('it-IT', { maximumFractionDigits: v < 1e7 ? 1 : 0 }) + nbsp + 'M';
+  if (v >= 1e3) return '$' + Math.round(v / 1e3).toLocaleString('it-IT') + nbsp + 'mila';
+  return '$' + Math.round(v).toLocaleString('it-IT');
 }
 function fmtRuntime(m){
   const v = Number(m) || 0;
@@ -3364,7 +3451,9 @@ const el = {
   stage:$('#stage'), skeleton:$('#skeleton'), skPanel:$('#skPanel'), dots:$('#dots'),
   prev:$('#prevBtn'), next:$('#nextBtn'), panel:$('#panel'), panelInner:$('#panelInner'),
   title:$('#pTitle'), tagline:$('#pTagline'), overview:$('#pOverview'), vote:$('#pVote'),
-  scoreFill:$('#scoreFill'), score:$('#score'), scoreProg:$('#scoreProg'), voteMeta:$('#voteMeta'),
+  voteMeta:$('#voteMeta'),
+  pwaSheet:$('#pwaSheet'), pwaIos:$('#pwaIos'), pwaGo:$('#pwaGo'), pwaLater:$('#pwaLater'),
+  pwaX:$('#pwaX'), pwaSub:$('#pwaSub'), installBtn:$('#installBtn'),
   ratRow:$('#ratRow'), mbFacts:$('#mbFacts'),
   panelBg:$('#panelBg'), panelPoster:$('#panelPoster'), panelPosterImg:$('#panelPosterImg'),
   cutBtn:$('#cutBtn'),
@@ -3376,6 +3465,7 @@ const el = {
   langNote:$('#langNote'), rerelease:$('#pRerelease'), rereleaseText:$('#pRereleaseText'),
   trailerThumb:$('#trailerThumb'), trailerImg:$('#trailerImg'), trailerTitle:$('#trailerTitle'),
   trailerTags:$('#trailerTags'), date:$('#pDate'), countdown:$('#countdown'),
+  relRow:$('#relRow'),
   trailerBtn:$('#trailerBtn'), calBtn:$('#calBtn'),
   favFilter:$('#favFilter'), favCount:$('#favCount'), refresh:$('#refreshBtn'),
   badge:$('#pBadge'), badgeText:$('#pBadgeText'), chips:$('#chips'),
@@ -3797,6 +3887,44 @@ function analizzaKeywords(d){
   };
 }
 
+/* ---------------------------------------------------------------------
+   RIEDIZIONI
+   "Avengers: Endgame Encore", "Extended Edition", "Director's Cut":
+   TMDB le apre come schede nuove, con sinossi vuota, zero voti e spesso
+   senza trailer. Il titolo pero' lo dichiara, e dal titolo si risale al
+   film originale. Qui si riconosce il marchio e si restituisce il titolo
+   pulito; il prestito dei dati avviene in getDetails.
+   --------------------------------------------------------------------- */
+const MARCHIO_RIEDIZIONE = new RegExp(
+  '[\\s:\\-\u2013\u2014\u00b7|(\\[]+(' +
+  'encore|extended(\\s+(edition|cut|version))?|director\u2019?s?\\s*cut|final\\s+cut|' +
+  're[-\\s]?release|riedizione|rimasterizzat[oa]|remaster(ed)?|' +
+  'special\\s+edition|edizione\\s+speciale|anniversary(\\s+edition)?|' +
+  '\\d+\u00b0?\\s*anniversario|versione\\s+estesa' +
+  ')[)\\]\\s]*$', 'i');
+
+function titoloBaseRiedizione(titolo){
+  const t = String(titolo || '').trim();
+  if (!MARCHIO_RIEDIZIONE.test(t)) return '';
+  const base = t.replace(MARCHIO_RIEDIZIONE, '').trim().replace(/[\s:\-\u2013\u2014\u00b7|]+$/, '');
+  /* Un titolo che e' solo il marchio non porta da nessuna parte */
+  return base.length >= 3 ? base : '';
+}
+
+/* Il film originale si riconosce dai voti: la scheda della riedizione ne
+   ha pochi o nessuno, quella del film vero ne ha migliaia. Si scarta
+   sempre l'identificativo di partenza, o si tornerebbe alla riedizione. */
+async function cercaFilmBase(key, titolo, escludiId){
+  try{
+    const d = await fetchJSON(`${API_BASE}/search/movie?api_key=${encodeURIComponent(key)}` +
+                              `&language=it-IT&query=${encodeURIComponent(titolo)}`);
+    const cand = (d && d.results ? d.results : [])
+      .filter(x => x && x.id && x.id !== escludiId && (x.vote_count || 0) >= 50)
+      .sort((a, b) => (b.vote_count || 0) - (a.vote_count || 0));
+    return cand[0] || null;
+  }catch(err){ return null; }
+}
+
 function parseDetails(d, movie){
   const companies = (d.production_companies || []).filter(c => c && c.name);
   const countries = (d.production_countries || []).filter(c => c && c.iso_3166_1);
@@ -3860,6 +3988,42 @@ async function getDetails(movie){
       if (!data.overview && en && en.overview){ data.overview = en.overview.trim(); data.overviewLang = 'en'; }
       if (!data.tagline && en && en.tagline) data.tagline = en.tagline.trim();
     }catch(err){ /* si resta senza sinossi */ }
+  }
+
+  /* Se la scheda dichiara una riedizione ed e' rimasta vuota, si va a
+     prendere il film originale e si prende in prestito SOLO cio' che
+     manca. Il prestito viene poi dichiarato a schermo: meglio dire "dati
+     del film originale" che lasciare "Sinossi non disponibile". */
+  const base = titoloBaseRiedizione(data.title);
+  if (base && (!data.overview || data.votes < 10)){
+    const trovato = await cercaFilmBase(key, base, movie.id);
+    if (trovato){
+      data.riedizione = {
+        id: trovato.id,
+        titolo: trovato.title || base,
+        anno: Number(String(trovato.release_date || '').slice(0, 4)) || 0,
+        prestito: []
+      };
+      let pieno = null;
+      try{
+        pieno = await fetchJSON(`${API_BASE}/movie/${trovato.id}?api_key=${encodeURIComponent(key)}&language=it-IT`);
+      }catch(err){ /* bastano i campi della ricerca */ }
+      const src = pieno && pieno.id ? pieno : trovato;
+      if (!data.overview && src.overview){
+        data.overview = String(src.overview).trim(); data.overviewLang = 'it';
+        data.riedizione.prestito.push('sinossi');
+      }
+      if (data.votes < 10 && (src.vote_count || 0) >= 10){
+        data.vote = src.vote_average || 0; data.votes = src.vote_count || 0;
+        data.riedizione.prestito.push('voti');
+      }
+      if (!data.runtime && src.runtime) data.runtime = src.runtime;
+      if (!data.budget && src.budget) data.budget = src.budget;
+      if (!data.revenue && src.revenue) data.revenue = src.revenue;
+      if (!data.tagline && src.tagline) data.tagline = String(src.tagline).trim();
+      if (!data.poster_path && src.poster_path) data.poster_path = src.poster_path;
+      if (!data.backdrop_path && src.backdrop_path) data.backdrop_path = src.backdrop_path;
+    }
   }
 
   /* Fallback: trailer internazionale se la richiesta localizzata non ne ha */
@@ -4492,36 +4656,21 @@ function setBackdrop(movie){
 /* =========================================================
    8. PANNELLO DETTAGLI
    ========================================================= */
-function liquidColors(pct){
-  if (pct >= 75) return ['#6ee7a0', '#12a05a'];
-  if (pct >= 60) return ['#ffd166', '#e8952a'];
-  if (pct >= 40) return ['#ff9f6b', '#e2622f'];
-  if (pct > 0)   return ['#ff7a8a', '#c9264a'];
-  return ['#8f8fa8', '#4a4a5e'];
-}
 
 /* Gradimento: media dei voti degli utenti TMDB (non della critica, non del botteghino).
    Sotto i 10 voti il dato non e' significativo e viene dichiarato tale invece di
    mostrare una percentuale che sembrerebbe attendibile. */
 const MIN_VOTES = 10;
 
+/* La didascalia sotto le pillole: dice quanti voti ci sono davvero.
+   Il punteggio TMDB lo scrive renderRatings nella sua pillola. */
 function setScore(vote, votes){
-  const pct = clamp(Math.round((Number(vote) || 0) * 10), 0, 100);
   const n = Number(votes) || 0;
-  const enough = n >= MIN_VOTES && pct > 0;
-  const [a, b] = enough ? liquidColors(pct) : ['#9a9ab4', '#4a4a5e'];
-  el.score.style.setProperty('--lq1', a);
-  el.score.style.setProperty('--lq2', b);
-  el.score.style.setProperty('--p', enough ? pct / 100 : 0);
-  el.scoreFill.style.height = (enough ? pct : 0) + '%';
-  el.vote.innerHTML = enough ? `${pct}<small>%</small>` : 'N/D';
+  const v = Number(vote) || 0;
+  const enough = n >= MIN_VOTES && v > 0;
   el.voteMeta.textContent = enough
-    ? `TMDB · ${n.toLocaleString('it-IT')} voti`
+    ? `Media utenti TMDB su ${n.toLocaleString('it-IT')} voti \u00b7 IMDb e Rotten Tomatoes sono stime`
     : (n > 0 ? `Solo ${n} voti su TMDB: dato non significativo` : 'Non ancora votato su TMDB');
-  el.score.setAttribute('aria-label', enough
-    ? `Gradimento ${pct} per cento su TMDB, ${n} voti`
-    : 'Gradimento non ancora disponibile');
-  el.score.title = 'Media dei voti degli utenti TMDB, non della critica';
 }
 
 /* --------- Tripla valutazione: TMDB reale, IMDb e RT come rimandi ---------
@@ -4566,32 +4715,58 @@ function renderRatings(movie, details){
   const box = el.ratRow;
   const vote = details ? details.vote : movie.vote_average;
   const votes = details ? details.votes : movie.vote_count;
-  const decimi = (Number(vote) || 0);
-  const abbastanza = (Number(votes) || 0) >= MIN_VOTES && decimi > 0;
+  const decimi = Number(vote) || 0;
+  const n = Number(votes) || 0;
+  const abbastanza = n >= MIN_VOTES && decimi > 0;
   const imdbId = details && details.imdb ? details.imdb : '';
   const imdbUrl = imdbId
     ? 'https://www.imdb.com/title/' + encodeURIComponent(imdbId) + '/'
     : 'https://www.imdb.com/find/?q=' + encodeURIComponent(movie.title);
   const rtUrl = 'https://www.rottentomatoes.com/search?search=' + encodeURIComponent(movie.title);
+  const tmdbUrl = 'https://www.themoviedb.org/movie/' + encodeURIComponent(movie.id);
   const critica = stimaCritica(vote, votes);
+  const prestito = !!(details && details.riedizione &&
+                      (details.riedizione.prestito || []).indexOf('voti') >= 0);
+  const dec = x => x.toFixed(1).replace('.', ',');
 
-  const imdbVal = abbastanza ? '~' + decimi.toFixed(1).replace('.', ',') : '—';
-  const rtVal = critica === null ? '—' : '~' + critica + '%';
-  const nota = abbastanza
-    ? 'Stima ricavata dal voto TMDB, non è il punteggio ufficiale: tocca per aprire la scheda'
-    : 'Ancora troppo pochi voti per una stima: tocca per aprire la scheda';
+  /* Una sola forma per tutte e tre: marchio, valore, didascalia. Cambia
+     solo il colore del marchio e, per il pomodoro, fresh o rotten. */
+  const pillola = (classe, marchio, valore, nota, href, titolo) =>
+    `<a class="rat ${classe}${valore ? '' : ' vuota'}" href="${esc(href)}" ` +
+      `target="_blank" rel="noopener noreferrer" title="${esc(titolo)}">` +
+      `<span class="rat-ico" aria-hidden="true">${marchio}</span>` +
+      `<span class="rat-val">${valore || '\u2014'}</span>` +
+      `<span class="rat-note">${esc(nota)}</span>` +
+    '</a>';
+
+  const notaTmdb = abbastanza
+    ? (prestito ? 'del film originale' : n.toLocaleString('it-IT') + ' voti')
+    : 'apri \u2197';
+  const notaStima = 'stima \u00b7 apri \u2197';
 
   box.innerHTML =
-    `<a class="rat rat-imdb" href="${esc(imdbUrl)}" target="_blank" rel="noopener noreferrer" title="${esc(nota)}">` +
-      '<span class="rat-ico" aria-hidden="true">IMDb</span>' +
-      `<span class="rat-val">${esc(imdbVal)}<small>/10</small></span>` +
-      '<span class="rat-note">stima · apri ↗</span>' +
-    '</a>' +
-    `<a class="rat rat-rt" href="${esc(rtUrl)}" target="_blank" rel="noopener noreferrer" title="${esc(nota)}">` +
-      '<span class="rat-ico" aria-hidden="true">🍅</span>' +
-      `<span class="rat-val">${esc(rtVal)}</span>` +
-      '<span class="rat-note">stima · apri ↗</span>' +
-    '</a>';
+    pillola('rat-tmdb', '<span class="stella">\u2605</span> TMDB',
+            abbastanza ? dec(decimi) + '<small>/10</small>' : '',
+            abbastanza ? notaTmdb : 'voti insufficienti',
+            tmdbUrl,
+            abbastanza
+              ? 'Media reale degli utenti TMDB' + (prestito ? ', presa dal film originale della riedizione' : '')
+              : 'Ancora troppo pochi voti su TMDB per una media attendibile') +
+    pillola('rat-imdb', 'IMDb',
+            abbastanza ? '~' + dec(decimi) + '<small>/10</small>' : '',
+            abbastanza ? notaStima : 'apri \u2197',
+            imdbUrl,
+            abbastanza
+              ? 'Stima ricavata dal voto TMDB, non \u00e8 il punteggio ufficiale IMDb: tocca per aprire la scheda'
+              : 'Punteggio non disponibile: tocca per aprire la scheda IMDb') +
+    pillola('rat-rt' + (critica === null ? '' : (critica >= 60 ? ' fresh' : ' rotten')),
+            '\ud83c\udf45 Tomatometer',
+            critica === null ? '' : '~' + critica + '%',
+            critica === null ? 'apri \u2197' : notaStima,
+            rtUrl,
+            critica === null
+              ? 'Punteggio non disponibile: tocca per cercare il film su Rotten Tomatoes'
+              : 'Stima ricavata dal voto TMDB, non \u00e8 il Tomatometer ufficiale: tocca per aprire la scheda');
 }
 
 /* --------- Sagome di caricamento in vetro ---------
@@ -4744,6 +4919,19 @@ function renderTrailerCard(movie, details){
 }
 
 function renderRerelease(details, iso){
+  /* Due modi di accorgersene: il titolo lo dichiara (Encore, Extended,
+     Director's Cut) oppure la data italiana e' molto piu' tarda
+     dell'uscita originale. */
+  const ried = details && details.riedizione;
+  if (ried){
+    el.rerelease.hidden = false;
+    const anno = ried.anno ? ` (${ried.anno})` : '';
+    const prestito = (ried.prestito || []).length
+      ? ' · ' + ried.prestito.join(' e ') + ' dal film originale'
+      : '';
+    el.rereleaseText.textContent = `Riedizione cinematografica di ${ried.titolo}${anno}${prestito}`;
+    return;
+  }
   const primary = details && details.primaryRelease ? parseISO(details.primaryRelease) : null;
   const it = parseISO(iso);
   const anni = primary && it ? (it.getTime() - primary.getTime()) / (365.25 * 86400000) : 0;
@@ -4795,9 +4983,14 @@ function renderPanel(movie, details){
 
   const iso = (details && details.releaseIT) || movie.release_date || null;
   state.lastRelease = iso;
-  el.date.textContent = fmtDate(iso);
-  el.date.title = fmtDateLong(iso);
-  const badge = releaseBadge(iso, true);
+  /* Quando la data manca lo diceva la riga grande, poi il badge di stato,
+     poi il countdown: tre volte la stessa cosa. Adesso lo dice una riga
+     sola e tutto il resto si spegne. */
+  const senzaData = !parseISO(iso);
+  el.relRow.classList.toggle('senza-data', senzaData);
+  el.date.textContent = senzaData ? '\ud83d\udcc5 Uscita italiana non ancora confermata' : fmtDate(iso);
+  el.date.title = senzaData ? 'La distribuzione italiana non ha ancora annunciato una data' : fmtDateLong(iso);
+  const badge = senzaData ? '' : releaseBadge(iso, true);
   el.badge.classList.toggle('on', !!badge);
   el.badgeText.textContent = badge || '';
   renderRerelease(details, iso);
@@ -4949,8 +5142,10 @@ function renderCountdown(){
   const iso = state.lastRelease;
   const target = parseISO(iso);
   if (!target){
+    /* Lo dice gia' la riga della data: qui il countdown si toglie di mezzo
+       invece di ripetere la stessa frase con parole diverse. */
     box.dataset.mode = 'msg';
-    box.innerHTML = '<span class="cd-msg">Uscita da annunciare</span>';
+    box.innerHTML = '';
     return;
   }
   const diff = target.getTime() - now();
@@ -5273,7 +5468,7 @@ const ALLTIME_IT = [
   { titolo: 'Tolo Tolo',                             anno: 2020, incasso: 46200000 },
   { titolo: 'Che bella giornata',                    anno: 2011, incasso: 43400000 },
   { titolo: 'Titanic',                               anno: 1998, incasso: 39400000 },
-  { titolo: 'C\u2019\u00e8 ancora domani',                   anno: 2023, incasso: 36600000 },
+  { titolo: 'C\u2019\u00e8 ancora domani',                   anno: 2023, incasso: 36800000 },
   { titolo: 'Natale sul Nilo',                       anno: 2002, incasso: 32800000 },
   { titolo: 'La vita \u00e8 bella',                      anno: 1997, incasso: 31300000 },
   { titolo: 'Il Signore degli Anelli: Il ritorno del re', anno: 2003, incasso: 31200000 },
@@ -5295,7 +5490,7 @@ const ALLTIME_IT = [
 const ALLTIME_US = [
   { titolo: 'Star Wars: Il risveglio della Forza',   anno: 2015, incasso: 936662225, tmdb_id: 140607 },
   { titolo: 'Avengers: Endgame',                     anno: 2019, incasso: 858373000, tmdb_id: 299534 },
-  { titolo: 'Spider-Man: No Way Home',               anno: 2021, incasso: 814866759, tmdb_id: 634649 },
+  { titolo: 'Spider-Man: No Way Home',               anno: 2021, incasso: 814115070, tmdb_id: 634649 },
   { titolo: 'Avatar',                                anno: 2009, incasso: 785221649, tmdb_id: 19995 },
   { titolo: 'Top Gun: Maverick',                     anno: 2022, incasso: 718732821, tmdb_id: 361743 },
   { titolo: 'Black Panther',                         anno: 2018, incasso: 700426566, tmdb_id: 284054 },
@@ -5386,6 +5581,24 @@ async function loadLocalBoxOffice(terr){
 /* L'elenco storico di ogni territorio si puo' sovrascrivere con un file
    del repository, senza ricompilare niente: data/alltime-it.json,
    data/alltime-us.json, data/alltime.json per il mondiale. */
+/* I file del repository possono avere due forme: l'oggetto storico
+   { fonte, aggiornato, film: [{titolo, anno, incasso}] } oppure il
+   semplice array di schede in inglese
+   [{ title, original_title, year, revenue, currency, tmdb_id, source_note }].
+   La seconda e' quella che esce da un foglio di calcolo o da un export,
+   quindi vale la pena accettarla senza chiedere conversioni a mano. */
+function normalizzaAllTime(riga){
+  if (!riga || typeof riga !== 'object') return null;
+  const titolo  = riga.titolo || riga.title || riga.original_title || '';
+  const incasso = Number(riga.incasso != null ? riga.incasso : riga.revenue) || 0;
+  if (!titolo || incasso <= 0) return null;
+  const anno = Number(riga.anno != null ? riga.anno : riga.year) || null;
+  const id   = Number(riga.tmdb_id) || null;
+  return { titolo, anno, incasso, tmdb_id: id,
+           titoloOriginale: riga.original_title || riga.titoloOriginale || '',
+           nota: riga.source_note || riga.nota || '' };
+}
+
 async function caricaAllTime(terr){
   const k = (terr && ALLTIME[terr]) ? terr : 'ww';
   const base = ALLTIME[k];
@@ -5394,11 +5607,18 @@ async function caricaAllTime(terr){
     const res = await fetch(via, { cache: 'no-cache' });
     if (res.ok){
       const d = await res.json();
-      if (d && Array.isArray(d.film) && d.film.length)
-        return { fonte: d.fonte || via, aggiornato: d.aggiornato || ALLTIME_AGGIORNATO,
-                 film: d.film, valuta: d.valuta || base.valuta, nota: d.nota || base.nota };
+      const grezze = Array.isArray(d) ? d : (d && Array.isArray(d.film) ? d.film : []);
+      const film = grezze.map(normalizzaAllTime).filter(Boolean)
+                         .sort((a, b) => b.incasso - a.incasso);
+      if (film.length){
+        const meta = Array.isArray(d) ? {} : (d || {});
+        /* La valuta puo' arrivare anche dalla prima riga in schema inglese */
+        const valuta = meta.valuta || (grezze[0] && grezze[0].currency) || base.valuta;
+        return { fonte: meta.fonte || base.fonte, aggiornato: meta.aggiornato || ALLTIME_AGGIORNATO,
+                 film, valuta, nota: meta.nota || base.nota };
+      }
     }
-  }catch(err){ /* file assente: vale l'elenco integrato */ }
+  }catch(err){ /* file assente o malformato: vale l'elenco integrato */ }
   return { fonte: base.fonte, aggiornato: ALLTIME_AGGIORNATO,
            film: base.film, valuta: base.valuta, nota: base.nota };
 }
@@ -5543,6 +5763,7 @@ async function loadBoxOfficeStorico(key, mio){
 
   const righe = fonte.film
     .map(f => ({ movie: null, titolo: f.titolo, anno: f.anno || null,
+                 originale: f.titoloOriginale || '',
                  totale: Number(f.incasso) || 0, tmdb: f.tmdb_id || 0, ambito }))
     .filter(r => r.totale > 0)
     .sort((a, b) => b.totale - a.totale);
@@ -5556,7 +5777,12 @@ async function loadBoxOfficeStorico(key, mio){
          indovinare un identificativo: meglio una ricerca in piu' che una
          locandina sbagliata accanto a una cifra giusta. */
       const cercato = !r.tmdb;
-      const id = r.tmdb || await cercaIdTmdb(key, r.titolo, r.anno);
+      /* Il titolo italiano di distribuzione a volte non esiste su TMDB
+         ("Quasi amici" sta come "Intouchables"): il secondo tentativo usa
+         il titolo originale, quando il file lo dichiara. */
+      let id = r.tmdb || await cercaIdTmdb(key, r.titolo, r.anno);
+      if (!id && r.originale && normTitle(r.originale) !== normTitle(r.titolo))
+        id = await cercaIdTmdb(key, r.originale, r.anno);
       if (!id) return;
       const d = await fetchJSON(`${API_BASE}/movie/${id}?api_key=${encodeURIComponent(key)}&language=it-IT`);
       if (!d || !d.id) return;
@@ -6359,7 +6585,8 @@ const sfx = {
 
 /* --- Aptica: un tocco secco sui dispositivi che la supportano --- *//* --- Aptica: un tocco secco sui dispositivi che la supportano --- */
 /* Tre intensita': tocco leggero, apertura, gesto meccanico */
-const APTICA = { micro: 10, apri: 20, meccanico: [30, 40, 30] };
+/* Lo strappo ha un ritmo suo: due colpi e uno lungo, come la carta che cede */
+const APTICA = { micro: 10, apri: 20, meccanico: [30, 40, 30], strappo: [30, 20, 50] };
 
 function buzz(pattern){
   /* un solo interruttore per suoni e aptica: e' quello che dice l'etichetta */
@@ -6952,6 +7179,7 @@ function setClassifiche(on){
   });
   if (!state.classifiche) return;
   if (cambia) buzz(APTICA.micro);
+  if (cambia) pwaGestoImportante();
   window.scrollTo({ top: 0, behavior: REDUCED ? 'auto' : 'smooth' });
   if (!state.boxoffice.length) loadBoxOffice();
 }
@@ -7244,6 +7472,10 @@ function renderTags(movie, details){
 }
 
 function renderDateKind(movie, iso){
+  /* Senza data il badge di stato ripeterebbe "Data da annunciare":
+     lo si nasconde e resta la sola riga grande. */
+  if (!parseISO(iso)){ el.pDateKind.hidden = true; return; }
+  el.pDateKind.hidden = false;
   const st = statoData({ id: movie.id, release_date: iso, __annuncio: movie.__annuncio, __spostata: movie.__spostata });
   el.pDateKind.className = 'dstate ' + st.tipo;
   el.pDateKind.textContent = st.icona + ' ' + st.testo;
@@ -7806,6 +8038,7 @@ function misuraTaglio(){
 
 function apriCinePass(id){
   el.cinePass.classList.add('aperto');
+  el.cpTaglio.setAttribute('aria-expanded', 'true');
   el.cpAttesa.setAttribute('aria-hidden', 'true');
   el.cinePass.dataset.tagliato = String(id == null ? (el.cinePass.dataset.id || '') : id);
 }
@@ -7825,7 +8058,8 @@ function tagliaCinePass(){
   el.cpTaglio.classList.remove('taglia');
   void el.cpTaglio.offsetWidth;                            // riavvia l'animazione
   el.cpTaglio.classList.add('taglia');
-  buzz(APTICA.apri);
+  buzz(APTICA.strappo);
+  pwaGestoImportante();
   /* Il tagliando compare poco prima che la forbice esca: sembra che sia lei ad
      aprirlo. Sta su un timer e non sulla fine dell'animazione, cosi' il QR si
      vede comunque anche quando i fotogrammi non arrivano. */
@@ -7877,6 +8111,7 @@ function renderCinePass(movie, details){
   if (el.cinePass.dataset.tagliato !== String(movie.id)){
     el.cinePass.classList.remove('aperto');
     el.cpTaglio.classList.remove('taglia');
+    el.cpTaglio.setAttribute('aria-expanded', 'false');
     el.cpAttesa.setAttribute('aria-hidden', 'false');
     if (REDUCED) apriCinePass(movie.id);
   }
@@ -8733,8 +8968,13 @@ el.cpQrBtn.addEventListener('click', condividiQR);
 el.cpCopy.addEventListener('click', copiaLinkCinePass);
 el.cpSave.addEventListener('click', scaricaCinePass);
 el.cpTaglio.addEventListener('click', tagliaCinePass);
+/* Invio e Spazio: la linea e' un role="button", e un bottone si preme
+   anche da tastiera. Spacebar va fermata o la pagina scorre. */
 el.cpTaglio.addEventListener('keydown', e => {
-  if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); tagliaCinePass(); }
+  if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar'){
+    e.preventDefault();
+    tagliaCinePass();
+  }
 });
 /* il tasto “Taglia biglietto” della barra azioni porta al CinePass e lo apre */
 el.cutBtn.addEventListener('click', () => {
@@ -9072,8 +9312,148 @@ if (/[?&]debug/.test(location.search)){
   el.debugBox.hidden = false;
   /* ganci per i test automatici */
   window.__cineglass = { qrMatrix, drawQR, dominantColor, state, sfx, formatCurrency, ALLTIME, ALLTIME_AGGIORNATO,
-                         traiettoriaPopcorn, VOLO_MS, CP_TAGLIO_MS };
+                         traiettoriaPopcorn, VOLO_MS, CP_TAGLIO_MS, movies, goTo,
+                         titoloBaseRiedizione, fmtBudget };
 }
+/* =========================================================
+   19. INSTALLA CINEGLASS  (Aggiungi alla schermata Home)
+   ---------------------------------------------------------
+   Due strade diverse, perche' i browser non sono uguali:
+
+   - Chrome ed Edge emettono `beforeinstallprompt`. Si ferma il
+     banner di sistema e si tiene l'evento da parte: l'installazione
+     parte dal nostro pulsante, quando l'utente la chiede davvero.
+   - Safari su iPhone e iPad non ha quell'evento e non lo avra'. La',
+     installare e' un gesto manuale dal menu Condividi: l'unica cosa
+     onesta da fare e' spiegare i due passaggi.
+
+   Il foglio non compare mai all'apertura, non compare se l'app e'
+   gia' installata, e se viene chiuso non torna per due settimane.
+   ========================================================= */
+const PWA_KEY   = 'pwa_prompt_dismissed';
+const PWA_PAUSA = 14 * 24 * 60 * 60 * 1000;   /* due settimane */
+const PWA_ATTESA = 8000;                      /* otto secondi dall'avvio */
+
+let pwaEvento = null;     /* il beforeinstallprompt messo da parte */
+let pwaVisto  = false;    /* gia' mostrato in questa sessione */
+let pwaTimer  = 0;
+
+/* Gia' installata: in piedi da sola, oppure aperta dall'icona su iOS */
+function inApp(){
+  try{
+    return window.matchMedia('(display-mode: standalone)').matches ||
+           window.matchMedia('(display-mode: minimal-ui)').matches ||
+           navigator.standalone === true;
+  }catch(err){ return false; }
+}
+
+/* iPad con iPadOS 13+ si dichiara "MacIntel": senza il controllo sui
+   punti di tocco resterebbe fuori dalla guida che gli serve. */
+function suIOS(){
+  const ua = navigator.userAgent || '';
+  return /iPad|iPhone|iPod/.test(ua) ||
+         (navigator.platform === 'MacIntel' && (navigator.maxTouchPoints || 0) > 1);
+}
+
+function pwaInPausa(){
+  try{
+    const t = Number(localStorage.getItem(PWA_KEY) || 0);
+    return t > 0 && (Date.now() - t) < PWA_PAUSA;
+  }catch(err){ return false; }
+}
+function pwaRimanda(){
+  try{ localStorage.setItem(PWA_KEY, String(Date.now())); }catch(err){ /* modalita' privata */ }
+}
+
+/* Ha senso proporre l'installazione solo se c'e' qualcosa da fare:
+   un evento da riattivare, oppure iOS dove si spiega come si fa. */
+function pwaPossibile(){ return !inApp() && (!!pwaEvento || suIOS()); }
+
+function aggiornaVoceInstalla(){ el.installBtn.hidden = !pwaPossibile(); }
+
+function mostraPwa(forzato){
+  if (!pwaPossibile()) return;
+  if (!forzato && (pwaVisto || pwaInPausa())) return;
+  pwaVisto = true;
+  const guida = !pwaEvento && suIOS();
+  el.pwaIos.hidden = !guida;
+  el.pwaGo.textContent = guida ? 'Ho capito' : 'Installa ora';
+  el.pwaSub.textContent = guida
+    ? 'Due passaggi in Safari e CineGlass sta sulla schermata Home, biglietti compresi.'
+    : 'Accedi ai tuoi biglietti offline e alla programmazione senza aprire il browser';
+  el.pwaSheet.hidden = false;
+  requestAnimationFrame(() => el.pwaSheet.classList.add('su'));
+}
+
+function chiudiPwa(conPausa){
+  el.pwaSheet.classList.remove('su');
+  if (conPausa) pwaRimanda();
+  setTimeout(() => { el.pwaSheet.hidden = true; }, REDUCED ? 0 : 420);
+}
+
+async function installaOra(){
+  /* Su iOS non c'e' niente da lanciare: il pulsante dice "Ho capito" */
+  if (!pwaEvento){ chiudiPwa(true); return; }
+  const ev = pwaEvento;
+  pwaEvento = null;                 /* si puo' usare una volta sola */
+  chiudiPwa(false);
+  try{
+    ev.prompt();
+    const esito = await ev.userChoice;
+    if (!esito || esito.outcome !== 'accepted') pwaRimanda();
+  }catch(err){ /* l'evento era gia' stato consumato */ }
+  aggiornaVoceInstalla();
+}
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();              /* niente banner di sistema */
+  pwaEvento = e;
+  aggiornaVoceInstalla();
+  armaPwa();
+});
+
+window.addEventListener('appinstalled', () => {
+  pwaEvento = null;
+  chiudiPwa(false);
+  aggiornaVoceInstalla();
+  toast('CineGlass \u00e8 sulla tua schermata Home \ud83c\udfac', 'ok');
+});
+
+/* Il foglio aspetta: otto secondi dall'avvio, oppure il primo gesto che
+   vale davvero (strappare un biglietto, aprire le classifiche), quello
+   che arriva prima. Chiedere di installare a pagina appena aperta e'
+   chiedere a qualcuno di sposarti sulla porta di casa. */
+function armaPwa(){
+  if (pwaTimer || !pwaPossibile() || pwaInPausa()) return;
+  pwaTimer = setTimeout(() => mostraPwa(false), PWA_ATTESA);
+}
+
+function pwaGestoImportante(){
+  if (pwaVisto || !pwaPossibile() || pwaInPausa()) return;
+  clearTimeout(pwaTimer);
+  pwaTimer = setTimeout(() => mostraPwa(false), 1200);
+}
+
+el.pwaGo.addEventListener('click', installaOra);
+el.pwaLater.addEventListener('click', () => chiudiPwa(true));
+el.pwaX.addEventListener('click', () => chiudiPwa(true));
+el.installBtn.addEventListener('click', () => { apriMenu(false); mostraPwa(true); });
+
+/* Il service worker serve a due cose: far aprire CineGlass anche senza
+   rete e rendere l'app installabile. Fuori da https non si registra
+   nemmeno, cosi' aprendo il file in locale non succede niente. */
+function registraSW(){
+  if (!('serviceWorker' in navigator)) return;
+  const sicuro = location.protocol === 'https:' ||
+                 location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  if (!sicuro) return;
+  navigator.serviceWorker.register('./sw.js').catch(() => { /* niente offline, pazienza */ });
+}
+
+aggiornaVoceInstalla();
+if (suIOS()) armaPwa();
+registraSW();
+
 renderStatus();
 initDrag();
 boot().then(apriDaLink);

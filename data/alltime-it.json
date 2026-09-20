@@ -1,0 +1,20 @@
+[
+  { "title": "Avatar", "original_title": "Avatar", "year": 2009, "revenue": 65700000, "currency": "EUR", "tmdb_id": 19995, "source_note": "Dato Cinetel/ANICA · include le riedizioni 2010 e 2022" },
+  { "title": "Quo vado?", "original_title": "Quo vado?", "year": 2016, "revenue": 65300000, "currency": "EUR", "tmdb_id": null, "source_note": "Dato Cinetel/ANICA · record per un film italiano" },
+  { "title": "Sole a catinelle", "original_title": "Sole a catinelle", "year": 2013, "revenue": 51900000, "currency": "EUR", "tmdb_id": null, "source_note": "Dato Cinetel/ANICA" },
+  { "title": "Tolo Tolo", "original_title": "Tolo Tolo", "year": 2020, "revenue": 46200000, "currency": "EUR", "tmdb_id": null, "source_note": "Dato Cinetel/ANICA · stagione interrotta dalla chiusura delle sale" },
+  { "title": "Che bella giornata", "original_title": "Che bella giornata", "year": 2011, "revenue": 43400000, "currency": "EUR", "tmdb_id": null, "source_note": "Dato Cinetel/ANICA" },
+  { "title": "Titanic", "original_title": "Titanic", "year": 1998, "revenue": 39400000, "currency": "EUR", "tmdb_id": 597, "source_note": "Stagione 1997/98 · cifra in lire convertita in euro, da prendere con cautela" },
+  { "title": "C’è ancora domani", "original_title": "C’è ancora domani", "year": 2023, "revenue": 36800000, "currency": "EUR", "tmdb_id": null, "source_note": "Dato Cinetel/ANICA · incasso complessivo di carriera in sala" },
+  { "title": "Natale sul Nilo", "original_title": "Natale sul Nilo", "year": 2002, "revenue": 32800000, "currency": "EUR", "tmdb_id": null, "source_note": "Dato Cinetel/ANICA" },
+  { "title": "La vita è bella", "original_title": "La vita è bella", "year": 1997, "revenue": 31300000, "currency": "EUR", "tmdb_id": 637, "source_note": "Incasso di carriera comprensivo delle riedizioni post-Oscar · cifra in lire convertita, da prendere con cautela" },
+  { "title": "Il Signore degli Anelli: Il ritorno del re", "original_title": "The Lord of the Rings: The Return of the King", "year": 2003, "revenue": 31200000, "currency": "EUR", "tmdb_id": 122, "source_note": "Dato Cinetel/ANICA" },
+  { "title": "Avengers: Endgame", "original_title": "Avengers: Endgame", "year": 2019, "revenue": 30300000, "currency": "EUR", "tmdb_id": 299534, "source_note": "Dato Cinetel/ANICA" },
+  { "title": "Benvenuti al Sud", "original_title": "Benvenuti al Sud", "year": 2010, "revenue": 29800000, "currency": "EUR", "tmdb_id": null, "source_note": "Dato Cinetel/ANICA" },
+  { "title": "Harry Potter e la pietra filosofale", "original_title": "Harry Potter and the Philosopher’s Stone", "year": 2001, "revenue": 27100000, "currency": "EUR", "tmdb_id": 671, "source_note": "Dato Cinetel/ANICA" },
+  { "title": "Quasi amici – Intouchables", "original_title": "Intouchables", "year": 2011, "revenue": 26000000, "currency": "EUR", "tmdb_id": 77338, "source_note": "Dato Cinetel/ANICA · uscita italiana 2012" },
+  { "title": "Frozen II – Il segreto di Arendelle", "original_title": "Frozen II", "year": 2019, "revenue": 25900000, "currency": "EUR", "tmdb_id": 330457, "source_note": "Dato Cinetel/ANICA" },
+  { "title": "Inside Out 2", "original_title": "Inside Out 2", "year": 2024, "revenue": 23100000, "currency": "EUR", "tmdb_id": 1022789, "source_note": "Dato Cinetel/ANICA" },
+  { "title": "Perfetti sconosciuti", "original_title": "Perfetti sconosciuti", "year": 2016, "revenue": 17300000, "currency": "EUR", "tmdb_id": null, "source_note": "Dato Cinetel/ANICA" },
+  { "title": "Cado dalle nubi", "original_title": "Cado dalle nubi", "year": 2009, "revenue": 14000000, "currency": "EUR", "tmdb_id": null, "source_note": "Dato Cinetel/ANICA · esordio di Checco Zalone" }
+]

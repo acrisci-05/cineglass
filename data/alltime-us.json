@@ -1,0 +1,22 @@
+[
+  { "title": "Star Wars: Il risveglio della Forza", "original_title": "Star Wars: The Force Awakens", "year": 2015, "revenue": 936662225, "currency": "USD", "tmdb_id": 140607, "source_note": "Box Office Mojo · domestic unadjusted" },
+  { "title": "Avengers: Endgame", "original_title": "Avengers: Endgame", "year": 2019, "revenue": 858373000, "currency": "USD", "tmdb_id": 299534, "source_note": "Box Office Mojo · domestic unadjusted, riedizioni comprese" },
+  { "title": "Spider-Man: No Way Home", "original_title": "Spider-Man: No Way Home", "year": 2021, "revenue": 814115070, "currency": "USD", "tmdb_id": 634649, "source_note": "Box Office Mojo · domestic unadjusted, esclusa la versione More Fun Stuff" },
+  { "title": "Avatar", "original_title": "Avatar", "year": 2009, "revenue": 785221649, "currency": "USD", "tmdb_id": 19995, "source_note": "Box Office Mojo · domestic unadjusted, riedizioni comprese" },
+  { "title": "Top Gun: Maverick", "original_title": "Top Gun: Maverick", "year": 2022, "revenue": 718732821, "currency": "USD", "tmdb_id": 361743, "source_note": "Box Office Mojo · domestic unadjusted" },
+  { "title": "Black Panther", "original_title": "Black Panther", "year": 2018, "revenue": 700426566, "currency": "USD", "tmdb_id": 284054, "source_note": "Box Office Mojo · domestic unadjusted" },
+  { "title": "Avatar: La via dell’acqua", "original_title": "Avatar: The Way of Water", "year": 2022, "revenue": 684075767, "currency": "USD", "tmdb_id": 76600, "source_note": "Box Office Mojo · domestic unadjusted" },
+  { "title": "Titanic", "original_title": "Titanic", "year": 1997, "revenue": 674292608, "currency": "USD", "tmdb_id": 597, "source_note": "Box Office Mojo · domestic unadjusted, riedizioni 2012 e 2023 comprese" },
+  { "title": "Jurassic World", "original_title": "Jurassic World", "year": 2015, "revenue": 653406625, "currency": "USD", "tmdb_id": 135397, "source_note": "Box Office Mojo · domestic unadjusted" },
+  { "title": "Inside Out 2", "original_title": "Inside Out 2", "year": 2024, "revenue": 652980194, "currency": "USD", "tmdb_id": 1022789, "source_note": "Box Office Mojo · domestic unadjusted" },
+  { "title": "Deadpool & Wolverine", "original_title": "Deadpool & Wolverine", "year": 2024, "revenue": 636745858, "currency": "USD", "tmdb_id": 533535, "source_note": "Box Office Mojo · domestic unadjusted" },
+  { "title": "Barbie", "original_title": "Barbie", "year": 2023, "revenue": 636238421, "currency": "USD", "tmdb_id": 346698, "source_note": "Box Office Mojo · domestic unadjusted" },
+  { "title": "The Avengers", "original_title": "The Avengers", "year": 2012, "revenue": 623357910, "currency": "USD", "tmdb_id": 24428, "source_note": "Box Office Mojo · domestic unadjusted" },
+  { "title": "Star Wars: Gli ultimi Jedi", "original_title": "Star Wars: The Last Jedi", "year": 2017, "revenue": 620181382, "currency": "USD", "tmdb_id": 181808, "source_note": "Box Office Mojo · domestic unadjusted" },
+  { "title": "Gli Incredibili 2", "original_title": "Incredibles 2", "year": 2018, "revenue": 608581744, "currency": "USD", "tmdb_id": 260513, "source_note": "Box Office Mojo · domestic unadjusted" },
+  { "title": "Super Mario Bros. – Il film", "original_title": "The Super Mario Bros. Movie", "year": 2023, "revenue": 574934330, "currency": "USD", "tmdb_id": 502356, "source_note": "Box Office Mojo · domestic unadjusted" },
+  { "title": "Il Re Leone", "original_title": "The Lion King", "year": 2019, "revenue": 543638043, "currency": "USD", "tmdb_id": 420818, "source_note": "Box Office Mojo · domestic unadjusted · remake fotorealistico" },
+  { "title": "Il cavaliere oscuro", "original_title": "The Dark Knight", "year": 2008, "revenue": 535234033, "currency": "USD", "tmdb_id": 155, "source_note": "Box Office Mojo · domestic unadjusted, riedizioni IMAX comprese" },
+  { "title": "Rogue One: A Star Wars Story", "original_title": "Rogue One: A Star Wars Story", "year": 2016, "revenue": 532177324, "currency": "USD", "tmdb_id": 330459, "source_note": "Box Office Mojo · domestic unadjusted" },
+  { "title": "La Bella e la Bestia", "original_title": "Beauty and the Beast", "year": 2017, "revenue": 504014165, "currency": "USD", "tmdb_id": 321612, "source_note": "Box Office Mojo · domestic unadjusted · remake live action" }
+]
