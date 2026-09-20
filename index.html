@@ -259,6 +259,7 @@ a{color:inherit;text-decoration:none}
 /* ---------- Box office / in sala ---------- */
 .section{max-width:1080px;margin:clamp(30px,5vw,58px) auto 0}
 .section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+#boxoffice .section-head{margin-bottom:12px}
 .section-head h2{font-size:clamp(19px,2.6vw,26px);font-weight:600;letter-spacing:-.025em}
 .section-head p{font-size:12.5px;color:var(--muted);font-weight:300;margin-top:4px;max-width:62ch;line-height:1.55}
 .source-tag{display:inline-flex;align-items:center;gap:7px;padding:6px 13px;border-radius:999px;font-size:11px;
@@ -282,7 +283,20 @@ a{color:inherit;text-decoration:none}
 /* Nota fissa sulla provenienza dei numeri: non e' decorazione, e' trasparenza */
 .bo-foot{margin-top:9px;padding-top:9px;border-top:1px solid var(--stroke-soft);
   font-size:11px;color:var(--faint);line-height:1.6}
-.bo-head-right{display:flex;flex-direction:column;align-items:flex-end;gap:9px}
+/* Due livelli di filtro: il territorio decide quali film, il periodo quando */
+.bo-filtri{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+.bo-terr{display:inline-flex;align-self:flex-start;gap:3px;padding:3px;border-radius:999px;
+  background:rgba(255,255,255,.05);border:1px solid var(--stroke-soft);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.bo-terr button{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 17px;
+  border-radius:999px;font-size:13px;font-weight:500;color:var(--muted);white-space:nowrap;
+  transition:color .25s, background .25s}
+.bo-terr button .terr-f{font-size:15px;line-height:1}
+.bo-terr button:hover{color:var(--txt)}
+.bo-terr button.on{color:var(--txt);
+  background:linear-gradient(120deg, color-mix(in oklab, var(--c1) 32%, transparent), color-mix(in oklab, var(--c2) 32%, transparent));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.16)}
+.bo-tabs{align-self:flex-start}
 .bo-anni{justify-content:flex-start;margin:0 0 12px}
 /* Medaglie: il numero in gradiente va spento o l'emoji resta invisibile */
 .bo-rank.medaglia{background:none;-webkit-text-fill-color:initial;color:inherit;font-size:25px;line-height:1}
@@ -333,12 +347,14 @@ body.vista-classifiche .top{min-height:0;justify-content:flex-start}
   .bo-lab{margin-top:0}
   .bo-row .bo-act{grid-column:1 / -1;justify-self:start}
   .bo-value .pill-incasso{margin-left:0}
-  /* le tre classifiche scorrono in orizzontale invece di andare a capo */
-  .bo-head-right{align-items:stretch;width:100%}
-  .bo-tabs{overflow-x:auto;scrollbar-width:none;justify-content:flex-start;max-width:100%}
-  .bo-tabs::-webkit-scrollbar{display:none}
-  .bo-tabs button{flex:0 0 auto;white-space:nowrap}
-  .bo-head-right .source-tag{align-self:flex-start}
+  /* I due selettori scorrono in orizzontale invece di andare a capo */
+  .bo-filtri{gap:8px}
+  .bo-terr,.bo-tabs{display:flex;overflow-x:auto;scrollbar-width:none;
+    justify-content:flex-start;max-width:100%;align-self:stretch}
+  .bo-terr::-webkit-scrollbar,.bo-tabs::-webkit-scrollbar{display:none}
+  .bo-terr button,.bo-tabs button{flex:0 0 auto;white-space:nowrap}
+  .bo-terr button{padding:0 14px;font-size:12.5px}
+  #boxoffice .source-tag{align-self:flex-start}
 }
 
 /* ---------- Carosello 3D ---------- */
@@ -416,7 +432,11 @@ body.trascina .aurora,body.trascina .blob{animation-play-state:paused}
 .card.is-active:hover .poster{transform:scale(1.045)}
 
 /* Frecce e indicatori */
-.nav{position:absolute;top:50%;translate:0 -50%;z-index:70;width:54px;height:54px;border-radius:50%;display:grid;place-items:center;
+/* Le frecce devono stare sopra ogni locandina. Il ciclo di render assegna
+   alle schede uno z-index inline fino a Z_CARD_MAX (120): se questo valore
+   non resta piu' alto, il tocco sulla freccia finisce sulla locandina sotto
+   e apre la scheda o il trailer. I due numeri vanno tenuti in pari. */
+.nav{position:absolute;top:50%;translate:0 -50%;z-index:140;width:54px;height:54px;border-radius:50%;display:grid;place-items:center;
   background:var(--glass);border:1px solid var(--stroke);backdrop-filter:blur(18px) saturate(1.5);-webkit-backdrop-filter:blur(18px);
   box-shadow:0 18px 40px -20px rgba(0,0,0,.9);transition:transform .35s var(--ease), background .3s, opacity .3s}
 .nav svg{width:20px;height:20px}
@@ -2735,13 +2755,23 @@ body.trascina .card-play,body.trascina .card-quick,body.trascina .card-bucket{po
         <h2 id="boTitle">📊 Box Office &amp; Classifiche</h2>
         <p id="boIntro">Film attualmente in programmazione, dal più seguito.</p>
       </div>
-      <div class="bo-head-right">
-        <div class="bo-tabs" id="boTabs" role="group" aria-label="Classifiche box office">
-          <button type="button" data-botab="sala" class="on" aria-pressed="true">🎟️ In sala ora</button>
-          <button type="button" data-botab="storica" aria-pressed="false">🏆 Tutti i tempi</button>
-          <button type="button" data-botab="anno" aria-pressed="false">📅 Per anno</button>
-        </div>
-        <span class="source-tag" id="boSource">—</span>
+      <span class="source-tag" id="boSource">—</span>
+    </div>
+
+    <!-- Due livelli: prima il territorio, poi il periodo -->
+    <div class="bo-filtri">
+      <div class="bo-terr" id="boTerr" role="group" aria-label="Territorio">
+        <button type="button" data-terr="it" class="on" aria-pressed="true">
+          <span class="terr-f" aria-hidden="true">🇮🇹</span><span class="terr-n">Italia</span></button>
+        <button type="button" data-terr="us" aria-pressed="false">
+          <span class="terr-f" aria-hidden="true">🇺🇸</span><span class="terr-n">USA</span></button>
+        <button type="button" data-terr="ww" aria-pressed="false">
+          <span class="terr-f" aria-hidden="true">🌐</span><span class="terr-n">Mondiale</span></button>
+      </div>
+      <div class="bo-tabs" id="boTabs" role="group" aria-label="Periodo">
+        <button type="button" data-botab="sala" class="on" aria-pressed="true">🎟️ In sala ora</button>
+        <button type="button" data-botab="storica" aria-pressed="false">🏆 Tutti i tempi</button>
+        <button type="button" data-botab="anno" aria-pressed="false">📅 Per anno</button>
       </div>
     </div>
     <div class="chips bo-anni" id="boAnni" role="group" aria-label="Anno della classifica" hidden></div>
@@ -2940,6 +2970,7 @@ const TTL_DET   = 24 * 60 * 60 * 1000;       // cache dettagli: 24 ore
 const MAX_MOVIES = 24;       // film mostrati nel carosello
 const MAX_CANDIDATES = 30;   // film interrogati per conoscerne la data italiana
 const BO_TOP = 10;           // righe della classifica "in sala ora"
+const Z_CARD_MAX = 120;      // tetto z-index delle locandine (le frecce stanno a 140)
 const STORE = {
   list:    'cineglass:upcoming:v2',
   details: 'cineglass:details:v2',
@@ -3227,7 +3258,7 @@ function rilevaPrestazioni(){
 const state = {
   movies: [], favs: [], favOnly: false, detailsCache: {},
   view: [], genre: null, mode: 'upcoming', searchList: [], searchQuery: '',
-  layout: 'carousel', ultimaPiatta: 'carousel', anno: null, providers: {}, boxoffice: [], boTab: 'sala', boAnno: null, classifiche: false, ricevuto: false,
+  layout: 'carousel', ultimaPiatta: 'carousel', anno: null, providers: {}, boxoffice: [], boTab: 'sala', boTerr: 'it', boAnno: null, classifiche: false, ricevuto: false,
   credits: {}, custom: null,
   section: 'soon', nowPlaying: [], durata: null, storiaVera: false,
   tiltX: 0, tiltY: 0, perfBassa: false, tema: 'scuro',
@@ -3258,7 +3289,7 @@ const el = {
   btnCarousel:$('#btnCarousel'), btnList:$('#btnList'), layoutMini:$('#layoutMini'),
   topbar:$('.topbar'), navSeg:$('#navSeg'), navSlider:$('#navSlider'), chipsYear:$('#chipsYear'),
   boxoffice:$('#boxoffice'), boList:$('#boList'), boSource:$('#boSource'),
-  boIntro:$('#boIntro'), boNote:$('#boNote'), boTabs:$('#boTabs'), boAnni:$('#boAnni'),
+  boIntro:$('#boIntro'), boNote:$('#boNote'), boTabs:$('#boTabs'), boTerr:$('#boTerr'), boAnni:$('#boAnni'),
   boTitle:$('#boTitle'), pFonti:$('#pFonti'), pMojo:$('#pMojo'), pWiki:$('#pWiki'),
   castWrap:$('#castWrap'), castStrip:$('#castStrip'),
   creatorBtn:$('#creatorBtn'), creatorSheet:$('#creatorSheet'), sfxBtn:$('#sfxBtn'),
@@ -4112,7 +4143,9 @@ function render(){
         `rotateX(${tx.toFixed(2)}deg) rotateY(${(ry + ty).toFixed(2)}deg) rotateZ(${rz.toFixed(2)}deg) scale(${sc.toFixed(3)})`;
     }
     card.style.opacity = String(clamp(1 - ca * 0.2, 0, 1).toFixed(3));
-    card.style.zIndex = String(120 - Math.round(a * 12));
+    /* Z_CARD_MAX: il tetto degli z-index delle locandine. Le frecce del
+       carosello stanno a 140 nel CSS e devono restare sopra a questo. */
+    card.style.zIndex = String(Z_CARD_MAX - Math.round(a * 12));
     card.style.setProperty('--frost', String(clamp((a - 0.15) * 0.6, 0, 0.88).toFixed(3)));
     const eraAttiva = card.classList.contains('is-active');
     card.classList.toggle('is-active', i === active);
@@ -5024,6 +5057,61 @@ function formatCurrency(amount){
   return '$' + Math.round(v).toLocaleString('it-IT');
 }
 
+/* Incassi in euro: stessa logica di formatCurrency, valuta diversa. */
+function formatEuro(amount){
+  const v = Number(amount) || 0;
+  if (v <= 0) return 'Dato non disponibile';
+  if (v >= 1e9) return (v / 1e9).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Mld\u20ac';
+  /* Gli incassi di un mercato singolo stanno nell'ordine dei milioni: il
+     decimale si tiene fino a cento milioni, o 12,5 M\u20ac diventerebbe 13 M\u20ac. */
+  if (v >= 1e6) return (v / 1e6).toLocaleString('it-IT', { maximumFractionDigits: v < 1e8 ? 1 : 0 }) + ' M\u20ac';
+  return '\u20ac ' + Math.round(v).toLocaleString('it-IT');
+}
+
+/* ---------------------------------------------------------------------
+   I TRE TERRITORI
+   Qui serve dire con precisione che cosa cambia e che cosa no, perche'
+   l'API non da' quello che sembrerebbe ovvio.
+
+   TMDB espone UN SOLO dato d'incasso per film: `revenue`, che e'
+   l'incasso MONDIALE. Non esiste un incasso domestico statunitense ne'
+   uno italiano nell'API. Quindi:
+
+   - il territorio cambia DAVVERO quali film compaiono, perche' guida
+     `region` in /movie/now_playing e /discover: la programmazione
+     italiana e quella americana sono liste diverse, e lo sono anche i
+     film usciti in un dato anno in un paese o nell'altro;
+   - il territorio NON puo' cambiare da solo la cifra. Se il repository
+     fornisce un file con gli incassi di quel mercato la cifra diventa
+     quella, in valuta locale; altrimenti resta l'incasso mondiale e
+     l'etichetta della riga lo dichiara, invece di far finta.
+
+   E' la stessa regola del resto dell'app: meglio un'etichetta onesta
+   che un numero che sembra locale e non lo e'.
+   --------------------------------------------------------------------- */
+const TERRITORI = {
+  it: { chiave: 'it', bandiera: '\ud83c\uddee\ud83c\uddf9', nome: 'Italia', aggettivo: 'italiane',
+        region: 'IT', valuta: 'EUR', etichetta: 'Incasso Italia',
+        file: ['./data/boxoffice-it.json', './data/boxoffice.json'] },
+  us: { chiave: 'us', bandiera: '\ud83c\uddfa\ud83c\uddf8', nome: 'USA', aggettivo: 'statunitensi',
+        region: 'US', valuta: 'USD', etichetta: 'Incasso USA',
+        file: ['./data/boxoffice-us.json'] },
+  ww: { chiave: 'ww', bandiera: '\ud83c\udf10', nome: 'Mondiale', aggettivo: 'di tutto il mondo',
+        region: '', valuta: 'USD', etichetta: 'Incasso mondiale', file: [] }
+};
+
+const territorio = () => TERRITORI[state.boTerr] || TERRITORI.it;
+
+/* La cifra si formatta secondo la valuta del dato, non del territorio
+   scelto: un incasso mondiale resta in dollari anche guardando l'Italia. */
+function formatIncasso(valore, ambito){
+  return ambito === 'it' ? formatEuro(valore) : formatCurrency(valore);
+}
+
+/* L'etichetta sotto la cifra dice sempre da dove viene il numero */
+const etichettaAmbito = ambito =>
+  ambito === 'it' ? 'Incasso Italia' : ambito === 'us' ? 'Incasso USA' : 'Incasso mondiale';
+
 /* Le due fonti che l'utente puo' verificare da solo */
 const linkMojo = t => 'https://www.boxofficemojo.com/search/?q=' + encodeURIComponent(String(t || ''));
 const linkWiki = t => 'https://it.wikipedia.org/w/index.php?search=' + encodeURIComponent(String(t || '') + ' film');
@@ -5107,13 +5195,20 @@ function slimRiga(r){
   };
 }
 
-async function loadLocalBoxOffice(){
-  try{
-    const res = await fetch('./data/boxoffice.json', { cache: 'no-cache' });
-    if (!res.ok) return null;
-    const d = await res.json();
-    return (d && Array.isArray(d.classifica) && d.classifica.length) ? d : null;
-  }catch(err){ return null; }   // file assente o aperto da file://
+/* Incassi reali di un mercato: arrivano da un file del repository, se c'e'.
+   L'Italia ne accetta due nomi perche' data/boxoffice.json esisteva prima
+   che i territori fossero tre, e i repository esistenti non vanno rotti. */
+async function loadLocalBoxOffice(terr){
+  const t = terr || territorio();
+  for (const via of (t.file || [])){
+    try{
+      const res = await fetch(via, { cache: 'no-cache' });
+      if (!res.ok) continue;
+      const d = await res.json();
+      if (d && Array.isArray(d.classifica) && d.classifica.length) return d;
+    }catch(err){ /* file assente o aperto da file://: si prova il prossimo */ }
+  }
+  return null;
 }
 
 /* L'elenco storico si puo' sovrascrivere senza ricompilare nulla */
@@ -5142,6 +5237,7 @@ async function loadBoxOffice(){
   if (!key || state.demo){
     state.boxoffice = [];
     el.boTitle.textContent = '\ud83d\udcca Box Office & Classifiche';
+    el.boAnni.hidden = true;
     el.boSource.textContent = state.demo ? 'Modalit\u00e0 dimostrativa' : 'Chiave TMDB assente';
     el.boIntro.textContent = 'Le classifiche d\u2019incasso arrivano da TMDB.';
     el.boNote.textContent = '';
@@ -5169,28 +5265,36 @@ function classificaVuota(msg){
   el.boList.innerHTML = '<li class="bo-empty">' + esc(msg) + '</li>';
 }
 
-/* --- A. Film in sala adesso, ordinati per incasso mondiale --- */
+/* --- A. Film in sala adesso nel territorio scelto --- */
 async function loadBoxOfficeSala(key, mio){
-  el.boTitle.textContent = '\ud83c\udf9f\ufe0f Nelle sale ora in Italia';
+  const t = territorio();
+  el.boTitle.textContent = t.chiave === 'ww'
+    ? '\ud83c\udf9f\ufe0f Nelle sale adesso nel mondo'
+    : `\ud83c\udf9f\ufe0f Nelle sale ora ${t.chiave === 'it' ? 'in Italia' : 'negli Stati Uniti'}`;
+
   let inSala = [];
   try{
-    const data = await fetchJSON(`${API_BASE}/movie/now_playing?api_key=${encodeURIComponent(key)}&language=it-IT&region=IT&page=1`);
+    const data = await fetchJSON(`${API_BASE}/movie/now_playing?api_key=${encodeURIComponent(key)}` +
+      `&language=it-IT&page=1` + (t.region ? `&region=${t.region}` : ''));
     inSala = (data && data.results ? data.results : [])
       .map(slimMovie)
       .filter(m => m.poster_path)
       .sort((a, b) => b.popularity - a.popularity)
       .slice(0, BO_TOP);
   }catch(err){
-    const cache = boCacheGet('sala');
+    const cache = boCacheGet('sala:' + t.chiave);
     if (cache){ pubblica(cache, mio); el.boSource.textContent = 'Dati dalla cache locale'; return; }
     classificaVuota('Non riesco a raggiungere TMDB: riprova quando torna la rete.');
     return;
   }
   if (mio !== boSeq) return;
-  if (!inSala.length){ classificaVuota('TMDB non riporta film in programmazione in Italia in questo momento.'); return; }
+  if (!inSala.length){
+    classificaVuota(`TMDB non riporta film in programmazione ${t.chiave === 'ww' ? 'in questo momento' : 'in ' + t.nome} adesso.`);
+    return;
+  }
 
-  /* Incassi reali in euro, se il repository include data/boxoffice.json */
-  const locale = await loadLocalBoxOffice();
+  /* Se il repository fornisce gli incassi di questo mercato, si usano quelli */
+  const locale = await loadLocalBoxOffice(t);
   if (mio !== boSeq) return;
   let righe;
   if (locale){
@@ -5198,13 +5302,15 @@ async function loadBoxOfficeSala(key, mio){
     const perTitolo = new Map(inSala.map(m => [normTitle(m.title), m]));
     righe = locale.classifica.slice(0, BO_TOP).map(r => ({
       movie: perId.get(r.tmdb_id) || perTitolo.get(normTitle(r.titolo)) || null,
-      titolo: r.titolo, incasso: r.incasso, totale: r.incasso_totale, schermi: r.schermi
+      titolo: r.titolo, incasso: r.incasso, totale: r.incasso_totale,
+      schermi: r.schermi, ambito: t.chiave
     }));
     el.boSource.textContent = `Fonte: ${locale.fonte || 'file locale'}`;
     el.boIntro.textContent = locale.settimana
-      ? `Incassi del weekend ${locale.settimana} nelle sale italiane.`
-      : 'Incassi nelle sale italiane.';
-    el.boNote.textContent = `Dati in euro forniti da ${locale.fonte || 'data/boxoffice.json'}` +
+      ? `Incassi del weekend ${locale.settimana} nelle sale ${t.aggettivo}.`
+      : `Incassi nelle sale ${t.aggettivo}.`;
+    el.boNote.textContent = `Dati in ${t.valuta === 'EUR' ? 'euro' : 'dollari'} forniti da ` +
+      `${locale.fonte || 'un file del repository'}` +
       (locale.aggiornato ? `, aggiornati al ${fmtDate(locale.aggiornato)}.` : '.');
   } else {
     await inBatches(inSala, 5, async m => {
@@ -5215,22 +5321,29 @@ async function loadBoxOfficeSala(key, mio){
     /* Niente filtro qui: un film appena uscito ha davvero incasso 0 su TMDB
        e va segnalato come "in corso d'incasso", non nascosto. */
     righe = inSala
-      .map(m => ({ movie: m, titolo: m.title, incasso: null, totale: Number(m.__rev) || 0 }))
+      .map(m => ({ movie: m, titolo: m.title, incasso: null, totale: Number(m.__rev) || 0, ambito: 'ww' }))
       .map(r => Object.assign(r, { inCorso: r.totale <= 0 }))
       .sort((a, b) => (b.totale || 0) - (a.totale || 0));
-    el.boSource.textContent = 'Fonte: TMDB /movie/now_playing (IT)';
-    el.boIntro.textContent = 'Incassi mondiali aggiornati dei film attualmente in programmazione in Italia.';
-    el.boNote.textContent = 'Gli importi sono incassi mondiali complessivi in dollari dichiarati su TMDB, ' +
-      'non incassi italiani. I titoli usciti da poco riportano ancora zero: per loro compare la pillola ' +
-      '\u201cIn corso d\u2019incasso\u201d invece di una cifra finta. Per gli incassi reali in euro l\u2019app ' +
-      'legge data/boxoffice.json, se presente nel repository.';
+    el.boSource.textContent = 'Fonte: TMDB /movie/now_playing' + (t.region ? ` (${t.region})` : '');
+    el.boIntro.textContent = t.chiave === 'ww'
+      ? 'I film in programmazione nel mondo, ordinati per incasso mondiale.'
+      : `I film attualmente nelle sale ${t.aggettivo}, ordinati per incasso mondiale.`;
+    el.boNote.textContent = t.chiave === 'ww'
+      ? 'Incassi mondiali complessivi in dollari dichiarati su TMDB. I titoli usciti da poco ' +
+        'riportano ancora zero: per loro compare la pillola \u201cIn corso d\u2019incasso\u201d ' +
+        'invece di una cifra finta.'
+      : `La lista \u00e8 la programmazione ${t.aggettivo} vera, presa da TMDB con region=${t.region}. ` +
+        `Le cifre invece sono incassi mondiali: TMDB espone un solo dato d\u2019incasso per film e ` +
+        `non ha il dato ${t.chiave === 'it' ? 'italiano' : 'domestico statunitense'}. Per averlo in ` +
+        `${t.valuta === 'EUR' ? 'euro' : 'dollari'} l\u2019app legge ${t.file[0]}, se presente nel repository.`;
   }
   if (!pubblica(righe, mio)) return;
-  boCacheSet('sala', righe);
+  boCacheSet('sala:' + t.chiave, righe);
 }
 
 /* --- B. La classifica storica di sempre --- */
 async function loadBoxOfficeStorico(key, mio){
+  const t = territorio();
   const fonte = await caricaAllTime();
   if (mio !== boSeq) return;
   el.boTitle.textContent = '\ud83c\udfc6 I maggiori incassi di sempre';
@@ -5239,13 +5352,18 @@ async function loadBoxOfficeStorico(key, mio){
   el.boNote.textContent = 'Incassi mondiali lordi in dollari, riedizioni comprese e senza adeguamento ' +
     'all\u2019inflazione: un film del 1997 e uno del 2025 non si confrontano davvero alla pari. Elenco curato ' +
     'a mano su Box Office Mojo / Wikipedia e aggiornato al ' + fmtDate(fonte.aggiornato) +
-    '; tocca \ud83c\udf10 su una riga per controllare la cifra alla fonte. Locandine e schede vengono da TMDB.';
+    '; tocca \ud83c\udf10 su una riga per controllare la cifra alla fonte. Locandine e schede vengono da TMDB.' +
+    (t.chiave === 'ww' ? '' :
+      ` Non esiste una classifica storica ${t.chiave === 'it' ? 'italiana' : 'statunitense'}: ` +
+      `n\u00e9 TMDB n\u00e9 l\u2019elenco curato la forniscono, quindi anche scegliendo ${t.nome} ` +
+      `questa resta la classifica mondiale.`);
 
   const cache = boCacheGet('storica');
   if (cache && cache.length === fonte.film.length){ pubblica(cache, mio); return; }
 
   const righe = fonte.film
-    .map(f => ({ movie: null, titolo: f.titolo, anno: f.anno || null, totale: Number(f.incasso) || 0, tmdb: f.tmdb_id || 0 }))
+    .map(f => ({ movie: null, titolo: f.titolo, anno: f.anno || null,
+                 totale: Number(f.incasso) || 0, tmdb: f.tmdb_id || 0, ambito: 'ww' }))
     .filter(r => r.totale > 0)
     .sort((a, b) => b.totale - a.totale);
   if (!righe.length){ classificaVuota('L\u2019elenco storico non contiene cifre valide.'); return; }
@@ -5266,24 +5384,31 @@ async function loadBoxOfficeStorico(key, mio){
   boCacheSet('storica', righe);
 }
 
-/* --- C. Top box office anno per anno --- */
+/* --- C. Top box office anno per anno, nel territorio scelto --- */
 async function loadBoxOfficeAnno(key, mio){
+  const t = territorio();
   const anno = state.boAnno || new Date(now()).getFullYear();
-  el.boTitle.textContent = `\ud83d\udcc5 Box office ${anno}`;
-  el.boIntro.textContent = `I maggiori incassi mondiali dei film usciti nel ${anno}.`;
-  el.boSource.textContent = 'Fonte: TMDB /discover \u00b7 revenue.desc';
-  el.boNote.textContent = 'Incassi mondiali complessivi in dollari dichiarati su TMDB, non dati italiani e ' +
-    'non adeguati all\u2019inflazione. I titoli senza incasso dichiarato restano fuori dalla classifica: ' +
-    'meglio una riga in meno di un numero inventato.';
+  el.boTitle.textContent = `\ud83d\udcc5 Box office ${anno}${t.chiave === 'ww' ? '' : ' \u00b7 ' + t.nome}`;
+  el.boIntro.textContent = t.chiave === 'ww'
+    ? `I maggiori incassi mondiali dei film usciti nel ${anno}.`
+    : `I film usciti nelle sale ${t.aggettivo} nel ${anno}, dal maggiore incasso mondiale.`;
+  el.boSource.textContent = 'Fonte: TMDB /discover \u00b7 revenue.desc' + (t.region ? ` \u00b7 ${t.region}` : '');
+  el.boNote.textContent = 'Incassi mondiali complessivi in dollari dichiarati su TMDB, non adeguati ' +
+    'all\u2019inflazione. I titoli senza incasso dichiarato restano fuori dalla classifica: ' +
+    'meglio una riga in meno di un numero inventato.' +
+    (t.chiave === 'ww' ? '' :
+      ` Il territorio decide quali film compaiono \u2014 qui ci sono le uscite ${t.aggettivo} di quell\u2019anno \u2014 ` +
+      `ma non la cifra, che TMDB fornisce solo mondiale.`);
 
-  const chiave = 'anno:' + anno;
+  const chiave = 'anno:' + t.chiave + ':' + anno;
   const cache = boCacheGet(chiave);
   if (cache){ pubblica(cache, mio); return; }
 
   let lista = [];
   try{
     const d = await fetchJSON(`${API_BASE}/discover/movie?api_key=${encodeURIComponent(key)}&language=it-IT` +
-      `&primary_release_year=${anno}&sort_by=revenue.desc&include_adult=false&include_video=false&page=1`);
+      `&primary_release_year=${anno}&sort_by=revenue.desc&include_adult=false&include_video=false&page=1` +
+      (t.region ? `&region=${t.region}&with_release_type=3|2` : ''));
     lista = (d && d.results ? d.results : []).map(slimMovie).filter(m => m.poster_path).slice(0, BO_TOP_ANNO);
   }catch(err){
     classificaVuota(`Non riesco a raggiungere TMDB: la classifica del ${anno} non \u00e8 disponibile adesso.`);
@@ -5297,11 +5422,12 @@ async function loadBoxOfficeAnno(key, mio){
   if (mio !== boSeq) return;
   /* Richiesto esplicitamente: fuori tutto cio' che non ha un incasso dichiarato */
   const righe = lista
-    .map(m => ({ movie: m, titolo: m.title, totale: Number(m.__rev) || 0 }))
+    .map(m => ({ movie: m, titolo: m.title, totale: Number(m.__rev) || 0, ambito: 'ww' }))
     .filter(r => r.totale > 0)
     .sort((a, b) => b.totale - a.totale);
   if (!righe.length){
-    classificaVuota(`TMDB non dichiara ancora incassi per i film usciti nel ${anno}.`);
+    classificaVuota(`TMDB non dichiara ancora incassi per i film usciti nel ${anno}` +
+                    `${t.chiave === 'ww' ? '' : ' nelle sale ' + t.aggettivo}.`);
     return;
   }
   if (!pubblica(righe, mio)) return;
@@ -5317,14 +5443,19 @@ function renderBoxOffice(righe){
     const titolo = m && m.title ? m.title : r.titolo;
     const poster = (m && img(m.poster_path, 'w92')) || placeholderPoster(titolo);
     const podio = i < 3;
+    /* L'ambito dice da dove viene davvero la cifra: l'etichetta lo
+       ripete, cosi' un incasso mondiale non si spaccia mai per locale. */
+    const ambito = r.ambito || 'ww';
     let valore = '', etichetta = '', pill = '';
     if (r.inCorso){
       pill = '<span class="pill-incasso">In corso d\u2019incasso</span>';
       etichetta = 'Dato non ancora consolidato';
     } else if (r.incasso){
-      valore = euro(r.incasso); etichetta = 'Incasso weekend';
+      valore = formatIncasso(r.incasso, ambito);
+      etichetta = 'Incasso weekend \u00b7 ' + (ambito === 'it' ? 'Italia' : ambito === 'us' ? 'USA' : 'mondo');
     } else {
-      valore = formatCurrency(r.totale); etichetta = 'Incasso mondiale';
+      valore = formatIncasso(r.totale, ambito);
+      etichetta = etichettaAmbito(ambito);
     }
     let anno = r.anno || null;
     if (!anno && m && m.release_date){ const y = fmtYear(m.release_date); if (y !== '\u2014') anno = y; }
@@ -6563,6 +6694,22 @@ async function invitoPng(movie){
 }
 
 /* --- Box office: tre classifiche e la vista a tutta pagina --- */
+/* Cambiare territorio rifa' la classifica da capo: cambiano i film, la
+   valuta, le etichette e i sottotitoli. */
+function setBoTerr(terr){
+  if (!TERRITORI[terr]) terr = 'it';
+  if (state.boTerr === terr) return;
+  state.boTerr = terr;
+  $$('[data-terr]', el.boTerr).forEach(b => {
+    const on = b.dataset.terr === terr;
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+  state.boxoffice = [];
+  buzz(APTICA.micro);
+  loadBoxOffice();
+}
+
 function setBoTab(tab){
   if (!['sala', 'storica', 'anno'].includes(tab)) tab = 'sala';
   state.boTab = tab;
@@ -8307,8 +8454,25 @@ function aggiornaOledBtn(){
 /* =========================================================
    13. EVENTI
    ========================================================= */
-el.next.addEventListener('click', () => { next(); buzz(APTICA.micro); });
-el.prev.addEventListener('click', () => { prev(); buzz(APTICA.micro); });
+/* Le frecce stanno dentro al carosello, sopra alle locandine: senza
+   isolare il gesto il tocco prosegue verso la scheda sotto e apre il
+   trailer. Si ferma la propagazione gia' sul pointerdown, cosi' nemmeno
+   il trascinamento del carosello parte per sbaglio.
+   Niente preventDefault su touchstart: annullerebbe il click che segue e
+   le frecce smetterebbero di funzionare. Ci pensano lo stopPropagation
+   qui e il touch-action:manipulation nel CSS, che toglie gia' il ritardo. */
+function isolaFreccia(btn, azione){
+  ['pointerdown', 'pointerup'].forEach(ev =>
+    btn.addEventListener(ev, e => e.stopPropagation()));
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    e.preventDefault();
+    azione();
+    buzz(APTICA.micro);
+  });
+}
+isolaFreccia(el.next, next);
+isolaFreccia(el.prev, prev);
 
 /* --- Creatore, audio, mini player, classifiche, esportazioni --- */
 el.creatorBtn.addEventListener('click', () => openSheet(el.creatorSheet));
@@ -8332,6 +8496,10 @@ document.addEventListener('webkitfullscreenchange', syncFsBtn);
 el.boTabs.addEventListener('click', e => {
   const b = e.target.closest('[data-botab]');
   if (b) setBoTab(b.dataset.botab);
+});
+el.boTerr.addEventListener('click', e => {
+  const b = e.target.closest('[data-terr]');
+  if (b) setBoTerr(b.dataset.terr);
 });
 el.boAnni.addEventListener('click', e => {
   const b = e.target.closest('[data-anno-bo]');

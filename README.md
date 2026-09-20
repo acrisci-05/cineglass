@@ -89,12 +89,40 @@ permette di incollare una key dall'interfaccia: in quel caso resta solo nel `loc
 
 ## Box office e classifiche
 
-La sezione si apre dalla voce **📊 Box Office** della navigazione e contiene tre classifiche.
+La sezione si apre dalla voce **📊 Box Office** della navigazione, ed è filtrata su **due
+livelli**: prima il territorio, poi il periodo.
+
+### Livello 1 — il territorio, e che cosa cambia davvero
+
+`🇮🇹 Italia` · `🇺🇸 USA` · `🌐 Mondiale`
+
+Qui serve essere precisi, perché l'API non dà quello che sembrerebbe ovvio. **TMDB espone un solo
+dato d'incasso per film: `revenue`, che è l'incasso mondiale.** Non esiste un incasso domestico
+statunitense né uno italiano nell'API. Quindi:
+
+- il territorio cambia **davvero quali film compaiono**, perché guida `region` in
+  `/movie/now_playing` e `/discover`: la programmazione italiana e quella americana sono liste
+  diverse, e lo sono anche le uscite di un dato anno in un paese o nell'altro;
+- il territorio **non può cambiare da solo la cifra**. Se il repository fornisce un file con gli
+  incassi di quel mercato la cifra diventa quella, in valuta locale; altrimenti resta l'incasso
+  mondiale e **l'etichetta della riga lo dichiara**.
+
+Così una riga può leggersi `12,5 M€ · Incasso weekend · Italia` (dato di mercato reale) oppure
+`$410 M · Incasso mondiale` (dato TMDB), e non c'è modo di confonderli. È la stessa regola del
+resto dell'app: meglio un'etichetta onesta che un numero che sembra locale e non lo è.
+
+I file di mercato sono `data/boxoffice-it.json` e `data/boxoffice-us.json`, stesso formato
+descritto più avanti. Per l'Italia vale ancora anche il vecchio `data/boxoffice.json`, così i
+repository che ce l'hanno già continuano a funzionare.
+
+### Livello 2 — il periodo
+
+Sotto al territorio restano le tre classifiche.
 Tutte mostrano in fondo la stessa riga fissa — *Dati d'incasso globali da TMDB / Box Office Mojo.
 Cifre aggiornate periodicamente.* — e salvano il risultato in `localStorage`
 (`cineglass:classifiche:v1`, TTL 24 ore) per non ripetere le chiamate e restare leggibili offline.
 
-Gli importi passano tutti da `formatCurrency(amount)`:
+Gli importi in dollari passano da `formatCurrency(amount)`, quelli in euro da `formatEuro(amount)`:
 
 | Valore | Resa |
 |---|---|
@@ -103,14 +131,22 @@ Gli importi passano tutti da `formatCurrency(amount)`:
 | `>= 1.000.000` | `$1,5 M` (un decimale, così 1,5 milioni non diventa "2 M") |
 | `<= 0` o assente | `Dato non disponibile` |
 
+`formatEuro` segue le stesse soglie ma tiene il decimale fino a **cento** milioni
+(`12,5 M€`, non `13 M€`): gli incassi di un mercato singolo stanno nell'ordine dei milioni, e lì
+il decimale è metà dell'informazione.
+
 ### 🎟️ In sala ora
 
-`/movie/now_playing?region=IT` arricchito con `revenue` dalla scheda di ogni film, ordinato per
-incasso decrescente. **Qui i film con `revenue = 0` non vengono nascosti**: un titolo uscito da
+`/movie/now_playing` con la `region` del territorio scelto, arricchito con `revenue` dalla scheda
+di ogni film e ordinato per incasso decrescente. **Qui i film con `revenue = 0` non vengono nascosti**: un titolo uscito da
 pochi giorni ha davvero zero su TMDB, e al posto di una cifra finta compare la pillola in vetro
 **"In corso d'incasso"**. Funziona anche con `data/boxoffice.json` (vedi sotto).
 
 ### 🏆 Tutti i tempi
+
+Questa è l'unica delle tre che **non cambia** col territorio, e la nota sotto la classifica lo
+dice: né TMDB né l'elenco curato forniscono una classifica storica italiana o statunitense, quindi
+anche scegliendo Italia resta quella mondiale. Meglio scriverlo che fingere una differenza.
 
 TMDB ordina per `revenue` solo la prima pagina e su molti titoli storici il campo è vuoto o
 sbagliato: **la top all-time non si può costruire dall'API**. La tab parte quindi da un elenco
@@ -140,7 +176,9 @@ Per aggiornare l'elenco senza toccare il codice basta un `data/alltime.json`:
 ### 📅 Per anno
 
 `/discover/movie?primary_release_year={ANNO}&sort_by=revenue.desc&language=it-IT`, con i chip
-dell'anno in corso e dei tre precedenti. Qui il filtro **esclude ogni risultato con
+dell'anno in corso e dei tre precedenti. Scegliendo Italia o USA si aggiungono
+`region` e `with_release_type=3|2`, quindi la lista diventa quella delle **uscite in sala di quel
+paese** in quell'anno — non la stessa lista con un'etichetta diversa. Qui il filtro **esclude ogni risultato con
 `revenue <= 0`**: in una classifica di incassi una riga a zero non è un'informazione, è rumore.
 Se TMDB non dichiara ancora incassi per quell'anno la lista lo scrive invece di restare vuota.
 
@@ -374,6 +412,14 @@ cancellano una a una con la ×, più gli ultimi film aperti.
 
 **Sorprendimi 🎲** — il dado nella navbar (o il tasto `R`, o uno **scuotimento del telefono**
 via `DeviceMotionEvent`) pesca a caso fra i film meglio votati della lista e lo porta al centro.
+
+**Frecce del carosello** — stanno sopra alle locandine con `z-index: 140`, sopra al tetto di 120
+che il ciclo di render assegna alle schede (`Z_CARD_MAX`): i due numeri sono accoppiati e vanno
+tenuti in pari, perché quando le schede salivano sopra le frecce il tocco arrivava alla locandina
+sotto e apriva il trailer. Il gesto è isolato con `stopPropagation()` già sul `pointerdown`, così
+nemmeno il trascinamento del carosello parte per sbaglio. Niente `preventDefault()` su
+`touchstart`: annullerebbe il `click` che segue e le frecce smetterebbero di funzionare — il
+ritardo di 300ms è già tolto da `touch-action: manipulation`.
 
 **Swipe sulla scheda** — su telefono si passa al film successivo o precedente trascinando in
 orizzontale sulla scheda, senza tornare al carosello; i gesti verticali restano scorrimento
