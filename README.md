@@ -479,10 +479,55 @@ niente blur o ombre da ricalcolare sotto il dito. Tutti i listener di `touchstar
 `preventDefault()` durante lo scorrimento.
 
 **Su telefono (≤768px) il carosello passa a 2D**: niente `perspective` né `preserve-3d`, solo
-traslazioni e ridimensionamenti con `will-change: transform`. I `backdrop-filter` scendono a 8px
-con fondo `rgba(18,18,24,.85)`, grana e pulviscolo spariscono: stessa scena, molto meno lavoro
-per la GPU. Il contenitore del carosello usa `touch-action: pan-y`, così lo swipe orizzontale dei
-film non ruba lo scorrimento verticale della pagina.
+traslazioni e ridimensionamenti con `will-change: transform`. Grana e pulviscolo spariscono, e il
+contenitore del carosello usa `touch-action: pan-y`, così lo swipe orizzontale dei film non ruba
+lo scorrimento verticale della pagina.
+
+### La regola del vetro: non "quanto blur", ma "che cosa c'è sotto"
+
+Un `backdrop-filter` costa al compositore un **ricampionamento dello sfondo** sotto l'elemento.
+Su una superficie ferma lo paga una volta e tiene il risultato in cache; su una superficie che si
+muove lo paga a ogni fotogramma. Il criterio non è quindi ridurre il raggio ovunque — ridurlo
+aiuta poco se la superficie continua a muoversi — ma **togliere del tutto la sfocatura da ciò che
+si muove**, e tenerla dove non si muove niente.
+
+In pratica:
+
+| Dove | Cosa fa | Perché |
+|---|---|---|
+| Barra fissa, CinePass, modali, fogli, Spotlight, drawer | `blur(8px)` su mobile | Sono ferme: il ricampionamento si paga una volta |
+| Interno delle locandine (`.frost`, `.card-play`, `.card-quick`, il popcorn) | **nessun blur**, fondo pieno | Traslano a ogni fotogramma del carosello |
+| Increspatura al tocco (`.rip`) | **nessun blur** | È un cerchio che si espande: sfondo diverso a ogni fotogramma |
+| Tutto il resto su mobile (chip, pillole, scheda, righe di lista…) | **nessun blur**, fondo pieno | Scorre con la pagina |
+
+Il velo `.frost` sulle locandine laterali era il caso peggiore: un `backdrop-filter: blur(20px)`
+esteso all'**intera** locandina, la cui opacità cambia a ogni fotogramma del carosello. Adesso è
+un gradiente opaco: a occhio è lo stesso velo, ma non fa ricampionare niente.
+
+**Le stesse regole valgono nel blocco `.perf-bassa`**, e devono ripeterle: quei selettori hanno
+specificità maggiore, quindi elencare lì un elemento in movimento gli rimetterebbe il
+`backdrop-filter` appena tolto — che è esattamente il bug che l'audit ha trovato.
+
+**Durante il trascinamento** (`body.trascina`) si fermano tutte le animazioni continue: i due
+gradienti conici del bordo "Mercurio" e i veli del fondale. Durano fra i 26 e gli 88 secondi,
+quindi mezzo secondo di pausa non si vede — e restituisce il budget di fotogramma al compositore,
+che in quel momento ha già sette locandine da spostare.
+
+**Misurato** su iPhone 13 a 390px, confrontando la versione precedente con quella attuale:
+
+| | Prima | Dopo |
+|---|---|---|
+| Elementi con `backdrop-filter` attivo | 69 | 4 |
+| Superficie sfocata totale | 1.716k px² | 264k px² |
+| **Superficie sfocata in movimento** | **281k px²** | **0** |
+| Superficie con `filter: blur()` in movimento | 1.602k px² | 550k px² |
+| Costo stile+layout di un fotogramma del carosello | 5,59 ms | 5,27 ms |
+
+L'ultima riga è l'unica misurata a cronometro (150 fotogrammi forzati in sincrono, mediana di
+cinque prove, intervalli non sovrapposti): −5,6%, modesto, perché quel test misura stile e layout
+mentre il risparmio vero sta nel *compositing*. Le prime quattro righe sono strutturali e
+certe. Il guadagno in fotogrammi al secondo su un telefono reale non è stato misurato: in questo
+ambiente di sviluppo la cadenza dei fotogrammi non è affidabile.
 
 **Locandine a peso giusto** — quella al centro arriva in `w780` con `fetchpriority="high"`, le
 laterali e le miniature in `w342` con `loading="lazy"`; quando una card diventa centrale la sua
@@ -516,8 +561,8 @@ iPhone in home, scheda, Spotlight, drawer e timeline) e la pagina non scorre mai
 `T` il countdown a schermo intero, `L` spegne le luci nel trailer, `ESC` chiude qualsiasi overlay.
 
 **Adattamento prestazionale** — all'avvio l'app legge `navigator.hardwareConcurrency`,
-`navigator.deviceMemory` e lo stato di risparmio dati: su hardware modesto riduce il raggio dei
-`backdrop-filter`, spegne grana, pulviscolo e le animazioni continue, e salta le
+`navigator.deviceMemory` e lo stato di risparmio dati: su hardware modesto applica le stesse
+regole del vetro descritte sopra, spegne grana e pulviscolo, ferma l'alone del bordo Mercurio, e salta le
 **View Transitions** (su una pagina così densa di sfocature fotografare l'intera radice costa più
 dell'animazione che regala: meglio un cambio istantaneo). Dove il dispositivo regge,
 `document.startViewTransition()` anima l'espansione della locandina verso la vista ingrandita.

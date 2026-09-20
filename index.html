@@ -365,9 +365,9 @@ body.vista-classifiche .top{min-height:0;justify-content:flex-start}
   transition:box-shadow .5s var(--ease), border-color .5s var(--ease)}
 .poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
   transition:transform .8s var(--ease), opacity .5s var(--ease)}
-.frost{position:absolute;inset:0;backdrop-filter:blur(20px) saturate(.8);-webkit-backdrop-filter:blur(20px) saturate(.8);
-  background:linear-gradient(170deg, rgba(190,180,230,.14), rgba(10,8,18,.34));
-  opacity:var(--frost,0);transition:opacity .4s var(--ease);pointer-events:none}
+.frost{position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(170deg, rgba(196,186,236,.22), rgba(10,8,18,.52) 68%, rgba(6,4,12,.7));
+  opacity:var(--frost,0);transition:opacity .4s var(--ease)}
 .card-grad{position:absolute;inset:0;pointer-events:none;
   background:linear-gradient(180deg, rgba(6,4,12,.05) 0%, rgba(6,4,12,0) 34%, rgba(6,4,12,.62) 74%, rgba(6,4,12,.94) 100%)}
 .shine{position:absolute;inset:0;pointer-events:none;opacity:.5;
@@ -385,7 +385,7 @@ body.vista-classifiche .top{min-height:0;justify-content:flex-start}
 .card-play{position:absolute;left:50%;top:58%;translate:-50% -50%;z-index:30;display:inline-flex;align-items:center;gap:9px;
   min-height:44px;-webkit-tap-highlight-color:transparent;touch-action:manipulation;
   padding:11px 20px;border-radius:999px;font-size:13px;font-weight:500;white-space:nowrap;
-  background:rgba(12,9,20,.42);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(14px) saturate(1.6);-webkit-backdrop-filter:blur(14px);
+  background:rgba(14,11,24,.74);border:1px solid rgba(255,255,255,.28);
   box-shadow:0 14px 34px -14px rgba(0,0,0,.9);opacity:0;scale:.86;pointer-events:none;
   transition:opacity .4s var(--ease), scale .4s var(--ease), background .3s}
 .card-play svg{width:13px;height:13px}
@@ -404,6 +404,15 @@ body.vista-classifiche .top{min-height:0;justify-content:flex-start}
   background:conic-gradient(from var(--angle), var(--c1), var(--c3), var(--c2), var(--c1));filter:blur(18px);opacity:.5;
   animation:spinBorder 6.5s linear infinite}
 @keyframes spinBorder{to{--angle:360deg}}
+/* Mentre si trascina il carosello tutto cio' che si anima da solo si
+   ferma: i due gradienti conici del bordo e i veli del fondale. Sono
+   strati grandi, sfocati e in mix-blend-mode, cioe' i piu' cari da
+   ridipingere — e il trascinamento e' il momento peggiore per farlo,
+   perche' il compositore ha gia' da spostare sette locandine.
+   Le animazioni durano 26-88 secondi: fermarle per mezzo secondo non
+   si vede, e restituisce il budget di fotogramma a chi serve. */
+body.trascina .card-inner::before,body.trascina .card-inner::after,
+body.trascina .aurora,body.trascina .blob{animation-play-state:paused}
 .card.is-active:hover .poster{transform:scale(1.045)}
 
 /* Frecce e indicatori */
@@ -805,7 +814,9 @@ body.lights-out .beam{opacity:0}
   border:1px solid var(--stroke-soft);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
   transition:color .25s, background .25s, border-color .25s}
 .pop-btn.mini{width:52px;height:52px;min-height:52px;padding:0;justify-content:center;border-radius:50%;
-  color:rgba(255,255,255,.78);background:rgba(10,8,18,.55);border-color:rgba(255,255,255,.2)}
+  color:rgba(255,255,255,.78);background:rgba(10,8,18,.78);border-color:rgba(255,255,255,.2);
+  /* sta sulla locandina e si muove con lei: lo sfondo e' pieno, non sfocato */
+  backdrop-filter:none;-webkit-backdrop-filter:none}
 .pop-btn.mini:hover{color:#fff;background:rgba(10,8,18,.72)}
 .pop-btn.mini .pop-chicco{color:rgba(255,255,255,.72)}
 .pop-btn.full{padding:0 18px 0 13px;font-size:13px;font-weight:500}
@@ -1323,7 +1334,7 @@ body.dim .card.is-active .card-inner{box-shadow:0 44px 90px -30px #000, 0 0 90px
 .ripple{position:relative;overflow:hidden}
 .rip{position:absolute;border-radius:50%;pointer-events:none;transform:translate(-50%,-50%) scale(0);
   background:radial-gradient(circle, rgba(255,255,255,.5), rgba(255,255,255,.14) 55%, transparent 72%);
-  backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);animation:rip .62s var(--ease) forwards}
+  animation:rip .62s var(--ease) forwards}
 @keyframes rip{to{transform:translate(-50%,-50%) scale(1);opacity:0}}
 
 /* ---------- Alto contrasto ---------- */
@@ -1391,8 +1402,7 @@ a.prov-row:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,
 .card-quick{position:absolute;left:50%;top:44%;translate:-50% -50%;z-index:28;
   width:52px;height:52px;border-radius:50%;display:grid;place-items:center;
   -webkit-tap-highlight-color:transparent;touch-action:manipulation;
-  background:rgba(12,9,20,.46);border:1px solid rgba(255,255,255,.3);
-  backdrop-filter:blur(14px) saturate(1.6);-webkit-backdrop-filter:blur(14px) saturate(1.6);
+  background:rgba(14,11,24,.78);border:1px solid rgba(255,255,255,.3);
   box-shadow:0 14px 34px -14px #000, inset 0 1px 0 rgba(255,255,255,.34);
   opacity:0;scale:.72;pointer-events:none;
   transition:opacity .35s var(--ease), scale .45s var(--elastic), background .3s}
@@ -1500,13 +1510,37 @@ a.prov-row:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,
 }
 
 /* ---------- Adattamento prestazionale: meno sfocatura, stessi 60 fps ---------- */
-.perf-bassa .topbar,.perf-bassa .navseg,.perf-bassa .panel-inner,.perf-bassa .spot-bd,
-.perf-bassa .spot-box,.perf-bassa .wdrawer-box,.perf-bassa .sheet-bd,.perf-bassa .sheet-box,
-.perf-bassa .lens,.perf-bassa .cinepass,.perf-bassa .frost,.perf-bassa .card-play,
-.perf-bassa .card-quick,.perf-bassa .modal-backdrop,.perf-bassa .lightbox,.perf-bassa .rip{
+/* Stesso criterio della media query mobile: il blur resta dove non si
+   muove niente, e sparisce da tutto cio' che scorre o viene trascinato.
+   Queste regole battono per specificita' quelle di base, quindi devono
+   ripetere la distinzione: elencare qui un elemento in movimento gli
+   rimetterebbe il backdrop-filter che gli e' stato appena tolto. */
+.perf-bassa .topbar,.perf-bassa .navseg,.perf-bassa .cinepass,.perf-bassa .modal-box,
+.perf-bassa .sheet-box,.perf-bassa .spot-box,.perf-bassa .wdrawer-box,
+.perf-bassa .filtermenu,.perf-bassa .savemenu,.perf-bassa .lightbox,
+.perf-bassa .modal-backdrop,.perf-bassa .spot-bd,.perf-bassa .sheet-bd,.perf-bassa .wdrawer-bd{
   backdrop-filter:blur(8px)!important;-webkit-backdrop-filter:blur(8px)!important}
+.perf-bassa .panel-inner,.perf-bassa .lens,.perf-bassa .frost,.perf-bassa .card-play,
+.perf-bassa .card-quick,.perf-bassa .pop-btn,.perf-bassa .rip,.perf-bassa .filmstrip,
+.perf-bassa .chip,.perf-bassa .pill-btn,.perf-bassa .icon-btn,.perf-bassa .metabar,
+.perf-bassa .qbar,.perf-bassa .btn,.perf-bassa .rat,.perf-bassa .cast-pill,
+.perf-bassa .tl-item,.perf-bassa .bo-row,.perf-bassa .nav,.perf-bassa .toast{
+  backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.perf-bassa .panel-inner{background:rgba(18,18,28,.94)}
+.perf-bassa .lens,.perf-bassa .pill-btn,.perf-bassa .icon-btn,.perf-bassa .nav,
+.perf-bassa .pop-btn{background:rgba(24,22,34,.86)}
+.perf-bassa .chip,.perf-bassa .cast-pill,.perf-bassa .rat{background:rgba(24,22,34,.8)}
+.perf-bassa .btn{background:rgba(26,24,36,.86)}
+.perf-bassa .metabar,.perf-bassa .qbar,.perf-bassa .bo-row,.perf-bassa .tl-item,
+.perf-bassa .filmstrip{background:rgba(20,19,29,.9)}
+.perf-bassa .toast{background:rgba(22,20,32,.94)}
+.perf-bassa .card-play{background:rgba(14,11,24,.8)}
+.perf-bassa .card-quick{background:rgba(14,11,24,.82)}
+/* anche qui l'alone si ferma invece di sparire */
+.perf-bassa .card.is-active .card-inner::after{animation:none}
 .perf-bassa .grain,.perf-bassa .dust{display:none}
-.perf-bassa .blob{filter:blur(40px)}
+.perf-bassa .aurora{filter:none}
+.perf-bassa .blob{filter:blur(30px)}
 .perf-bassa .shine::after{animation:none;opacity:0}
 .perf-bassa .qs,.perf-bassa .rat{animation:none;border-radius:999px}
 
@@ -1993,21 +2027,70 @@ footer,#boxoffice{content-visibility:auto;contain-intrinsic-size:1px 400px}
   .card-inner,.card-lens,.glare{transform:none}
   .card-lens{display:none}
 
-  /* una sfocatura larga su telefono costa piu' di quanto renda */
-  .topbar,.navseg,.lens,.pill-btn,.icon-btn,.chip,.layout-mini,.metabar,.qbar,.menu-row,
-  .filtermenu,.savemenu,.spot-box,.wdrawer-box,.sheet-box,.ost,.prov-row,.panel-inner,
-  .cinepass,.frost,.card-play,.card-quick,.modal-backdrop,.lightbox,.spot-bd,.sheet-bd,
-  .wdrawer-bd,.toast,.net-badge,.eyebrow,.status,.rip,.term{
+  /* ------------------------------------------------------------------
+     Sfocature su telefono: il criterio non e' "quanto blur" ma "che cosa
+     sta sotto". Un backdrop-filter costa al compositore un ricampionamento
+     dello sfondo a ogni fotogramma in cui quello sfondo cambia: su una
+     superficie ferma lo paga una volta e la tiene in cache, su una che si
+     muove lo paga sempre. Quindi il blur resta solo dove non si muove
+     niente, e tutto il resto prende un fondo pieno.
+     ------------------------------------------------------------------ */
+
+  /* 1. Superfici ferme: barra fissa e pannelli aperti sopra la pagina.
+        Qui il vetro si vede e si paga una volta sola. */
+  .topbar,.navseg,.cinepass,.modal-box,.sheet-box,.spot-box,.wdrawer-box,
+  .filtermenu,.savemenu,.lightbox,.modal-backdrop,.spot-bd,.sheet-bd,.wdrawer-bd{
     backdrop-filter:blur(8px)!important;-webkit-backdrop-filter:blur(8px)!important}
+
+  /* 2. Tutto il resto: niente sfocatura, fondo pieno. Sono elementi che
+        scorrono con la pagina o si muovono col carosello, e la' il blur
+        si ridisegna a ogni fotogramma senza che si veda la differenza. */
+  .lens,.pill-btn,.icon-btn,.chip,.layout-mini,.metabar,.qbar,.menu-row,.btn,
+  .ost,.prov-row,.panel-inner,.frost,.card-play,.card-quick,.pop-btn,.sk-panel,
+  .toast,.net-badge,.eyebrow,.status,.rip,.term,.filmstrip,.cast-pill,.tl-item,
+  .bo-row,.rat,.score,.cd-unit,.tag-glass,.empty,.w-empty,.tl-empty,.notice,
+  .nav,.view-toggle,.social-btn,.foot-links button,.foot-links a,.fs-btn,
+  .pill-incasso,.cp-ricevuto,.brand,.pull-ring,.spoiler-glass{
+    backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+
+  /* I fondi pieni che sostituiscono il vetro */
   .topbar{background:rgba(18,18,24,.88)}
-  .panel-inner{background:rgba(18,18,24,.85)}
-  .spot-box,.wdrawer-box,.sheet-box{background:rgba(20,20,27,.92)}
+  .panel-inner{background:rgba(18,18,28,.94)}
+  .spot-box,.wdrawer-box,.sheet-box{background:rgba(20,20,27,.94)}
+  .lens,.pill-btn,.icon-btn,.layout-mini,.view-toggle,.nav,.fs-btn,.pop-btn,
+  .foot-links button,.foot-links a{background:rgba(24,22,34,.86)}
+  .chip,.cast-pill,.tag-glass,.rat,.score,.cd-unit,.pill-incasso{background:rgba(24,22,34,.8)}
+  .btn,.social-btn{background:rgba(26,24,36,.86)}
+  .metabar,.qbar,.bo-row,.tl-item,.prov-row,.ost,.notice,.empty,.w-empty,.tl-empty,
+  .filmstrip,.cp-ricevuto{background:rgba(20,19,29,.9)}
+  .toast,.net-badge,.term{background:rgba(22,20,32,.94)}
+  .eyebrow,.status{background:rgba(24,22,34,.7)}
+  .brand{background:rgba(22,20,32,.82)}
+  .card-play{background:rgba(14,11,24,.8)}
+  .card-quick{background:rgba(14,11,24,.82)}
+  .sk-panel{background:rgba(20,19,29,.86)}
+
   body.tema-chiaro .topbar{background:rgba(250,251,255,.93)}
-  body.tema-chiaro .panel-inner{background:rgba(252,252,255,.9)}
+  body.tema-chiaro .panel-inner{background:rgba(252,252,255,.95)}
   body.tema-chiaro .spot-box,body.tema-chiaro .wdrawer-box,body.tema-chiaro .sheet-box{
-    background:rgba(252,252,255,.95)}
+    background:rgba(252,252,255,.96)}
+  body.tema-chiaro .lens,body.tema-chiaro .pill-btn,body.tema-chiaro .icon-btn,
+  body.tema-chiaro .layout-mini,body.tema-chiaro .view-toggle,body.tema-chiaro .nav,
+  body.tema-chiaro .btn,body.tema-chiaro .chip,body.tema-chiaro .metabar,
+  body.tema-chiaro .qbar,body.tema-chiaro .eyebrow,body.tema-chiaro .status,
+  body.tema-chiaro .brand{background:rgba(255,255,255,.88)}
+
+  /* Il bordo Mercurio: l'alone e' un gradiente conico sfocato e animato
+     all'infinito. A costare e' l'animazione — ruotare il gradiente
+     obbliga a rifare la sfocatura a ogni fotogramma — non l'alone in se'.
+     Su telefono lo si ferma: l'alone resta, la ridipintura perenne no. */
+  .card.is-active .card-inner::after{animation:none}
   .grain,.dust{display:none}
-  .blob{filter:blur(44px)}
+  /* I veli del fondale sono gia' gradienti radiali morbidi: su 390px la
+     sfocatura da 58px non aggiunge nulla di visibile e costa un filtro
+     grande quanto lo schermo su uno strato in mix-blend-mode. */
+  .aurora{filter:none}
+  .blob{filter:blur(30px)}
   .shine::after{animation:none;opacity:0}
 
   /* su telefono la testata si stringe: il carosello deve entrare nella prima schermata */
