@@ -279,6 +279,43 @@ a{color:inherit;text-decoration:none}
 .bo-amount{font-size:15px;font-weight:600;font-variant-numeric:tabular-nums}
 .bo-lab{font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin-top:2px}
 .bo-note{margin-top:12px;font-size:11.5px;color:var(--faint);line-height:1.6;font-style:italic}
+/* Nota fissa sulla provenienza dei numeri: non e' decorazione, e' trasparenza */
+.bo-foot{margin-top:9px;padding-top:9px;border-top:1px solid var(--stroke-soft);
+  font-size:11px;color:var(--faint);line-height:1.6}
+.bo-head-right{display:flex;flex-direction:column;align-items:flex-end;gap:9px}
+.bo-anni{justify-content:flex-start;margin:0 0 12px}
+/* Medaglie: il numero in gradiente va spento o l'emoji resta invisibile */
+.bo-rank.medaglia{background:none;-webkit-text-fill-color:initial;color:inherit;font-size:25px;line-height:1}
+.bo-act{display:flex;align-items:center;gap:7px}
+.bo-verify{display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;
+  border-radius:12px;font-size:15px;text-decoration:none;color:var(--muted);
+  background:rgba(255,255,255,.05);border:1px solid var(--stroke-soft);transition:color .25s, background .25s}
+.bo-verify:hover{color:var(--txt);background:rgba(255,255,255,.1)}
+/* Pillola per i film ancora in programmazione: TMDB non ha ancora l'incasso */
+.pill-incasso{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;
+  font-size:10.5px;font-weight:500;letter-spacing:.02em;white-space:nowrap;color:var(--txt);
+  background:linear-gradient(120deg, color-mix(in oklab, var(--c1) 24%, transparent), color-mix(in oklab, var(--c2) 24%, transparent));
+  border:1px solid var(--stroke-soft);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.pill-incasso::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--c2);
+  box-shadow:0 0 8px var(--c2);animation:respiro 2.4s ease-in-out infinite}
+@keyframes respiro{0%,100%{opacity:.35}50%{opacity:1}}
+.bo-empty{display:block;padding:26px 18px;text-align:center;font-size:13px;color:var(--muted);
+  background:rgba(255,255,255,.04);border:1px solid var(--stroke-soft);border-radius:16px;line-height:1.6}
+/* Link di verifica nella scheda dettaglio */
+.fonti{display:flex;align-items:center;flex-wrap:wrap;gap:9px;margin-top:16px}
+.fonti-lab{font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+.fonte-link{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:12px;
+  font-size:12px;text-decoration:none;color:var(--muted);background:rgba(255,255,255,.05);
+  border:1px solid var(--stroke-soft);transition:color .25s, background .25s, transform .25s var(--ease)}
+.fonte-link:hover{color:var(--txt);background:rgba(255,255,255,.09);transform:translateY(-1px)}
+/* Vista Box Office a tutta pagina: resta solo la navbar e la classifica */
+body.vista-classifiche .hero,body.vista-classifiche .toolbar,body.vista-classifiche .carousel,
+body.vista-classifiche .timeline,body.vista-classifiche .list-view,body.vista-classifiche .sk-panel,
+body.vista-classifiche .panel,body.vista-classifiche .empty{display:none!important}
+body.vista-classifiche #boxoffice{display:block;margin-top:clamp(16px,3vw,28px)}
+/* senza carosello la fascia alta non deve piu' occupare tutto lo schermo */
+body.vista-classifiche .top{min-height:0;justify-content:flex-start}
+#boxoffice{display:none}
 
 @media (max-width:720px){
   .movie-table thead{display:none}
@@ -294,7 +331,14 @@ a{color:inherit;text-decoration:none}
   .bo-row{grid-template-columns:34px 44px 1fr;gap:11px;padding:10px}
   .bo-value{grid-column:2 / -1;text-align:left;display:flex;align-items:baseline;gap:7px}
   .bo-lab{margin-top:0}
-  .bo-row .btn-sm{grid-column:1 / -1;justify-self:start}
+  .bo-row .bo-act{grid-column:1 / -1;justify-self:start}
+  .bo-value .pill-incasso{margin-left:0}
+  /* le tre classifiche scorrono in orizzontale invece di andare a capo */
+  .bo-head-right{align-items:stretch;width:100%}
+  .bo-tabs{overflow-x:auto;scrollbar-width:none;justify-content:flex-start;max-width:100%}
+  .bo-tabs::-webkit-scrollbar{display:none}
+  .bo-tabs button{flex:0 0 auto;white-space:nowrap}
+  .bo-head-right .source-tag{align-self:flex-start}
 }
 
 /* ---------- Carosello 3D ---------- */
@@ -1761,7 +1805,8 @@ body.tema-chiaro .tagline{color:#26213c;text-shadow:none}
 body.tema-chiaro .overview{color:rgba(21,19,31,.82)}
 body.tema-chiaro .fact,body.tema-chiaro .release-row,body.tema-chiaro .ticket,body.tema-chiaro .hype,
 body.tema-chiaro .cast-pill,body.tema-chiaro .bo-row,body.tema-chiaro .tl-item,body.tema-chiaro .empty,
-body.tema-chiaro .w-row,body.tema-chiaro .gpill,body.tema-chiaro .tag-glass{
+body.tema-chiaro .w-row,body.tema-chiaro .gpill,body.tema-chiaro .tag-glass,
+body.tema-chiaro .bo-empty,body.tema-chiaro .bo-verify,body.tema-chiaro .fonte-link{
   background:rgba(255,255,255,.72);border-color:rgba(21,19,31,.12);color:inherit}
 body.tema-chiaro .movie-table tbody tr{background:rgba(255,255,255,.7)}
 body.tema-chiaro .sk-line{background:linear-gradient(90deg, rgba(21,19,31,.07), rgba(21,19,31,.12), rgba(21,19,31,.07));
@@ -1881,6 +1926,19 @@ body.tema-chiaro .pull-ring{background:linear-gradient(150deg, rgba(255,255,255,
   .actions{flex-direction:column;align-items:stretch}
   .actions .btn{width:100%;justify-content:center}
 }
+
+/* ==========================================================
+   Trascinamento del carosello: niente drag nativo, niente selezione
+   ========================================================== */
+img{-webkit-user-drag:none;user-select:none;-webkit-user-select:none}
+.stage,.stage *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.stage .poster,.strip-thumb,.panel-poster img,.cast-pic{
+  -webkit-user-drag:none;pointer-events:auto}
+/* mentre si trascina nessun elemento deve reagire al passaggio o alla selezione */
+body.trascina{cursor:grabbing;-webkit-user-select:none;user-select:none}
+body.trascina *{cursor:grabbing!important}
+body.trascina .card-play,body.trascina .card-quick,body.trascina .card-bucket{pointer-events:none}
+.stage.dragging{cursor:grabbing}
 
 /* ---------- Responsive ---------- */
 @media (max-width:860px){
@@ -2124,6 +2182,7 @@ body.tema-chiaro .pull-ring{background:linear-gradient(150deg, rgba(255,255,255,
     <button type="button" data-nav="now" aria-pressed="false"><span class="ic">🎟️</span><span class="lbl">Ora in sala</span></button>
     <button type="button" data-nav="soon" class="on" aria-pressed="true"><span class="ic">⏳</span><span class="lbl">In arrivo</span></button>
     <button type="button" data-nav="timeline" aria-pressed="false"><span class="ic">🗓️</span><span class="lbl">Timeline</span></button>
+    <button type="button" data-nav="classifiche" aria-pressed="false"><span class="ic">📊</span><span class="lbl">Box Office</span></button>
   </nav>
 
   <!-- ====================== HERO ====================== -->
@@ -2261,7 +2320,7 @@ body.tema-chiaro .pull-ring{background:linear-gradient(150deg, rgba(255,255,255,
 
       <div class="panel-cols">
         <figure class="panel-poster" id="panelPoster" hidden>
-          <img id="panelPosterImg" alt="" loading="lazy" decoding="async">
+          <img draggable="false" id="panelPosterImg" alt="" loading="lazy" decoding="async">
         </figure>
         <div class="panel-main">
           <p class="overview clamped" id="pOverview"></p>
@@ -2278,7 +2337,7 @@ body.tema-chiaro .pull-ring{background:linear-gradient(150deg, rgba(255,255,255,
           <div class="qbar" id="qbar">
             <button class="btn primary trailer-card no-thumb sweep ripple magnetic" id="trailerBtn">
               <span class="trailer-thumb" id="trailerThumb">
-                <img id="trailerImg" alt="" loading="lazy" decoding="async">
+                <img draggable="false" id="trailerImg" alt="" loading="lazy" decoding="async">
                 <span class="play"><svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5.2v13.6a1 1 0 0 0 1.53.85l10.6-6.8a1 1 0 0 0 0-1.7L9.53 4.35A1 1 0 0 0 8 5.2Z"/></svg></span>
               </span>
               <span class="trailer-meta">
@@ -2327,6 +2386,13 @@ body.tema-chiaro .pull-ring{background:linear-gradient(150deg, rgba(255,255,255,
       </div>
 
       <ul class="facts" id="pFacts"></ul>
+
+      <!-- Verifica della fonte: gli incassi mostrati sono di TMDB, qui si controllano -->
+      <div class="fonti" id="pFonti">
+        <span class="fonti-lab">Verifica i dati</span>
+        <a class="fonte-link" id="pMojo" href="#" target="_blank" rel="noopener noreferrer">🌐 Apri su Box Office Mojo</a>
+        <a class="fonte-link" id="pWiki" href="#" target="_blank" rel="noopener noreferrer">📖 Scheda Wikipedia</a>
+      </div>
 
       <div class="release-row">
         <div class="rel-main">
@@ -2413,23 +2479,26 @@ body.tema-chiaro .pull-ring{background:linear-gradient(150deg, rgba(255,255,255,
     <button class="btn ghost" id="emptyBtn">Torna a tutte le uscite</button>
   </div>
 
-  <!-- ====================== IN SALA ORA / BOX OFFICE ====================== -->
-  <section class="section" id="boxoffice" hidden>
+  <!-- ====================== BOX OFFICE & CLASSIFICHE ====================== -->
+  <section class="section" id="boxoffice">
     <div class="section-head">
       <div>
-        <h2>Nelle sale ora in Italia</h2>
+        <h2 id="boTitle">📊 Box Office &amp; Classifiche</h2>
         <p id="boIntro">Film attualmente in programmazione, dal più seguito.</p>
       </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:9px">
-        <div class="bo-tabs" role="group" aria-label="Classifica">
-          <button type="button" id="boTabIt" class="on" aria-pressed="true">Italia (€)</button>
-          <button type="button" id="boTabWw" aria-pressed="false">Mondiale ($)</button>
+      <div class="bo-head-right">
+        <div class="bo-tabs" id="boTabs" role="group" aria-label="Classifiche box office">
+          <button type="button" data-botab="sala" class="on" aria-pressed="true">🎟️ In sala ora</button>
+          <button type="button" data-botab="storica" aria-pressed="false">🏆 Tutti i tempi</button>
+          <button type="button" data-botab="anno" aria-pressed="false">📅 Per anno</button>
         </div>
         <span class="source-tag" id="boSource">—</span>
       </div>
     </div>
+    <div class="chips bo-anni" id="boAnni" role="group" aria-label="Anno della classifica" hidden></div>
     <ol class="bo-list" id="boList"></ol>
     <p class="bo-note" id="boNote"></p>
+    <p class="bo-foot">Dati d’incasso globali da TMDB / Box Office Mojo. Cifre aggiornate periodicamente.</p>
   </section>
 
   <footer>
@@ -2546,7 +2615,7 @@ body.tema-chiaro .pull-ring{background:linear-gradient(150deg, rgba(255,255,255,
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
     </button>
     <div class="filmo-head">
-      <img id="filmoPic" alt="">
+      <img draggable="false" id="filmoPic" alt="">
       <div><h3 id="filmoName">—</h3><span id="filmoRole"></span></div>
     </div>
     <div class="filmo-list" id="filmoList"></div>
@@ -2600,7 +2669,7 @@ body.tema-chiaro .pull-ring{background:linear-gradient(150deg, rgba(255,255,255,
 
 <!-- ====================== LOCANDINA INGRANDITA ====================== -->
 <div class="lightbox" id="lightbox" hidden>
-  <img id="lightboxImg" alt="Locandina ingrandita">
+  <img draggable="false" id="lightboxImg" alt="Locandina ingrandita">
 </div>
 
 <!-- ====================== TOAST ====================== -->
@@ -2909,7 +2978,8 @@ function rilevaPrestazioni(){
 const state = {
   movies: [], favs: [], favOnly: false, detailsCache: {},
   view: [], genre: null, mode: 'upcoming', searchList: [], searchQuery: '',
-  layout: 'carousel', ultimaPiatta: 'carousel', anno: null, providers: {}, boxoffice: [], boTab: 'it', credits: {}, custom: null,
+  layout: 'carousel', ultimaPiatta: 'carousel', anno: null, providers: {}, boxoffice: [], boTab: 'sala', boAnno: null, classifiche: false,
+  credits: {}, custom: null,
   section: 'soon', nowPlaying: [], durata: null, storiaVera: false,
   tiltX: 0, tiltY: 0, perfBassa: false, tema: 'scuro',
   current: 0, target: 0, activeIndex: 0, activeId: null, activeDetails: null,
@@ -2939,8 +3009,8 @@ const el = {
   btnCarousel:$('#btnCarousel'), btnList:$('#btnList'), layoutMini:$('#layoutMini'),
   topbar:$('.topbar'), navSeg:$('#navSeg'), navSlider:$('#navSlider'), chipsYear:$('#chipsYear'),
   boxoffice:$('#boxoffice'), boList:$('#boList'), boSource:$('#boSource'),
-  boIntro:$('#boIntro'), boNote:$('#boNote'), boTabIt:$('#boTabIt'), boTabWw:$('#boTabWw'),
-  boTitle:$('#boxoffice') && $('#boxoffice').querySelector('h2'),
+  boIntro:$('#boIntro'), boNote:$('#boNote'), boTabs:$('#boTabs'), boAnni:$('#boAnni'),
+  boTitle:$('#boTitle'), pFonti:$('#pFonti'), pMojo:$('#pMojo'), pWiki:$('#pWiki'),
   castWrap:$('#castWrap'), castStrip:$('#castStrip'),
   creatorBtn:$('#creatorBtn'), creatorSheet:$('#creatorSheet'), sfxBtn:$('#sfxBtn'),
   filmoSheet:$('#filmoSheet'), filmoPic:$('#filmoPic'), filmoName:$('#filmoName'),
@@ -3504,7 +3574,7 @@ async function renderProviders(movie){
   const badge = p => {
     const logo = img(p.logo, 'w45');
     return '<span class="prov" title="' + esc(p.nome + ' \u00b7 ' + (ETICHETTA_PROV[p.tipo] || p.tipo)) + '">' +
-      (logo ? `<img src="${esc(logo)}" alt="" loading="lazy" decoding="async">` : '') +
+      (logo ? `<img draggable="false" src="${esc(logo)}" alt="" loading="lazy" decoding="async">` : '') +
       `<span class="prov-name">${esc(p.nome)}</span></span>`;
   };
   const dentro = '<span class="prov-lab">Anche in streaming</span>' + dati.lista.map(badge).join('');
@@ -3620,7 +3690,7 @@ function buildCards(){
     const badge = m.__demo ? 'Esempio' : releaseBadge(m.release_date);
     card.innerHTML =
       '<div class="card-inner sweep">' +
-        `<img class="poster" alt="Locandina di ${esc(m.title)}" decoding="async"` +
+        `<img class="poster" alt="Locandina di ${esc(m.title)}" decoding="async" draggable="false"` +
           ` loading="${i === 0 ? 'eager' : 'lazy'}" fetchpriority="${i === 0 ? 'high' : 'low'}"` +
           ` src="${esc(img(m.poster_path, i === 0 ? 'w780' : 'w342') || placeholderPoster(m.title))}">` +
         '<div class="frost"></div><div class="shine"></div><div class="glare"></div>' +
@@ -3721,7 +3791,7 @@ function buildStrip(){
   const list = movies();
   el.stripTrack.innerHTML = list.map((m, i) =>
     `<button type="button" class="frame" data-i="${i}" aria-label="${esc(m.title)}">` +
-    `<img src="${esc(img(m.poster_path, 'w92') || placeholderPoster(m.title))}" alt="" loading="lazy" decoding="async"></button>`
+    `<img draggable="false" src="${esc(img(m.poster_path, 'w92') || placeholderPoster(m.title))}" alt="" loading="lazy" decoding="async"></button>`
   ).join('');
   el.filmstrip.hidden = list.length < 2;
 }
@@ -3903,24 +3973,47 @@ function updateNavState(){
 /* --------- Gesture: drag / swipe --------- */
 function initDrag(){
   const stage = el.stage;
+
   stage.addEventListener('pointerdown', e => {
     if (e.button !== 0 || !cards.length) return;
-    /* nessun pointer capture qui: i pulsanti restano cliccabili finche' non si trascina */
-    state.drag = { x: e.clientX, y: e.clientY, base: state.current, moved: false, t: performance.now(), locked: false };
+    /* La cattura si prende subito: senza, tenendo premuto e uscendo dallo
+       stage il browser avvia il suo drag nativo (immagini, selezione) e il
+       carosello resta incastrato. I pulsanti restano cliccabili perche' il
+       gesto diventa "trascinamento" solo dopo la soglia. */
+    try{ stage.setPointerCapture(e.pointerId); }catch(err){ /* puntatore gia' sparito */ }
+    state.drag = {
+      id: e.pointerId, x: e.clientX, y: e.clientY, base: state.current,
+      moved: false, locked: false, t: performance.now(),
+      ux: e.clientX, ut: performance.now(), v: 0
+    };
   });
+
   stage.addEventListener('pointermove', e => {
     const d = state.drag;
-    if (!d) return;
+    if (!d || e.pointerId !== d.id) return;
     const dx = e.clientX - d.x, dy = e.clientY - d.y;
     if (!d.locked){
       if (Math.abs(dx) < 7 && Math.abs(dy) < 7) return;
-      if (Math.abs(dy) > Math.abs(dx)){ state.drag = null; return; }   // scroll verticale della pagina
+      if (Math.abs(dy) > Math.abs(dx)){
+        /* verticale: e' scorrimento della pagina, si molla subito la presa */
+        rilasciaPuntatore(d.id);
+        state.drag = null;
+        return;
+      }
       d.locked = true;
       stage.classList.add('dragging');
-      try { stage.setPointerCapture(e.pointerId); } catch(err){}
+      document.body.classList.add('trascina');
     }
     d.moved = true;
     d.dx = dx;
+    /* velocita' istantanea sugli ultimi millisecondi: serve all'inerzia */
+    const ora = performance.now();
+    const dtv = ora - d.ut;
+    if (dtv > 12){
+      d.v = (e.clientX - d.ux) / dtv;
+      d.ux = e.clientX;
+      d.ut = ora;
+    }
     if (state.raf){ cancelAnimationFrame(state.raf); state.raf = 0; }
     const n = cards.length;
     let pos = d.base - dx / state.spacing;
@@ -3929,27 +4022,40 @@ function initDrag(){
     state.target = pos;
     render();
   });
-  const up = e => endDrag(e, false);
-  stage.addEventListener('pointerup', up);
+
+  stage.addEventListener('pointerup', e => endDrag(e, false));
   stage.addEventListener('pointercancel', e => endDrag(e, true));
-  stage.addEventListener('lostpointercapture', e => endDrag(e, true));
+  /* Il menu contestuale e la selezione del testo interrompono il gesto:
+     durante il trascinamento vanno annullati, fuori restano come sempre. */
+  stage.addEventListener('contextmenu', e => { if (state.drag && state.drag.locked) e.preventDefault(); });
+  document.addEventListener('selectstart', e => { if (state.drag && state.drag.locked) e.preventDefault(); });
+  stage.addEventListener('dragstart', e => e.preventDefault());
+}
+
+function rilasciaPuntatore(id){
+  try{ if (el.stage.hasPointerCapture(id)) el.stage.releasePointerCapture(id); }
+  catch(err){ /* gia' rilasciato */ }
 }
 
 function endDrag(e, cancel){
   const d = state.drag;
   if (!d) return;
+  if (e && e.pointerId !== undefined && e.pointerId !== d.id) return;
   state.drag = null;
+  rilasciaPuntatore(d.id);
   el.stage.classList.remove('dragging');
+  document.body.classList.remove('trascina');
   if (!d.moved || cancel){
     if (!d.moved && !cancel) handleCardTap(e);
     setTarget(Math.round(state.target));
     return;
   }
-  const dx = d.dx || 0;
-  const dt = Math.max(performance.now() - d.t, 1);
-  const v = dx / dt;
-  let idx = Math.round(state.current);
-  if (Math.abs(v) > 0.45) idx = dx > 0 ? Math.floor(state.current) : Math.ceil(state.current);
+  /* Inerzia: la velocita' di rilascio decide quante locandine scorrere,
+     poi ci pensa il loop di animazione a frenare dolcemente. */
+  const v = d.v || 0;
+  const slancio = clamp(Math.round(-v * 260 / Math.max(state.spacing, 1)), -3, 3);
+  let idx = Math.round(state.current) + slancio;
+  if (!slancio && Math.abs(v) > 0.35) idx = v > 0 ? Math.floor(state.current) : Math.ceil(state.current);
   setTarget(idx);
   buzz(APTICA.micro);
   sfx.play('swipe');
@@ -4207,6 +4313,14 @@ function renderFacts(details){
   ).join('');
 }
 
+/* Gli incassi mostrati nella scheda vengono da TMDB: qui si controllano */
+function renderFonti(movie){
+  const t = movie && movie.title ? movie.title : '';
+  el.pMojo.href = linkMojo(t);
+  el.pWiki.href = linkWiki(t);
+  el.pFonti.hidden = !t;
+}
+
 function renderGenres(ids){
   const list = (ids || []).map(id => GENRES[id]).filter(Boolean);
   el.genres.innerHTML = list.map(g => `<span class="gpill">${esc(g)}</span>`).join('');
@@ -4299,6 +4413,7 @@ function renderPanel(movie, details){
   renderPanelArt(movie);
   accentoAzioni(movie);
   renderFacts(details);
+  renderFonti(movie);
   renderGenres(details && details.genreIds && details.genreIds.length ? details.genreIds : movie.genre_ids);
 
   const iso = (details && details.releaseIT) || movie.release_date || null;
@@ -4385,7 +4500,7 @@ async function loadCredits(movie){
   if (!persone.length){ el.castWrap.hidden = true; el.castStrip.innerHTML = ''; return; }
   el.castStrip.innerHTML = persone.map(p =>
     `<button type="button" class="cast-pill${p.dir ? ' dir' : ''}" data-person="${p.id}" data-nome="${esc(p.nome)}" data-ruolo="${esc(p.ruolo)}">` +
-      `<img class="cast-pic" src="${esc(p.foto ? IMG_BASE + 'w185' + p.foto : avatarSvg(p.nome))}" alt="" loading="lazy" decoding="async">` +
+      `<img draggable="false" class="cast-pic" src="${esc(p.foto ? IMG_BASE + 'w185' + p.foto : avatarSvg(p.nome))}" alt="" loading="lazy" decoding="async">` +
       `<span class="cast-txt"><span class="cast-name">${esc(p.nome)}</span><span class="cast-role">${esc(p.ruolo)}</span></span>` +
     '</button>').join('');
   el.castWrap.hidden = false;
@@ -4416,7 +4531,7 @@ async function openFilmography(personId, nome, foto, ruolo){
     if (!film.length){ el.filmoList.innerHTML = '<div class="filmo-empty">Nessun film disponibile.</div>'; return; }
     el.filmoList.innerHTML = film.map(f =>
       `<button type="button" class="filmo-row" data-film="${f.id}">` +
-        `<img src="${esc(img(f.poster_path, 'w92') || placeholderPoster(f.title))}" alt="" loading="lazy">` +
+        `<img draggable="false" src="${esc(img(f.poster_path, 'w92') || placeholderPoster(f.title))}" alt="" loading="lazy">` +
         '<span class="filmo-info">' +
         `<span class="filmo-title">${esc(f.title)} (${esc(fmtYear(f.release_date))})</span>` +
         `<span class="filmo-meta">${esc(f.character || 'Regia')}</span></span>` +
@@ -4438,6 +4553,7 @@ el.filmoList.addEventListener('click', e => {
 
 /* Porta un film esterno dentro CineGlass come risultato singolo */
 function mostraSingolo(f){
+  uscitaClassifiche();
   state.mode = 'search';
   state.searchList = [slimMovie(f)];
   state.searchQuery = f.title;
@@ -4550,11 +4666,21 @@ function setFavOnly(on){
 /* =========================================================
    8-bis. VISTA A LISTA
    ========================================================= */
+/* Qualunque cosa riporti l'utente sui film chiude la vista classifiche:
+   li' carosello e scheda sono nascosti e mostrarli senza uscire non basta. */
+function uscitaClassifiche(){
+  if (!state.classifiche) return;
+  state.classifiche = false;
+  document.body.classList.remove('vista-classifiche');
+  syncNav();
+}
+
 function setLayout(mode){
   conTransizione(() => applicaLayout(mode));
 }
 
 function applicaLayout(mode){
+  uscitaClassifiche();
   state.layout = ['list', 'timeline'].includes(mode) ? mode : 'carousel';
   const lista = state.layout === 'list', tl = state.layout === 'timeline';
   el.listView.hidden = !lista;
@@ -4590,7 +4716,7 @@ function renderListView(){
   el.tableBody.innerHTML = list.map((m, i) => {
     const badge = m.__demo ? 'Esempio' : releaseBadge(m.release_date);
     return `<tr data-i="${i}"${i === state.activeIndex ? ' class="on"' : ''}>` +
-      `<td class="c-poster"><img class="thumb" src="${esc(img(m.poster_path, 'w92') || placeholderPoster(m.title))}" alt="" loading="lazy" decoding="async"></td>` +
+      `<td class="c-poster"><img draggable="false" class="thumb" src="${esc(img(m.poster_path, 'w92') || placeholderPoster(m.title))}" alt="" loading="lazy" decoding="async"></td>` +
       `<td><span class="t-title">${esc(m.title)}</span>${badge ? `<br><span class="t-tag">${esc(badge)}</span>` : ''}</td>` +
       `<td data-lab="Uscita">${esc(dataEstesa(m.release_date))}<br>${badgeStato(m)} ${badgeDistanza(m)}</td>` +
       `<td data-lab="Genere">${esc(genreNames(m.genre_ids, 2))}</td>` +
@@ -4628,9 +4754,108 @@ el.tableBody.addEventListener('click', e => {
 });
 
 /* =========================================================
-   8-ter. NELLE SALE ORA (classifica)
+   8-ter. BOX OFFICE & CLASSIFICHE
+   Tre classifiche in una sola sezione: i film in sala adesso, la
+   storica di sempre e quella anno per anno. Gli incassi arrivano da
+   TMDB; la storica parte da un elenco curato perche' TMDB non espone
+   una top all-time attendibile. Ogni riga porta il link alla fonte
+   ufficiale: chi vuole controllare la cifra ci arriva in un tocco.
    ========================================================= */
-const euro = n => '€ ' + Math.round(n).toLocaleString('it-IT');
+const euro = n => '\u20ac ' + Math.round(n).toLocaleString('it-IT');
+
+/* Cifre d'incasso leggibili. Zero non vuol dire "non ha incassato":
+   vuol dire che il dato non c'e', ed e' giusto scriverlo. */
+function formatCurrency(amount){
+  const v = Number(amount) || 0;
+  if (v <= 0) return 'Dato non disponibile';
+  if (v >= 1e9) return '$' + (v / 1e9).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Mld';
+  /* sotto i dieci milioni un decimale evita di far diventare 1,5 milioni "2 M" */
+  if (v >= 1e6) return '$' + (v / 1e6).toLocaleString('it-IT', { maximumFractionDigits: v < 1e7 ? 1 : 0 }) + ' M';
+  return '$' + Math.round(v).toLocaleString('it-IT');
+}
+
+/* Le due fonti che l'utente puo' verificare da solo */
+const linkMojo = t => 'https://www.boxofficemojo.com/search/?q=' + encodeURIComponent(String(t || ''));
+const linkWiki = t => 'https://it.wikipedia.org/w/index.php?search=' + encodeURIComponent(String(t || '') + ' film');
+
+/* ---------------------------------------------------------
+   Classifica storica: elenco curato a mano.
+   TMDB ordina per "revenue" solo la prima pagina e su molti titoli
+   storici il campo e' vuoto o sbagliato, quindi la top all-time non
+   si puo' costruire dall'API. Queste cifre sono incassi mondiali
+   lordi (riedizioni comprese, inflazione esclusa) presi da Box Office
+   Mojo / Wikipedia; la data qui sotto dice a quando risale il
+   controllo, e ogni riga rimanda alla fonte per la verifica.
+   Per aggiornarli senza toccare il codice basta un data/alltime.json
+   con { fonte, aggiornato, film: [{titolo, anno, incasso, tmdb_id}] }.
+   --------------------------------------------------------- */
+const ALLTIME_AGGIORNATO = '2026-05-31';
+const ALLTIME = [
+  { titolo: 'Avatar',                                    anno: 2009, incasso: 2923706026, tmdb_id: 19995 },
+  { titolo: 'Avengers: Endgame',                         anno: 2019, incasso: 2799439100, tmdb_id: 299534 },
+  { titolo: 'Avatar: La via dell\u2019acqua',              anno: 2022, incasso: 2320250281, tmdb_id: 76600 },
+  { titolo: 'Titanic',                                   anno: 1997, incasso: 2257844554, tmdb_id: 597 },
+  { titolo: 'Ne Zha 2',                                  anno: 2025, incasso: 2217000000, tmdb_id: 1195506 },
+  { titolo: 'Star Wars: Il risveglio della Forza',       anno: 2015, incasso: 2068223624, tmdb_id: 140607 },
+  { titolo: 'Avengers: Infinity War',                    anno: 2018, incasso: 2048359754, tmdb_id: 299536 },
+  { titolo: 'Spider-Man: No Way Home',                   anno: 2021, incasso: 1952000000, tmdb_id: 634649 },
+  { titolo: 'Inside Out 2',                              anno: 2024, incasso: 1698863816, tmdb_id: 1022789 },
+  { titolo: 'Jurassic World',                            anno: 2015, incasso: 1671537444, tmdb_id: 135397 },
+  { titolo: 'Il Re Leone',                               anno: 2019, incasso: 1663075401, tmdb_id: 420818 },
+  { titolo: 'The Avengers',                              anno: 2012, incasso: 1518815515, tmdb_id: 24428 },
+  { titolo: 'Fast & Furious 7',                          anno: 2015, incasso: 1515341399, tmdb_id: 168259 },
+  { titolo: 'Top Gun: Maverick',                         anno: 2022, incasso: 1495696292, tmdb_id: 361743 },
+  { titolo: 'Frozen II \u2013 Il segreto di Arendelle',    anno: 2019, incasso: 1453683476, tmdb_id: 330457 },
+  { titolo: 'Barbie',                                    anno: 2023, incasso: 1445638421, tmdb_id: 346698 },
+  { titolo: 'Avengers: Age of Ultron',                   anno: 2015, incasso: 1402809540, tmdb_id: 99861 },
+  { titolo: 'Super Mario Bros. \u2013 Il film',            anno: 2023, incasso: 1361992475, tmdb_id: 502356 },
+  { titolo: 'Black Panther',                             anno: 2018, incasso: 1349926083, tmdb_id: 284054 },
+  { titolo: 'Harry Potter e i Doni della Morte \u2013 Parte 2', anno: 2011, incasso: 1342359942, tmdb_id: 12445 },
+  { titolo: 'Deadpool & Wolverine',                      anno: 2024, incasso: 1338073645, tmdb_id: 533535 },
+  { titolo: 'Star Wars: Gli ultimi Jedi',                anno: 2017, incasso: 1334407706, tmdb_id: 181808 },
+  { titolo: 'Jurassic World: Il regno distrutto',        anno: 2018, incasso: 1310466296, tmdb_id: 351286 },
+  { titolo: 'Frozen \u2013 Il regno di ghiaccio',          anno: 2013, incasso: 1290000000, tmdb_id: 109445 },
+  { titolo: 'La Bella e la Bestia',                      anno: 2017, incasso: 1266115964, tmdb_id: 321612 },
+  { titolo: 'Gli Incredibili 2',                         anno: 2018, incasso: 1243225667, tmdb_id: 260513 },
+  { titolo: 'Fast & Furious 8',                          anno: 2017, incasso: 1236005118, tmdb_id: 337339 },
+  { titolo: 'Iron Man 3',                                anno: 2013, incasso: 1214811252, tmdb_id: 68721 },
+  { titolo: 'Cattivissimo me \u2013 Minions',              anno: 2015, incasso: 1159444662, tmdb_id: 211672 },
+  { titolo: 'Captain America: Civil War',                anno: 2016, incasso: 1153337496, tmdb_id: 271110 }
+];
+
+/* --- Cache locale: una classifica al giorno basta e avanza --- */
+const BO_CACHE = 'cineglass:classifiche:v1';
+const TTL_BO   = 24 * 60 * 60 * 1000;
+const BO_TOP_ANNO = 15;
+
+function boCacheGet(chiave){
+  const tutti = store.get(BO_CACHE);
+  const v = tutti && tutti[chiave];
+  if (!v || typeof v.ts !== 'number' || !Array.isArray(v.data) || !v.data.length) return null;
+  if (now() - v.ts > TTL_BO) return null;
+  return v.data;
+}
+
+function boCacheSet(chiave, righe){
+  const tutti = store.get(BO_CACHE) || {};
+  tutti[chiave] = { ts: now(), data: righe.map(slimRiga) };
+  store.set(BO_CACHE, tutti);
+}
+
+/* In cache finisce solo il minimo per ridisegnare la riga anche offline */
+function slimRiga(r){
+  const m = r.movie;
+  return {
+    titolo: r.titolo, anno: r.anno || null, totale: r.totale || 0,
+    incasso: r.incasso || 0, schermi: r.schermi || 0, inCorso: !!r.inCorso,
+    movie: m ? {
+      __slim: true, id: m.id, title: m.title, poster_path: m.poster_path || null,
+      backdrop_path: m.backdrop_path || null, release_date: m.release_date || null,
+      genre_ids: m.genre_ids || [], vote_average: m.vote_average || 0,
+      vote_count: m.vote_count || 0, popularity: m.popularity || 0, overview: ''
+    } : null
+  };
+}
 
 async function loadLocalBoxOffice(){
   try{
@@ -4641,17 +4866,62 @@ async function loadLocalBoxOffice(){
   }catch(err){ return null; }   // file assente o aperto da file://
 }
 
+/* L'elenco storico si puo' sovrascrivere senza ricompilare nulla */
+async function caricaAllTime(){
+  try{
+    const res = await fetch('./data/alltime.json', { cache: 'no-cache' });
+    if (res.ok){
+      const d = await res.json();
+      if (d && Array.isArray(d.film) && d.film.length)
+        return { fonte: d.fonte || 'data/alltime.json', aggiornato: d.aggiornato || ALLTIME_AGGIORNATO, film: d.film };
+    }
+  }catch(err){ /* file assente: vale l'elenco integrato */ }
+  return { fonte: 'elenco curato \u00b7 Box Office Mojo / Wikipedia', aggiornato: ALLTIME_AGGIORNATO, film: ALLTIME };
+}
+
 const normTitle = t => String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
 
+/* --- Smistamento fra le tre classifiche --- */
+let boSeq = 0;
+
 async function loadBoxOffice(){
+  const mio = ++boSeq;
   const key = resolveKey();
-  if (!key || state.demo){ el.boxoffice.hidden = true; return; }
-  if (!state.boxoffice.length){
-    el.boList.innerHTML = skeletonClassifica(5);
-    el.boxoffice.hidden = false;
+  if (!state.boxoffice.length) el.boList.innerHTML = skeletonClassifica(5);
+  el.boAnni.hidden = state.boTab !== 'anno';
+  if (!key || state.demo){
+    state.boxoffice = [];
+    el.boTitle.textContent = '\ud83d\udcca Box Office & Classifiche';
+    el.boSource.textContent = state.demo ? 'Modalit\u00e0 dimostrativa' : 'Chiave TMDB assente';
+    el.boIntro.textContent = 'Le classifiche d\u2019incasso arrivano da TMDB.';
+    el.boNote.textContent = '';
+    classificaVuota(state.demo
+      ? 'In modalit\u00e0 dimostrativa gli incassi non sono disponibili: inserisci la tua chiave TMDB per vedere le classifiche reali.'
+      : 'Serve una chiave API TMDB per caricare le classifiche d\u2019incasso.');
+    return;
   }
   await loadCustomFeed();
-  if (state.boTab === 'ww') return loadBoxOfficeMondiale(key);
+  if (mio !== boSeq) return;
+  if (state.boTab === 'storica') return loadBoxOfficeStorico(key, mio);
+  if (state.boTab === 'anno')    return loadBoxOfficeAnno(key, mio);
+  return loadBoxOfficeSala(key, mio);
+}
+
+/* Solo l'ultima richiesta ha diritto di scrivere a schermo */
+function pubblica(righe, mio){
+  if (mio !== boSeq) return false;
+  state.boxoffice = righe;
+  renderBoxOffice(righe);
+  return true;
+}
+
+function classificaVuota(msg){
+  el.boList.innerHTML = '<li class="bo-empty">' + esc(msg) + '</li>';
+}
+
+/* --- A. Film in sala adesso, ordinati per incasso mondiale --- */
+async function loadBoxOfficeSala(key, mio){
+  el.boTitle.textContent = '\ud83c\udf9f\ufe0f Nelle sale ora in Italia';
   let inSala = [];
   try{
     const data = await fetchJSON(`${API_BASE}/movie/now_playing?api_key=${encodeURIComponent(key)}&language=it-IT&region=IT&page=1`);
@@ -4661,13 +4931,17 @@ async function loadBoxOffice(){
       .sort((a, b) => b.popularity - a.popularity)
       .slice(0, BO_TOP);
   }catch(err){
-    el.boxoffice.hidden = true;
+    const cache = boCacheGet('sala');
+    if (cache){ pubblica(cache, mio); el.boSource.textContent = 'Dati dalla cache locale'; return; }
+    classificaVuota('Non riesco a raggiungere TMDB: riprova quando torna la rete.');
     return;
   }
-  if (!inSala.length){ el.boxoffice.hidden = true; return; }
+  if (mio !== boSeq) return;
+  if (!inSala.length){ classificaVuota('TMDB non riporta film in programmazione in Italia in questo momento.'); return; }
 
   /* Incassi reali in euro, se il repository include data/boxoffice.json */
   const locale = await loadLocalBoxOffice();
+  if (mio !== boSeq) return;
   let righe;
   if (locale){
     const perId = new Map(inSala.map(m => [m.id, m]));
@@ -4684,43 +4958,160 @@ async function loadBoxOffice(){
       (locale.aggiornato ? `, aggiornati al ${fmtDate(locale.aggiornato)}.` : '.');
   } else {
     await inBatches(inSala, 5, async m => {
-      try{ m.__d = await getDetails(m); }catch(err){ /* si mostra comunque la riga */ }
+      try{ const d = await getDetails(m); m.__rev = d ? d.revenue : 0; }
+      catch(err){ m.__rev = 0; }   // la riga si mostra comunque, con la pillola
     });
-    righe = inSala.map(m => ({ movie: m, titolo: m.title, incasso: null, totale: m.__d ? m.__d.revenue : 0 }));
+    if (mio !== boSeq) return;
+    /* Niente filtro qui: un film appena uscito ha davvero incasso 0 su TMDB
+       e va segnalato come "in corso d'incasso", non nascosto. */
+    righe = inSala
+      .map(m => ({ movie: m, titolo: m.title, incasso: null, totale: Number(m.__rev) || 0 }))
+      .map(r => Object.assign(r, { inCorso: r.totale <= 0 }))
+      .sort((a, b) => (b.totale || 0) - (a.totale || 0));
     el.boSource.textContent = 'Fonte: TMDB /movie/now_playing (IT)';
-    el.boIntro.textContent = 'Film attualmente in programmazione in Italia, dal più seguito su TMDB.';
-    el.boNote.textContent = 'La popolarità TMDB non è un dato di incasso: misura visite e interazioni ' +
-      'sulla scheda del film. Gli importi indicati sono incassi mondiali complessivi in dollari, non italiani. ' +
-      'Per gli incassi reali in euro l\u2019app legge data/boxoffice.json, se presente nel repository.';
+    el.boIntro.textContent = 'Incassi mondiali aggiornati dei film attualmente in programmazione in Italia.';
+    el.boNote.textContent = 'Gli importi sono incassi mondiali complessivi in dollari dichiarati su TMDB, ' +
+      'non incassi italiani. I titoli usciti da poco riportano ancora zero: per loro compare la pillola ' +
+      '\u201cIn corso d\u2019incasso\u201d invece di una cifra finta. Per gli incassi reali in euro l\u2019app ' +
+      'legge data/boxoffice.json, se presente nel repository.';
   }
-  state.boxoffice = righe;
-  renderBoxOffice(righe);
-  el.boxoffice.hidden = false;
+  if (!pubblica(righe, mio)) return;
+  boCacheSet('sala', righe);
 }
 
+/* --- B. La classifica storica di sempre --- */
+async function loadBoxOfficeStorico(key, mio){
+  const fonte = await caricaAllTime();
+  if (mio !== boSeq) return;
+  el.boTitle.textContent = '\ud83c\udfc6 I maggiori incassi di sempre';
+  el.boSource.textContent = 'Fonte: ' + fonte.fonte;
+  el.boIntro.textContent = `I ${fonte.film.length} film che hanno incassato di pi\u00f9 nella storia del cinema mondiale.`;
+  el.boNote.textContent = 'Incassi mondiali lordi in dollari, riedizioni comprese e senza adeguamento ' +
+    'all\u2019inflazione: un film del 1997 e uno del 2025 non si confrontano davvero alla pari. Elenco curato ' +
+    'a mano su Box Office Mojo / Wikipedia e aggiornato al ' + fmtDate(fonte.aggiornato) +
+    '; tocca \ud83c\udf10 su una riga per controllare la cifra alla fonte. Locandine e schede vengono da TMDB.';
+
+  const cache = boCacheGet('storica');
+  if (cache && cache.length === fonte.film.length){ pubblica(cache, mio); return; }
+
+  const righe = fonte.film
+    .map(f => ({ movie: null, titolo: f.titolo, anno: f.anno || null, totale: Number(f.incasso) || 0, tmdb: f.tmdb_id || 0 }))
+    .filter(r => r.totale > 0)
+    .sort((a, b) => b.totale - a.totale);
+  if (!righe.length){ classificaVuota('L\u2019elenco storico non contiene cifre valide.'); return; }
+
+  /* La classifica si vede subito: le locandine arrivano un attimo dopo */
+  if (!pubblica(righe, mio)) return;
+  await inBatches(righe, 5, async r => {
+    if (!r.tmdb) return;
+    try{
+      const d = await fetchJSON(`${API_BASE}/movie/${r.tmdb}?api_key=${encodeURIComponent(key)}&language=it-IT`);
+      if (d && d.id){
+        r.movie = slimMovie(Object.assign({}, d, { genre_ids: (d.genres || []).map(g => g.id) }));
+        if (d.title) r.titolo = d.title;
+      }
+    }catch(err){ /* resta il titolo curato e la locandina generata al volo */ }
+  });
+  if (!pubblica(righe, mio)) return;
+  boCacheSet('storica', righe);
+}
+
+/* --- C. Top box office anno per anno --- */
+async function loadBoxOfficeAnno(key, mio){
+  const anno = state.boAnno || new Date(now()).getFullYear();
+  el.boTitle.textContent = `\ud83d\udcc5 Box office ${anno}`;
+  el.boIntro.textContent = `I maggiori incassi mondiali dei film usciti nel ${anno}.`;
+  el.boSource.textContent = 'Fonte: TMDB /discover \u00b7 revenue.desc';
+  el.boNote.textContent = 'Incassi mondiali complessivi in dollari dichiarati su TMDB, non dati italiani e ' +
+    'non adeguati all\u2019inflazione. I titoli senza incasso dichiarato restano fuori dalla classifica: ' +
+    'meglio una riga in meno di un numero inventato.';
+
+  const chiave = 'anno:' + anno;
+  const cache = boCacheGet(chiave);
+  if (cache){ pubblica(cache, mio); return; }
+
+  let lista = [];
+  try{
+    const d = await fetchJSON(`${API_BASE}/discover/movie?api_key=${encodeURIComponent(key)}&language=it-IT` +
+      `&primary_release_year=${anno}&sort_by=revenue.desc&include_adult=false&include_video=false&page=1`);
+    lista = (d && d.results ? d.results : []).map(slimMovie).filter(m => m.poster_path).slice(0, BO_TOP_ANNO);
+  }catch(err){
+    classificaVuota(`Non riesco a raggiungere TMDB: la classifica del ${anno} non \u00e8 disponibile adesso.`);
+    return;
+  }
+  if (mio !== boSeq) return;
+  await inBatches(lista, 5, async m => {
+    try{ const d = await getDetails(m); m.__rev = d ? d.revenue : 0; }
+    catch(err){ m.__rev = 0; }
+  });
+  if (mio !== boSeq) return;
+  /* Richiesto esplicitamente: fuori tutto cio' che non ha un incasso dichiarato */
+  const righe = lista
+    .map(m => ({ movie: m, titolo: m.title, totale: Number(m.__rev) || 0 }))
+    .filter(r => r.totale > 0)
+    .sort((a, b) => b.totale - a.totale);
+  if (!righe.length){
+    classificaVuota(`TMDB non dichiara ancora incassi per i film usciti nel ${anno}.`);
+    return;
+  }
+  if (!pubblica(righe, mio)) return;
+  boCacheSet(chiave, righe);
+}
+
+const MEDAGLIE = ['\ud83e\udd47', '\ud83e\udd48', '\ud83e\udd49'];
+
 function renderBoxOffice(righe){
+  if (!righe || !righe.length){ classificaVuota('Nessun dato di incasso disponibile per questa classifica.'); return; }
   el.boList.innerHTML = righe.map((r, i) => {
     const m = r.movie;
-    const poster = m ? (img(m.poster_path, 'w92') || placeholderPoster(r.titolo)) : placeholderPoster(r.titolo);
-    let valore = '', etichetta = '';
-    if (r.incasso){ valore = euro(r.incasso); etichetta = 'Incasso weekend'; }
-    else if (r.totale){ valore = fmtBudget(r.totale); etichetta = 'Incasso mondiale'; }
-    else if (m && m.release_date){ valore = fmtDate(m.release_date); etichetta = 'In sala dal'; }
-    const meta = m
-      ? [genreNames(m.genre_ids, 2), m.vote_count >= MIN_VOTES ? '★ ' + (m.vote_average || 0).toFixed(1) : null]
-          .filter(Boolean).join(' · ')
-      : (r.schermi ? r.schermi + ' schermi' : '');
+    const titolo = m && m.title ? m.title : r.titolo;
+    const poster = (m && img(m.poster_path, 'w92')) || placeholderPoster(titolo);
+    const podio = i < 3;
+    let valore = '', etichetta = '', pill = '';
+    if (r.inCorso){
+      pill = '<span class="pill-incasso">In corso d\u2019incasso</span>';
+      etichetta = 'Dato non ancora consolidato';
+    } else if (r.incasso){
+      valore = euro(r.incasso); etichetta = 'Incasso weekend';
+    } else {
+      valore = formatCurrency(r.totale); etichetta = 'Incasso mondiale';
+    }
+    let anno = r.anno || null;
+    if (!anno && m && m.release_date){ const y = fmtYear(m.release_date); if (y !== '\u2014') anno = y; }
+    const meta = [
+      anno ? String(anno) : null,
+      m ? genreNames(m.genre_ids, 2) : null,
+      (m && m.vote_count >= MIN_VOTES) ? '\u2605 ' + (m.vote_average || 0).toFixed(1) : null,
+      (!m && r.schermi) ? r.schermi + ' schermi' : null
+    ].filter(Boolean).join(' \u00b7 ');
     return `<li class="bo-row"${m ? ` data-id="${m.id}"` : ''}>` +
-      `<span class="bo-rank">${i + 1}</span>` +
-      `<img class="bo-poster" src="${esc(poster)}" alt="" loading="lazy" decoding="async">` +
-      `<div class="bo-info"><div class="bo-title">${esc(m ? m.title : r.titolo)}</div><div class="bo-meta">${esc(meta)}</div></div>` +
-      `<div class="bo-value"><div class="bo-amount">${esc(valore)}</div><div class="bo-lab">${esc(etichetta)}</div></div>` +
-      (m ? '<button class="btn-sm" type="button" data-act="trailer">Trailer</button>' : '') +
+      `<span class="bo-rank${podio ? ' medaglia' : ''}">${podio ? MEDAGLIE[i] : (i + 1)}</span>` +
+      `<img draggable="false" class="bo-poster" src="${esc(poster)}" alt="" loading="lazy" decoding="async">` +
+      `<div class="bo-info"><div class="bo-title">${esc(titolo)}</div><div class="bo-meta">${esc(meta)}</div></div>` +
+      `<div class="bo-value">${pill || `<div class="bo-amount">${esc(valore)}</div>`}` +
+        `<div class="bo-lab">${esc(etichetta)}</div></div>` +
+      '<div class="bo-act">' +
+        (m ? '<button class="btn-sm" type="button" data-act="trailer">Trailer</button>' : '') +
+        `<a class="bo-verify" href="${esc(linkMojo(titolo))}" target="_blank" rel="noopener noreferrer"` +
+        ` aria-label="Verifica l\u2019incasso di ${esc(titolo)} su Box Office Mojo"` +
+        ` title="Apri su Box Office Mojo">\ud83c\udf10</a>` +
+      '</div>' +
     '</li>';
   }).join('');
 }
 
+/* --- Chip degli anni: l'anno in corso e i tre precedenti --- */
+function renderAnniChips(){
+  const y = new Date(now()).getFullYear();
+  const anni = [y, y - 1, y - 2, y - 3];
+  if (!state.boAnno || !anni.includes(state.boAnno)) state.boAnno = y;
+  el.boAnni.innerHTML = anni.map(a =>
+    `<button type="button" class="chip${a === state.boAnno ? ' on' : ''}" data-anno-bo="${a}"` +
+    ` aria-pressed="${a === state.boAnno ? 'true' : 'false'}">${a}</button>`).join('');
+}
+
 el.boList.addEventListener('click', e => {
+  if (e.target.closest('.bo-verify')) return;   // il link alla fonte si apre da solo
   const row = e.target.closest('.bo-row');
   if (!row || !row.dataset.id) return;
   const entry = state.boxoffice.find(r => r.movie && String(r.movie.id) === row.dataset.id);
@@ -4799,6 +5190,7 @@ async function runSearch(q){
 
 /* Dalla tendina al carosello */
 function scegliRisultato(m){
+  uscitaClassifiche();
   salvaRecente(m);
   el.results.hidden = true;
   if (!el.spot.hidden) openSearch(false);
@@ -5179,7 +5571,7 @@ function enterDemo(reason){
    all'avvio si buttano via, senza toccare watchlist e preferenze. */
 function pulisciCache(){
   const ora = Date.now();
-  const limiti = [[STORE.details, TTL_DET], [PROV_KEY, TTL_PROV]];
+  const limiti = [[STORE.details, TTL_DET], [PROV_KEY, TTL_PROV], [BO_CACHE, TTL_BO]];
   limiti.forEach(([chiave, ttl]) => {
     const dati = store.get(chiave);
     if (!dati || typeof dati !== 'object') return;
@@ -5451,7 +5843,7 @@ async function renderOst(movie){
 
   box.innerHTML =
     '<button type="button" class="ost-disc" id="ostBtn" aria-pressed="false" aria-label="Ascolta 30 secondi della colonna sonora">' +
-      `<img src="${esc(brano.artworkUrl100 || '')}" alt="" loading="lazy" decoding="async">` +
+      `<img draggable="false" src="${esc(brano.artworkUrl100 || '')}" alt="" loading="lazy" decoding="async">` +
       '<span class="ost-play"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.2v13.6a1 1 0 0 0 1.53.85l10.6-6.8a1 1 0 0 0 0-1.7L9.53 4.35A1 1 0 0 0 8 5.2Z"/></svg></span>' +
     '</button>' +
     '<span class="ost-txt">' +
@@ -5865,45 +6257,36 @@ async function invitoPng(movie){
   return new Promise(res => c.toBlob(res, 'image/png', .92));
 }
 
-/* --- Box office: Italia (€) e Mondiale ($) --- */
+/* --- Box office: tre classifiche e la vista a tutta pagina --- */
 function setBoTab(tab){
+  if (!['sala', 'storica', 'anno'].includes(tab)) tab = 'sala';
   state.boTab = tab;
-  el.boTabIt.classList.toggle('on', tab === 'it');
-  el.boTabWw.classList.toggle('on', tab === 'ww');
-  el.boTabIt.setAttribute('aria-pressed', tab === 'it' ? 'true' : 'false');
-  el.boTabWw.setAttribute('aria-pressed', tab === 'ww' ? 'true' : 'false');
-  if (el.boTitle) el.boTitle.textContent = tab === 'it' ? 'Nelle sale ora in Italia' : 'Incassi mondiali';
+  $$('[data-botab]', el.boTabs).forEach(b => {
+    const on = b.dataset.botab === tab;
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+  el.boAnni.hidden = tab !== 'anno';
+  if (tab === 'anno') renderAnniChips();
+  state.boxoffice = [];
   sfx.play('tap');
+  buzz(APTICA.micro);
   loadBoxOffice();
 }
 
-async function loadBoxOfficeMondiale(key){
-  const anno = new Date(now()).getFullYear();
-  const url = a => `${API_BASE}/discover/movie?api_key=${encodeURIComponent(key)}&language=it-IT` +
-                   `&sort_by=revenue.desc&include_adult=false&include_video=false&page=1` +
-                   (a ? `&primary_release_year=${a}` : '');
-  let lista = [];
-  try{
-    const d = await fetchJSON(url(anno));
-    lista = (d && d.results ? d.results : []).map(slimMovie).filter(m => m.poster_path).slice(0, BO_TOP);
-    if (lista.length < 5){
-      const t = await fetchJSON(url(0));
-      lista = (t && t.results ? t.results : []).map(slimMovie).filter(m => m.poster_path).slice(0, BO_TOP);
-      el.boIntro.textContent = 'I maggiori incassi mondiali di sempre secondo TMDB.';
-    } else {
-      el.boIntro.textContent = `I maggiori incassi mondiali dei film usciti nel ${anno}.`;
-    }
-  }catch(err){ el.boxoffice.hidden = true; return; }
-  if (!lista.length){ el.boxoffice.hidden = true; return; }
-  await inBatches(lista, 5, async m => { try{ m.__d = await getDetails(m); }catch(err){ /* riga senza incasso */ } });
-  const righe = lista.map(m => ({ movie: m, titolo: m.title, incasso: null, totale: m.__d ? m.__d.revenue : 0 }))
-    .sort((a, b) => (b.totale || 0) - (a.totale || 0));
-  el.boSource.textContent = 'Fonte: TMDB /discover · revenue.desc';
-  el.boNote.textContent = 'Incassi mondiali complessivi in dollari dichiarati su TMDB: non sono dati italiani ' +
-    'e non tengono conto dell’inflazione.';
-  state.boxoffice = righe;
-  renderBoxOffice(righe);
-  el.boxoffice.hidden = false;
+/* La sezione classifiche prende tutta la pagina: hero, filtri, carosello e
+   scheda spariscono via CSS, cosi' non restano due viste sovrapposte. */
+function setClassifiche(on){
+  const cambia = state.classifiche !== on;
+  state.classifiche = !!on;
+  conTransizione(() => {
+    document.body.classList.toggle('vista-classifiche', state.classifiche);
+    syncNav();
+  });
+  if (!state.classifiche) return;
+  if (cambia){ sfx.play('tap'); buzz(APTICA.micro); }
+  window.scrollTo({ top: 0, behavior: REDUCED ? 'auto' : 'smooth' });
+  if (!state.boxoffice.length) loadBoxOffice();
 }
 
 /* =========================================================
@@ -6253,7 +6636,7 @@ function renderRisultati(lista){
       ? `<span class="res-badge">★ ${m.vote_average.toFixed(1)}</span>` : '';
     const quando = sala ? 'In sala' : (parseISO(m.release_date) ? fmtDate(m.release_date) : 'Data da annunciare');
     return `<button type="button" class="res-row" data-id="${m.id}">` +
-      `<img src="${esc(img(m.poster_path, 'w92') || placeholderPoster(m.title))}" alt="" loading="lazy">` +
+      `<img draggable="false" src="${esc(img(m.poster_path, 'w92') || placeholderPoster(m.title))}" alt="" loading="lazy">` +
       `<span class="res-info"><span class="res-title">${esc(m.title)}</span>` +
       `<span class="res-meta">${esc(fmtYear(m.release_date))} · ${esc(genreNames(m.genre_ids, 2))}</span></span>` +
       (sala ? voto : `<span class="res-badge">${esc(quando)}</span>`) + '</button>';
@@ -6425,7 +6808,7 @@ function renderTimeline(){
     const etichetta = k === 9999 ? 'Da annunciare' : (k >= annoOra + 2 ? k + '+' : String(k));
     const righe = film.map(m =>
       `<button type="button" class="tl-item" data-id="${m.id}">` +
-        `<img src="${esc(img(m.poster_path, 'w92') || placeholderPoster(m.title))}" alt="" loading="lazy" decoding="async">` +
+        `<img draggable="false" src="${esc(img(m.poster_path, 'w92') || placeholderPoster(m.title))}" alt="" loading="lazy" decoding="async">` +
         `<span class="tl-info"><span class="tl-title">${esc(m.title)}</span>` +
         `<span class="tl-date">${esc(dataEstesa(m.release_date))}</span>` +
         `<span class="tl-badges">${badgeStato(m)}${badgeDistanza(m)}</span></span>` +
@@ -6438,6 +6821,7 @@ function renderTimeline(){
 
 /* --- Due sole sezioni: in arrivo / ora in sala --- */
 async function setSection(sec){
+  uscitaClassifiche();
   if (state.section === sec){ syncNav(); return; }
   state.section = sec;
   syncNav();
@@ -6516,13 +6900,8 @@ function orariInSala(){
 }
 
 /* --- Salto alla classifica degli incassi della settimana --- */
-async function vaiAlBoxOffice(){
-  sfx.play('tap');
-  if (el.boxoffice.hidden){
-    await loadBoxOffice();
-    if (el.boxoffice.hidden){ toast('Classifica non ancora disponibile', 'warn'); return; }
-  }
-  el.boxoffice.scrollIntoView({ behavior: 'smooth', block: 'start' });
+function vaiAlBoxOffice(){
+  setClassifiche(true);
   el.boxoffice.classList.add('evidenzia');
   setTimeout(() => el.boxoffice.classList.remove('evidenzia'), 1600);
 }
@@ -6848,6 +7227,7 @@ function initSwipeScheda(){
 let ultimoDado = 0;
 
 function sorprendimi(){
+  uscitaClassifiche();
   const lista = movies();
   if (lista.length < 2){ toast('Servono pi\u00f9 film in lista per pescare', 'warn'); return; }
   /* si pesca fra i titoli ben votati; se non ce ne sono abbastanza si allarga */
@@ -6947,7 +7327,7 @@ function initPullRefresh(){
     if (!key){ toast('Serve una API key TMDB per aggiornare', 'warn'); return; }
     toast('Aggiorno le uscite…', 'ok');
     store.del(STORE.list);
-    loadFromAPI(key, { notify: true }).then(ok => { if (ok) loadBoxOffice(); });
+    loadFromAPI(key, { notify: true }).then(ok => { if (ok && state.classifiche) loadBoxOffice(); });
   };
   window.addEventListener('touchend', rilascia, { passive: true });
   window.addEventListener('touchcancel', azzera, { passive: true });
@@ -6983,7 +7363,8 @@ function misuraNavbar(){
 /* --- Indicatore liquido: si allunga come una goccia e poi si ricompone --- */
 let slideTimer = 0;
 function syncNav(){
-  const attivo = state.layout === 'timeline' ? 'timeline' : state.section;
+  const attivo = state.classifiche ? 'classifiche'
+    : (state.layout === 'timeline' ? 'timeline' : state.section);
   const bottoni = $$('[data-nav]', el.navSeg);
   let scelto = null;
   bottoni.forEach(b => {
@@ -7139,7 +7520,7 @@ function renderWatchlist(){
     const n = hypeOf(m.id);
     const vicino = imminente(m);
     return `<button type="button" class="w-row${vicino ? ' imminente' : ''}" data-id="${m.id}">` +
-      `<img src="${esc(img(m.poster_path, 'w92') || placeholderPoster(m.title))}" alt="" loading="lazy" decoding="async">` +
+      `<img draggable="false" src="${esc(img(m.poster_path, 'w92') || placeholderPoster(m.title))}" alt="" loading="lazy" decoding="async">` +
       '<span class="w-info">' +
         `<span class="w-title">${esc(m.title)}</span>` +
         `<span class="w-meta">${esc(dataEstesa(m.release_date))}</span>` +
@@ -7295,8 +7676,20 @@ el.pipBtn.addEventListener('click', togglePip);
 el.fsBtn.addEventListener('click', schermoIntero);
 document.addEventListener('fullscreenchange', syncFsBtn);
 document.addEventListener('webkitfullscreenchange', syncFsBtn);
-el.boTabIt.addEventListener('click', () => setBoTab('it'));
-el.boTabWw.addEventListener('click', () => setBoTab('ww'));
+el.boTabs.addEventListener('click', e => {
+  const b = e.target.closest('[data-botab]');
+  if (b) setBoTab(b.dataset.botab);
+});
+el.boAnni.addEventListener('click', e => {
+  const b = e.target.closest('[data-anno-bo]');
+  if (!b) return;
+  state.boAnno = Number(b.dataset.annoBo) || null;
+  renderAnniChips();
+  state.boxoffice = [];
+  sfx.play('tap');
+  buzz(APTICA.micro);
+  loadBoxOffice();
+});
 el.icsBtn.addEventListener('click', scaricaIcs);
 el.tkQrBtn.addEventListener('click', condividiQR);
 el.cutBtn.addEventListener('click', () => {
@@ -7357,7 +7750,7 @@ el.refresh.addEventListener('click', () => {
   const key = resolveKey();
   if (!key){ enterDemo('Serve una API key TMDB per scaricare le uscite reali.'); return; }
   store.del(STORE.list);
-  loadFromAPI(key, { notify: true }).then(loadBoxOffice);
+  loadFromAPI(key, { notify: true }).then(() => { if (state.classifiche) loadBoxOffice(); });
 });
 el.noticeClose.addEventListener('click', hideNotice);
 el.keyForm.addEventListener('submit', async e => {
@@ -7491,6 +7884,8 @@ el.navSeg.addEventListener('click', e => {
   const b = e.target.closest('[data-nav]');
   if (!b) return;
   const v = b.dataset.nav;
+  if (v === 'classifiche'){ setClassifiche(true); return; }
+  setClassifiche(false);
   if (v === 'timeline'){ setLayout('timeline'); return; }
   if (state.layout === 'timeline') setLayout(state.ultimaPiatta);
   setSection(v);
@@ -7689,11 +8084,11 @@ document.addEventListener('pointerdown', () => { sfx.jingle(); avviaGiroscopio()
 if (/[?&]debug/.test(location.search)){
   el.debugBox.hidden = false;
   /* ganci per i test automatici */
-  window.__cineglass = { qrMatrix, drawQR, dominantColor, state, sfx };
+  window.__cineglass = { qrMatrix, drawQR, dominantColor, state, sfx, formatCurrency, ALLTIME, ALLTIME_AGGIORNATO };
 }
 renderStatus();
 initDrag();
-boot().then(() => { apriDaLink(); setTimeout(loadBoxOffice, 500); });
+boot().then(apriDaLink);
 
 })();
 </script>

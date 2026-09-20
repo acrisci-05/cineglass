@@ -54,8 +54,12 @@ permette di incollare una key dall'interfaccia: in quel caso resta solo nel `loc
 - **Dove si vedrà** — `/movie/{id}/watch/providers` per la regione `IT`: se il film è (o sarà)
   su Netflix, Prime Video, Disney+ o Apple TV+ compaiono i badge ufficiali con il logo,
   altrimenti la scheda dichiara **Esclusiva Cinema 🎬**.
-- **Nelle sale ora in Italia** — classifica dei film in programmazione, con incassi reali in
-  euro se configurati (vedi sotto).
+- **📊 Box Office & Classifiche** — quarta voce della navigazione, apre una vista a tutta pagina
+  con tre classifiche: **In sala ora** (incassi mondiali dei film in programmazione in Italia,
+  con la pillola *In corso d'incasso* per chi non ha ancora un dato consolidato), **Tutti i tempi**
+  (i 30 maggiori incassi della storia, con medaglie 🥇🥈🥉) e **Per anno** (chip `2026 · 2025 ·
+  2024 · 2023` su `/discover` ordinato per `revenue`). Ogni riga porta il link 🌐 alla fonte
+  ufficiale per verificare la cifra; i risultati restano in cache locale per 24 ore.
 - **Ricerca su TMDB** (`/search/movie`) dalla lente nell'header o con il tasto `/`,
   **filtri per genere** generati dai film effettivamente caricati e **badge fluorescente**
   sulle uscite entro 7 giorni ("Da oggi in sala", "Domani in sala", "In uscita questo weekend",
@@ -83,9 +87,66 @@ permette di incollare una key dall'interfaccia: in quel caso resta solo nel `loc
 | Voto IMDb e Rotten Tomatoes | **nessuno: non esistono su TMDB** | Le due pillole accanto al cerchio TMDB portano alla scheda ufficiale (`imdb_id` quando c'è) e mostrano una **stima ricavata dal voto TMDB**, sempre preceduta da `~` e spiegata nel tooltip. Nessun punteggio inventato viene presentato come ufficiale |
 | Colonna sonora | iTunes Search API (`itunes.apple.com/search`) | Anteprima di 30 secondi del brano più pertinente, servita da Apple e dichiarata sotto al titolo |
 
-## Box office italiano
+## Box office e classifiche
 
-La sezione **Nelle sale ora in Italia** funziona in due modi:
+La sezione si apre dalla voce **📊 Box Office** della navigazione e contiene tre classifiche.
+Tutte mostrano in fondo la stessa riga fissa — *Dati d'incasso globali da TMDB / Box Office Mojo.
+Cifre aggiornate periodicamente.* — e salvano il risultato in `localStorage`
+(`cineglass:classifiche:v1`, TTL 24 ore) per non ripetere le chiamate e restare leggibili offline.
+
+Gli importi passano tutti da `formatCurrency(amount)`:
+
+| Valore | Resa |
+|---|---|
+| `>= 1.000.000.000` | `$2,92 Mld` (due decimali) |
+| `>= 10.000.000` | `$912 M` |
+| `>= 1.000.000` | `$1,5 M` (un decimale, così 1,5 milioni non diventa "2 M") |
+| `<= 0` o assente | `Dato non disponibile` |
+
+### 🎟️ In sala ora
+
+`/movie/now_playing?region=IT` arricchito con `revenue` dalla scheda di ogni film, ordinato per
+incasso decrescente. **Qui i film con `revenue = 0` non vengono nascosti**: un titolo uscito da
+pochi giorni ha davvero zero su TMDB, e al posto di una cifra finta compare la pillola in vetro
+**"In corso d'incasso"**. Funziona anche con `data/boxoffice.json` (vedi sotto).
+
+### 🏆 Tutti i tempi
+
+TMDB ordina per `revenue` solo la prima pagina e su molti titoli storici il campo è vuoto o
+sbagliato: **la top all-time non si può costruire dall'API**. La tab parte quindi da un elenco
+curato a mano nel codice (`ALLTIME`, 30 film con titolo, anno, incasso e `tmdb_id`), verificato
+su Box Office Mojo / Wikipedia, e lo arricchisce con locandine, titolo italiano e dati di scheda
+presi da TMDB. Sono incassi **mondiali lordi**, riedizioni comprese e **non adeguati
+all'inflazione**: un film del 1997 e uno del 2025 non si confrontano davvero alla pari, e la nota
+sotto la classifica lo dice.
+
+La nota riporta anche la **data dell'ultimo controllo** (`ALLTIME_AGGIORNATO`) e ogni riga ha il
+pulsante 🌐 che apre la ricerca su Box Office Mojo: la cifra si verifica alla fonte in un tocco,
+senza doversi fidare dell'elenco integrato. La stessa coppia di link (🌐 Box Office Mojo,
+📖 Scheda Wikipedia) compare anche nella scheda di dettaglio di ogni film.
+
+Per aggiornare l'elenco senza toccare il codice basta un `data/alltime.json`:
+
+```json
+{
+  "fonte": "Box Office Mojo",
+  "aggiornato": "2026-09-20",
+  "film": [
+    { "titolo": "Avatar", "anno": 2009, "incasso": 2923706026, "tmdb_id": 19995 }
+  ]
+}
+```
+
+### 📅 Per anno
+
+`/discover/movie?primary_release_year={ANNO}&sort_by=revenue.desc&language=it-IT`, con i chip
+dell'anno in corso e dei tre precedenti. Qui il filtro **esclude ogni risultato con
+`revenue <= 0`**: in una classifica di incassi una riga a zero non è un'informazione, è rumore.
+Se TMDB non dichiara ancora incassi per quell'anno la lista lo scrive invece di restare vuota.
+
+### Incassi italiani in euro
+
+La classifica **In sala ora** funziona in due modi:
 
 1. **Senza configurazione** usa `/movie/now_playing?region=IT` ordinato per popolarità TMDB.
    Attenzione: la popolarità TMDB **non è un incasso** — misura visite e interazioni sulla
@@ -111,6 +172,8 @@ Formato di `data/boxoffice.json`:
 
 Le righe vengono abbinate ai film di TMDB tramite `tmdb_id` (o, in mancanza, per titolo
 normalizzato); un film assente da TMDB viene comunque mostrato con una locandina generata.
+
+Formato di `data/alltime.json`: vedi sopra, nella tab *Tutti i tempi*.
 
 `scripts/update-boxoffice.mjs` + `.github/workflows/boxoffice.yml` aggiornano il file ogni
 lunedì leggendo il feed JSON indicato nella variabile di repository `BOXOFFICE_FEED_URL`.
