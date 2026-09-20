@@ -209,7 +209,7 @@ espone il proprio header `Date` alle richieste cross-origin, quindi se la data d
 **Navbar flottante** (`position: fixed`, `z-index: 1000`) ridotta all'essenziale, su una riga
 sola che non va mai a capo (`flex-wrap: nowrap`): logo a sinistra, e a destra soltanto
 `[ 🔍 Cerca ]`, `[ 🍿 Watchlist (N) ]` e `[ ⚙️ ]`. Tutto il resto vive nel **menu impostazioni**,
-un foglio in vetro che sale dal basso con tema, effetti audio, luci in sala, film casuale,
+un foglio in vetro che sale dal basso con tema, suono e vibrazione, luci in sala, film casuale,
 ricarica dati, profilo e Instagram — ogni voce con icona, titolo e stato corrente.
 
 **Segmented control** `[ 🎟️ Ora in sala | ⏳ In arrivo | 🗓️ Timeline ]` subito sotto la navbar,
@@ -276,6 +276,50 @@ Il rimbalzo e il `+1` stanno su un `setTimeout`, non sull'evento `finish` dell'a
 scheda è in secondo piano e i fotogrammi non arrivano, la wishlist resta comunque in pari e il
 clone viene rimosso da una rete di sicurezza a 1330ms.
 
+### Minimalismo acustico: un suono solo
+
+CineGlass fa **un rumore e basta**: il POP del popcorn quando un film entra in wishlist.
+Carosello, swipe, modali, navigazione, condivisione e taglio del CinePass sono muti. Un suono
+che commenta quello che già si vede non aggiunge niente: dà solo fastidio al quinto tocco. Il
+POP resta perché segna l'unico momento in cui succede davvero qualcosa.
+
+Il suono è **sintetizzato con la Web Audio API**, nessun file audio. Un chicco vero fa due cose
+in pochi millisecondi — il pericarpo si spacca, poi l'amido si espande di colpo — e il codice
+rifa' le due cose in fila:
+
+| Strato | Cosa è | Quando |
+|---|---|---|
+| Schiocco | rumore bianco passa-alto a 1,5kHz + picco di +7dB sui 3,2kHz | 0 → 12ms |
+| Corpo | triangolare, caduta 620Hz → 115Hz | 3 → 52ms |
+| Coda | sinusoide 180Hz → 70Hz, livello basso | 5 → 48ms |
+
+Tre dettagli che fanno la differenza fra un pop e un "boing":
+
+- **Il corpo entra 3ms dopo lo schiocco.** Prima il chicco si rompe, poi si gonfia. Partendo
+  insieme, le basse coprono la croccantezza e il suono diventa sordo.
+- **Gli attacchi sono rampati in poco più di un millisecondo**, non a gradino. Saltare da zero al
+  volume pieno aggiunge un click digitale che si sente più del pop stesso.
+- **Rumore passa-alto, non passa-banda stretto.** La croccantezza sta nell'essere largo di banda:
+  una banda sola fischia. E il corpo è **triangolare**, perché la sinusoide pura fa il classico
+  "boing" da cartone animato.
+
+Ogni pop ha un **±8% di scarto casuale** su intonazione e centro del filtro: due chicchi non
+scoppiano mai identici, e senza quello salvare cinque film di fila suona come una raffica.
+
+Misurato rendendo la catena in un `OfflineAudioContext`: picco 0,71 (nessun clipping), primo
+campione a zero (nessun gradino), picco raggiunto a 1,2ms, **43ms di durata udibile** e silenzio
+pieno dopo 60ms. Nei primi 12ms l'energia sta nelle alte (−19,3dB contro −24,5dB), da 14ms in
+poi si sposta nelle basse (−33,9dB contro −64,2dB): schiocco e corpo sono davvero due eventi
+distinti, non un tono unico.
+
+L'`AudioContext` è **uno solo per tutta la pagina**, creato pigramente e sbloccato al primo tocco
+(`resume()` è asincrono, quindi sbloccarlo prima serve a far partire il POP davvero a `t = 0`
+anche al primo salvataggio). Aprirne uno nuovo a ogni suono è la trappola classica: i browser ne
+consentono una manciata per scheda e si esauriscono dopo pochi tocchi.
+
+Il tasto **Suono e vibrazione** nel menu impostazioni spegne il POP e le vibrazioni insieme; la
+scelta resta in `localStorage`.
+
 ### Personalizzare i tempi
 
 Tutto quello che regola la durata sta in tre punti:
@@ -287,6 +331,9 @@ Tutto quello che regola la durata sta in tre punti:
   l'animazione e cambiando la costante cambia il momento in cui compare il QR: vanno tenute in pari.
 - Le keyframe `cgPop`, `cgScuoti`, `cgRimbalzo` e `cgTick` nel `<style>` — durate scritte nella
   regola che le usa (`.pop-btn.pop`, `.pop-btn.scuoti`, `.pill-btn.rimbalza`, `.badge.tick`).
+- `sfx.pop()` — i tempi del suono sono gli offset `t + ...` dei tre strati. Per un pop più secco
+  si accorciano le code (`0.052` del corpo e `0.048` della coda); per uno più croccante si alza
+  il guadagno del picco a 3,2kHz.
 
 Con `prefers-reduced-motion: reduce` il volo, il rimbalzo e la corsa della forbice non partono
 affatto: il film si salva, il contatore va avanti e il QR compare subito.
@@ -343,9 +390,9 @@ fissa come stato salvato sulla scheda, un clone vola lungo una **parabola** fino
 🍿 nell'header, che rimbalza e fa scattare il contatore di +1. Vedi sotto per i dettagli.
 
 **CinePass con le forbici** — il biglietto in vetro si apre tagliandolo: la forbice ✂️ percorre
-la perforazione tratteggiata e a fine corsa svela il tagliando col QR, accompagnata dal rumore
-di carta sintetizzato, dalla vibrazione aptica e da una **pioggia di micro-schegge di vetro
-disegnata su `<canvas>`**.
+la perforazione tratteggiata e a fine corsa svela il tagliando col QR, con la vibrazione aptica
+e una **pioggia di micro-schegge di vetro disegnata su `<canvas>`**. In silenzio: l'unico suono
+dell'app è il POP del popcorn (vedi sotto).
 
 **Altro** — vetro appannato anti-spoiler sulla scena post-credit (si pulisce strofinando),
 locandina a schermo intero al tap, interruttore "luci in sala" e **anteprima di 30 secondi della
@@ -421,9 +468,7 @@ card attiva, increspatura liquida al click dei pulsanti, attrazione magnetica en
 cursore, indicatore metaball della navbar, vetro satinato per gli stati vuoti, inclinazione 3D
 con riflesso specchiato e **lente convessa cromatica** con aberrazione ciano/magenta, agganciata
 su telefono all'inclinazione reale del dispositivo (`DeviceOrientationEvent`). Più pellicola
-35 mm scorribile al posto dei puntini, grana e pulviscolo, fascio del proiettore sul player, e
-**suoni "vetro" sintetizzati con la Web Audio API** (nessun file audio, disattivabili dal tasto
-🔊 nella navbar, che spegne anche le vibrazioni).
+35 mm scorribile al posto dei puntini, grana e pulviscolo e fascio del proiettore sul player.
 
 ## Fluidità e risposta al tocco
 

@@ -2237,11 +2237,12 @@ body.trascina .card-play,body.trascina .card-quick,body.trascina .card-bucket{po
     </div>
 
     <div class="menu-list">
-      <button id="sfxBtn" class="menu-row" aria-pressed="true" title="Suoni e vibrazione" aria-label="Suoni e vibrazione">
+      <button id="sfxBtn" class="menu-row" aria-pressed="true"
+              title="Il POP del popcorn e la vibrazione" aria-label="Suono del popcorn e vibrazione">
         <span class="menu-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <path d="M11 5 6.5 9H3.5v6h3L11 19z"/><path d="M15.5 9.2a4 4 0 0 1 0 5.6"/><path d="M18.2 6.4a8 8 0 0 1 0 11.2"/>
       </svg></span>
-        <span class="menu-txt"><b>Effetti audio</b><small class="menu-stato">Attivi</small></span>
+        <span class="menu-txt"><b>Suono e vibrazione</b><small class="menu-stato">Attivi</small></span>
       </button>
       <button id="dimBtn" class="menu-row" title="Luci in sala" aria-pressed="false" aria-label="Abbassa le luci">
         <span class="menu-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -3894,7 +3895,7 @@ function buildCards(){
       if (clickSuppressed) return;
       e.stopPropagation();
       /* laterale: la si porta al centro; centrale: si ingrandisce la locandina */
-      if (i !== wrapIndex(state.current, cards.length)){ goTo(i); sfx.play('tap'); buzz(APTICA.micro); return; }
+      if (i !== wrapIndex(state.current, cards.length)){ goTo(i); buzz(APTICA.micro); return; }
       apriLightbox(m);
     });
     const play = card.querySelector('.card-play');
@@ -3908,7 +3909,7 @@ function buildCards(){
     if (quick){
       quick.addEventListener('click', e => {
         e.stopPropagation();
-        sfx.play('tap'); buzz(APTICA.micro);
+        buzz(APTICA.micro);
         openTrailerFor(m);
       });
       quick.addEventListener('pointerdown', e => e.stopPropagation(), { passive: true });
@@ -3966,7 +3967,6 @@ function buildStrip(){
 el.stripTrack.addEventListener('click', e => {
   const f = e.target.closest('.frame');
   if (!f) return;
-  sfx.play('tap');
   buzz(APTICA.micro);
   goTo(Number(f.dataset.i));
 });
@@ -4225,7 +4225,6 @@ function endDrag(e, cancel){
   if (!slancio && Math.abs(v) > 0.35) idx = v > 0 ? Math.floor(state.current) : Math.ceil(state.current);
   setTarget(idx);
   buzz(APTICA.micro);
-  sfx.play('swipe');
   suppressClick();
 }
 
@@ -4676,7 +4675,6 @@ async function loadCredits(movie){
 el.castStrip.addEventListener('click', e => {
   const pill = e.target.closest('.cast-pill');
   if (!pill) return;
-  sfx.play('open');
   openFilmography(pill.dataset.person, pill.dataset.nome, pill.querySelector('img').src, pill.dataset.ruolo);
 });
 
@@ -4866,7 +4864,6 @@ function applicaLayout(mode){
   syncNav();
   store.set(STORE.layout, state.layout);
   buzz(APTICA.micro);
-  sfx.play('tap');
   if (lista) renderListView();
   else if (tl) renderTimeline();
   else { measure(); render(); }
@@ -5299,13 +5296,12 @@ function openSearch(on){
   el.searchBtn.setAttribute('aria-expanded', on ? 'true' : 'false');
   document.body.classList.toggle('no-scroll', !!on);
   if (on){
-    if (!gia){ sfx.play('open'); buzz(APTICA.apri); }
+    if (!gia) buzz(APTICA.apri);
     el.searchInput.focus();
     el.searchInput.select();
     if (!el.searchInput.value.trim()) mostraRecenti();
   } else {
     el.results.hidden = true;
-    if (gia) sfx.play('close');
     if (el.panel.hidden && movies().length && !state.caricando) el.panel.hidden = false;
   }
 }
@@ -5427,7 +5423,6 @@ function openTrailer(movie, details){
   el.modal.hidden = false;
   document.body.classList.remove('pip-mode');
   document.body.classList.add('no-scroll');
-  sfx.play('open');
   /* Teatro Mode: quando parte il video la pagina si spegne da sola.
      Si aspetta un istante perche' l'apertura del modal resti leggibile. */
   const conVideo = !!(trailer && trailer.key);
@@ -5448,21 +5443,19 @@ function closeTrailer(){
   state.pipAuto = false;
   el.player.innerHTML = '';
   document.body.classList.remove('no-scroll', 'lights-out', 'pip-mode');
-  sfx.play('close');
   el.lightsBtn.classList.remove('on');
   el.lightsBtn.setAttribute('aria-pressed', 'false');
   if (lastFocus && lastFocus.focus) lastFocus.focus();
 }
 
 /* Mini player: nessun cambio di genitore per l'iframe, solo un'altra veste */
-function setPip(attivo, silenzioso){
+function setPip(attivo){
   if (document.body.classList.contains('pip-mode') === !!attivo) return;
   document.body.classList.toggle('pip-mode', !!attivo);
   document.body.classList.toggle('no-scroll', !attivo);
   if (attivo){ clearTimeout(teatroTimer); setLuci(false); }
   el.pipBtn.querySelector('.lbl').textContent = attivo ? 'Ingrandisci' : 'Mini player';
   el.pipBtn.title = attivo ? 'Torna a schermo intero' : 'Riduci a mini player';
-  if (!silenzioso) sfx.play('tap');
 }
 
 function togglePip(){
@@ -5486,10 +5479,10 @@ function initAutoPip(){
     const giu = y - pipUltimo;
     pipUltimo = y;
     if (!document.body.classList.contains('pip-mode')){
-      if (giu > 4){ state.pipAuto = true; setPip(true, true); }
+      if (giu > 4){ state.pipAuto = true; setPip(true); }
     } else if (state.pipAuto && y <= 8 && giu < 0){
       state.pipAuto = false;
-      setPip(false, true);
+      setPip(false);
     }
   }, { passive: true });
 
@@ -5498,7 +5491,7 @@ function initAutoPip(){
   window.addEventListener('wheel', e => {
     if (el.modal.hidden || document.body.classList.contains('pip-mode')) return;
     if (performance.now() - pipApertura < 450) return;
-    if (e.deltaY > 8){ state.pipAuto = true; setPip(true, true); }
+    if (e.deltaY > 8){ state.pipAuto = true; setPip(true); }
   }, { passive: true });
 
   /* Su telefono il blocco dello scroll e' totale: la rotellina non basta,
@@ -5511,7 +5504,7 @@ function initAutoPip(){
   el.modal.addEventListener('touchmove', e => {
     if (tocco === null || document.body.classList.contains('pip-mode')) return;
     const y = e.touches && e.touches[0] ? e.touches[0].clientY : tocco;
-    if (tocco - y > 46){ tocco = null; state.pipAuto = true; setPip(true, true); }
+    if (tocco - y > 46){ tocco = null; state.pipAuto = true; setPip(true); }
   }, { passive: true });
   el.modal.addEventListener('touchend', () => { tocco = null; }, { passive: true });
 }
@@ -5521,7 +5514,6 @@ function schermoIntero(){
   const box = el.playerWrap;
   const doc = document;
   const attivo = doc.fullscreenElement || doc.webkitFullscreenElement;
-  sfx.play('tap');
   if (attivo){
     const esci = doc.exitFullscreen || doc.webkitExitFullscreen;
     if (esci) esci.call(doc);
@@ -5552,7 +5544,6 @@ function toggleLights(){
   setLuci(on);
   /* spegnendo a mano le luci si disattiva anche il rientro automatico */
   state.teatroAuto = false;
-  sfx.play('tap');
 }
 
 /* =========================================================
@@ -5803,58 +5794,140 @@ async function boot(){
 }
 
 /* =========================================================
-   12-bis. EFFETTI: SUONO, APTICA, COLORE, TILT, QR
+   12-bis. SUONO, APTICA, COLORE, TILT, QR
    ========================================================= */
 
-/* --- Suoni "vetro" sintetizzati con la Web Audio API --- */
+/* --- L'unico suono dell'app: il chicco che scoppia -------------------
+   Minimalismo acustico. Carosello, modali, navigazione, condivisione e
+   CinePass sono muti: un suono che commenta quello che gia' si vede non
+   aggiunge niente, da' solo fastidio al quinto tocco. Resta il POP del
+   popcorn, che segna l'unico momento in cui succede davvero qualcosa.
+
+   Un chicco vero fa due cose in pochi millisecondi: il pericarpo si
+   spacca (schiocco secco, largo di banda) e l'amido si espande di colpo
+   (un corpo basso, smorzato subito). Il suono qui sotto mette insieme le
+   due cose e finisce in 45ms.
+
+   L'AudioContext e' uno solo per tutta la pagina, creato una volta sola:
+   i browser ne consentono pochi per scheda, e aprirne uno a ogni tocco
+   li esaurisce nel giro di una manciata di salvataggi. */
 const sfx = {
   ctx: null,
+  ingresso: null,          // nodo su cui si attaccano le voci
   on: store.get('cineglass:sfx:v1') !== false,
+
   init(){
     if (this.ctx || !this.on) return;
     try{
       const AC = window.AudioContext || window.webkitAudioContext;
-      if (AC) this.ctx = new AC();
-    }catch(err){ this.ctx = null; }
+      if (!AC) return;
+      this.ctx = new AC();
+      /* Sotto i 60Hz l'altoparlante di un telefono non suona: vibra e
+         basta. Meglio togliere quella parte che sprecarci ampiezza. */
+      const hp = this.ctx.createBiquadFilter();
+      hp.type = 'highpass';
+      hp.frequency.value = 60;
+      const master = this.ctx.createGain();
+      master.gain.value = 0.75;
+      hp.connect(master).connect(this.ctx.destination);
+      this.ingresso = hp;
+    }catch(err){ this.ctx = null; }   // audio non disponibile: si resta muti
   },
-  /* Due sinusoidi in rapporto non intero + inviluppo corto = tocco su vetro */
-  play(tipo){
+
+  /* Il contesto nasce sospeso finche' l'utente non tocca la pagina, e
+     resume() e' asincrono. Sbloccandolo al primo tocco qualunque, il POP
+     parte davvero nello stesso istante dell'animazione anche la prima
+     volta, invece di arrivare qualche decina di millisecondi dopo. */
+  sblocca(){
+    this.init();
+    if (this.ctx && this.ctx.state === 'suspended')
+      this.ctx.resume().catch(() => { /* niente audio finche' non si tocca */ });
+  },
+
+  pop(){
     if (!this.on) return;
     this.init();
     const ctx = this.ctx;
-    if (!ctx) return;
-    if (ctx.state === 'suspended') ctx.resume();
-    const base = { hover: 1180, tap: 880, open: 660, close: 520, swipe: 1480 }[tipo] || 900;
-    const dur  = tipo === 'hover' ? 0.09 : 0.26;
-    const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0.0001, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(tipo === 'hover' ? 0.035 : 0.075, ctx.currentTime + 0.008);
-    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + dur);
-    const filtro = ctx.createBiquadFilter();
-    filtro.type = 'highpass';
-    filtro.frequency.value = 380;
-    [1, 2.41].forEach((mult, i) => {
-      const osc = ctx.createOscillator();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(base * mult, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(base * mult * 0.86, ctx.currentTime + dur);
-      const g2 = ctx.createGain();
-      g2.gain.value = i ? 0.35 : 1;
-      osc.connect(g2).connect(filtro);
-      osc.start();
-      osc.stop(ctx.currentTime + dur + 0.02);
-    });
-    filtro.connect(gain).connect(ctx.destination);
+    if (!ctx || !this.ingresso) return;
+    if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+    const t = ctx.currentTime;
+    /* Due chicchi non scoppiano mai identici: senza questo scarto,
+       salvare cinque film di fila suona come una raffica meccanica. */
+    const v = 0.92 + Math.random() * 0.16;
+
+    /* 1. Lo schiocco: il pericarpo che cede, dodici millisecondi.
+          Rumore passa-alto e non passa-banda stretto: la croccantezza
+          sta nell'essere largo di banda, una banda sola fischia. Il
+          filtro di picco sui 3,2kHz da' il mordente senza restringere. */
+    const len = Math.floor(ctx.sampleRate * 0.012);
+    const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len);
+    const rumore = ctx.createBufferSource();
+    rumore.buffer = buf;
+    const hpR = ctx.createBiquadFilter();
+    hpR.type = 'highpass';
+    hpR.frequency.value = 1500;
+    hpR.Q.value = 0.7;
+    const picco = ctx.createBiquadFilter();
+    picco.type = 'peaking';
+    picco.frequency.value = 3200 * v;
+    picco.Q.value = 1.2;
+    picco.gain.value = 7;
+    const gR = ctx.createGain();
+    /* attacco in poco piu' di un millisecondo, non di colpo: saltare da
+       zero al volume pieno aggiunge un click digitale che col popcorn
+       non c'entra nulla, e si sente piu' del pop stesso */
+    gR.gain.setValueAtTime(0.0001, t);
+    gR.gain.exponentialRampToValueAtTime(0.85, t + 0.0012);
+    gR.gain.exponentialRampToValueAtTime(0.0001, t + 0.012);
+    rumore.connect(hpR).connect(picco).connect(gR).connect(this.ingresso);
+    rumore.start(t);
+
+    /* 2. Il corpo: l'amido che si espande. Entra tre millisecondi dopo,
+          perche' prima il chicco si rompe e poi si gonfia — e cosi' non
+          copre lo schiocco. Onda triangolare e non sinusoidale: la
+          sinusoide pura fa un "boing" da cartone animato. */
+    const osc = ctx.createOscillator();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(620 * v, t + 0.003);
+    osc.frequency.exponentialRampToValueAtTime(115, t + 0.029);
+    const gO = ctx.createGain();
+    gO.gain.setValueAtTime(0.0001, t + 0.003);
+    gO.gain.exponentialRampToValueAtTime(0.32, t + 0.006);
+    gO.gain.exponentialRampToValueAtTime(0.0001, t + 0.052);
+    osc.connect(gO).connect(this.ingresso);
+    osc.start(t + 0.003);
+    osc.stop(t + 0.056);
+
+    /* 3. Una coda bassa e brevissima: da' peso al pop senza rimbombare. */
+    const sub = ctx.createOscillator();
+    sub.type = 'sine';
+    sub.frequency.setValueAtTime(180 * v, t + 0.005);
+    sub.frequency.exponentialRampToValueAtTime(70, t + 0.033);
+    const gS = ctx.createGain();
+    gS.gain.setValueAtTime(0.0001, t + 0.005);
+    gS.gain.exponentialRampToValueAtTime(0.14, t + 0.009);
+    gS.gain.exponentialRampToValueAtTime(0.0001, t + 0.048);
+    sub.connect(gS).connect(this.ingresso);
+    sub.start(t + 0.005);
+    sub.stop(t + 0.052);
   },
+
   toggle(){
     this.on = !this.on;
     store.set('cineglass:sfx:v1', this.on);
-    if (this.on) this.play('tap');
+    if (this.on) this.pop();     // riaccendendolo si sente subito cos'e'
     return this.on;
   }
 };
 
-/* --- Aptica: un tocco secco sui dispositivi che la supportano --- */
+/* Basta il primo tocco sulla pagina per svegliare l'audio: serve una
+   volta sola, e cosi' il POP del primo salvataggio non arriva in ritardo. */
+['pointerdown', 'keydown'].forEach(ev =>
+  window.addEventListener(ev, () => sfx.sblocca(), { once: true, passive: true }));
+
+/* --- Aptica: un tocco secco sui dispositivi che la supportano --- *//* --- Aptica: un tocco secco sui dispositivi che la supportano --- */
 /* Tre intensita': tocco leggero, apertura, gesto meccanico */
 const APTICA = { micro: 10, apri: 20, meccanico: [30, 40, 30] };
 
@@ -6035,7 +6108,6 @@ async function renderOst(movie){
     const p = ostAudio.play();
     box.classList.add('suona');
     el.ostBtn.setAttribute('aria-pressed', 'true');
-    sfx.play('tap');
     if (p && p.catch) p.catch(() => { fermaOst(); toast('Anteprima audio non disponibile', 'warn'); });
   });
 }
@@ -6243,7 +6315,6 @@ function drawQR(canvas, testo){
 function openSheet(sheet){
   sheet.hidden = false;
   document.body.classList.add('no-scroll');
-  sfx.play('open');
   buzz(APTICA.apri);
   const x = sheet.querySelector('.sheet-x');
   if (x) x.focus();
@@ -6251,7 +6322,6 @@ function openSheet(sheet){
 function closeSheet(sheet){
   sheet.hidden = true;
   if (el.modal.hidden) document.body.classList.remove('no-scroll');
-  sfx.play('close');
 }
 
 /* --- Luce ambientale presa dalla locandina --- */
@@ -6302,7 +6372,6 @@ function scaricaIcs(){
   a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 4000);
   toast('Evento .ics scaricato', 'ok');
-  sfx.play('tap');
 }
 
 /* --- Invito 9:16 disegnato su canvas e condiviso --- */
@@ -6422,7 +6491,6 @@ function setBoTab(tab){
   el.boAnni.hidden = tab !== 'anno';
   if (tab === 'anno') renderAnniChips();
   state.boxoffice = [];
-  sfx.play('tap');
   buzz(APTICA.micro);
   loadBoxOffice();
 }
@@ -6437,7 +6505,7 @@ function setClassifiche(on){
     syncNav();
   });
   if (!state.classifiche) return;
-  if (cambia){ sfx.play('tap'); buzz(APTICA.micro); }
+  if (cambia) buzz(APTICA.micro);
   window.scrollTo({ top: 0, behavior: REDUCED ? 'auto' : 'smooth' });
   if (!state.boxoffice.length) loadBoxOffice();
 }
@@ -6666,9 +6734,10 @@ function popcorn(){
   const tot = hypeAdd(movie.id, 3);
   bucketPanel.pop(3);
 
-  sfx.play('tap');
   buzz(primo ? APTICA.meccanico : APTICA.micro);
   if (primo && !isFav(movie.id)){
+    /* anche da qui il film entra in wishlist: stesso gesto, stesso suono */
+    sfx.pop();
     state.favs.unshift(JSON.parse(JSON.stringify(movie)));
     store.set(STORE.favs, state.favs);
     contatoreFermo = true;
@@ -6704,7 +6773,6 @@ function svuotaHype(){
     state.favs.splice(i, 1);
     store.set(STORE.favs, state.favs);
   }
-  sfx.play('close');
   buzz(APTICA.micro);
   updateFavUI();
   if (state.favOnly) rebuild(state.activeId);
@@ -6742,7 +6810,6 @@ function toggleSaveMenu(forza){
   const apri = forza === undefined ? el.saveMenu.hidden : forza;
   el.saveMenu.hidden = !apri;
   el.saveBtn.setAttribute('aria-expanded', apri ? 'true' : 'false');
-  if (apri) sfx.play('tap');
 }
 
 /* --- Ricerca: risultati divisi, recenti, scorciatoia --- */
@@ -6978,7 +7045,6 @@ async function setSection(sec){
   if (state.section === sec){ syncNav(); return; }
   state.section = sec;
   syncNav();
-  sfx.play('tap');
   state.genre = null;
   state.activeId = null;
   if (sec === 'now' && !state.nowPlaying.length){
@@ -7026,7 +7092,6 @@ function apriCinePassRicevuto(movie){
 async function invitaAmici(){
   const movie = movies()[state.activeIndex];
   if (!movie) return;
-  sfx.play('tap');
   const det = state.activeDetails;
   const trailer = det && det.trailer ? `https://www.youtube.com/watch?v=${det.trailer.key}` : '';
   const url = deepLink(movie);
@@ -7061,7 +7126,6 @@ function cercaOrari(citta){
 function orariInSala(){
   const movie = movies()[state.activeIndex];
   if (!movie) return;
-  sfx.play('tap');
   const citta = store.get(CITTA_KEY) || '';
   if (citta){ cercaOrari(citta); return; }
   /* niente window.prompt: la richiesta e' un foglio in vetro come il resto */
@@ -7088,7 +7152,6 @@ function initSpoiler(){
     el.spoilerGlass.style.opacity = String(1 - pulizia);
     if (pulizia >= 1){
       el.spoiler.classList.add('pulito');
-      sfx.play('hover');
       buzz(APTICA.micro);
     }
   };
@@ -7096,33 +7159,6 @@ function initSpoiler(){
   el.spoiler.addEventListener('click', () => { pulizia = 0.93; strofina(); });
 }
 
-/* --- Strappo del biglietto --- */
-sfx.paper = function(){
-  if (!this.on) return;
-  this.init();
-  const ctx = this.ctx;
-  if (!ctx) return;
-  if (ctx.state === 'suspended') ctx.resume();
-  const t = ctx.currentTime, dur = .45;
-  const len = Math.floor(ctx.sampleRate * dur);
-  const buf = ctx.createBuffer(1, len, ctx.sampleRate);
-  const d = buf.getChannelData(0);
-  /* rumore a strappi: densità crescente = fibra che cede */
-  for (let i = 0; i < len; i++){
-    const p = i / len;
-    const grana = Math.random() < (.1 + p * .6) ? (Math.random() * 2 - 1) : 0;
-    d[i] = grana * Math.pow(1 - p, .6);
-  }
-  const src = ctx.createBufferSource();
-  src.buffer = buf;
-  const hp = ctx.createBiquadFilter();
-  hp.type = 'highpass';
-  hp.frequency.value = 1200;
-  const g = ctx.createGain();
-  g.gain.value = .12;
-  src.connect(hp).connect(g).connect(ctx.destination);
-  src.start(t);
-};
 
 /* =========================================================
    POPCORN DELLA WISHLIST
@@ -7195,12 +7231,15 @@ function tapPopcorn(btn){
   if (!movie) return;
   const salva = !isFav(movie.id);
   if (salva){
+    /* Il suono per primo, prima di tutto il resto: riparti() forza un
+       reflow e store.set() serializza la watchlist, e sono entrambi
+       millisecondi che si metterebbero fra il tocco e il POP. */
+    sfx.pop();
     /* POP! e stato salvato: il pulsante non sparisce, resta pieno con la spunta */
     riparti(btn, 'pop', 360);
     state.favs.unshift(JSON.parse(JSON.stringify(movie)));
     if (hypeOf(movie.id) === 0) hypeAdd(movie.id, 3);
     store.set(STORE.favs, state.favs);
-    sfx.play('tap');
     buzz(APTICA.apri);
     contatoreFermo = true;      /* il +1 arriva quando il popcorn atterra */
     volaPopcorn(btn);
@@ -7212,7 +7251,6 @@ function tapPopcorn(btn){
     delete tutti[movie.id];
     store.set(HYPE_KEY, tutti);
     store.set(STORE.favs, state.favs);
-    sfx.play('close');
     buzz(APTICA.micro);
   }
   updateFavUI();
@@ -7299,7 +7337,6 @@ function rimbalzaSecchiello(){
     riparti(el.favFilter, 'rimbalza', 460);
     if (el.favCount) riparti(el.favCount, 'tick', 400);
   }
-  sfx.play('hover');
   buzz(APTICA.micro);
 }
 
@@ -7341,7 +7378,6 @@ function tagliaCinePass(){
   el.cpTaglio.classList.remove('taglia');
   void el.cpTaglio.offsetWidth;                            // riavvia l'animazione
   el.cpTaglio.classList.add('taglia');
-  sfx.paper();
   buzz(APTICA.apri);
   /* Il tagliando compare poco prima che la forbice esca: sembra che sia lei ad
      aprirlo. Sta su un timer e non sulla fine dell'animazione, cosi' il QR si
@@ -7404,7 +7440,6 @@ let copiaTimer = 0;
 async function copiaLinkCinePass(){
   const url = el.cinePass.dataset.link;
   if (!url) return;
-  sfx.play('tap');
   buzz(APTICA.micro);
   let fatto = false;
   try{ await navigator.clipboard.writeText(url); fatto = true; }
@@ -7543,7 +7578,6 @@ async function cinePassPng(movie, details){
 async function scaricaCinePass(){
   const movie = movies()[state.activeIndex];
   if (!movie) return;
-  sfx.play('tap');
   buzz(APTICA.micro);
   el.cpSave.disabled = true;
   try{
@@ -7644,7 +7678,6 @@ async function condividiQR(){
   if (!movie) return;
   const url = el.cinePass.dataset.link || deepLink(movie);
   const testo = `🎬 ${movie.title} — ${dataEstesa(state.lastRelease || movie.release_date)}`;
-  sfx.play('tap');
   buzz(APTICA.micro);
   let copiato = false;
   try{ await navigator.clipboard.writeText(url); copiato = true; }
@@ -7675,7 +7708,6 @@ function apriLightbox(movie){
     el.lightbox.hidden = false;
     document.body.classList.add('no-scroll');
   });
-  sfx.play('open');
 }
 
 function chiudiLightbox(){
@@ -7697,7 +7729,6 @@ function toggleDim(){
   el.dimBtn.classList.toggle('on', on);
   el.dimBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
   store.set('cineglass:dim:v1', on);
-  sfx.play('tap');
   toast(on ? 'Luci abbassate 🌙' : 'Luci accese ☀️', 'ok');
   aggiornaStatiMenu();
 }
@@ -7715,7 +7746,6 @@ function svuotaWatchlist(){
   state.favs = [];
   store.set(STORE.favs, []);
   store.set(HYPE_KEY, {});
-  sfx.play('close');
   buzz(APTICA.meccanico);
   updateFavUI();
   if (state.favOnly) setFavOnly(false);
@@ -7762,7 +7792,6 @@ function initSwipeScheda(){
     if (movies().length < 2) return;
     if (dx < 0) next(); else prev();
     buzz(APTICA.micro);
-    sfx.play('swipe');
   };
   el.panel.addEventListener('touchend', fine, { passive: true });
   el.panel.addEventListener('touchcancel', () => {
@@ -7793,7 +7822,6 @@ function sorprendimi(){
   goTo(i);
   markListRow();
   buzz(APTICA.apri);
-  sfx.play('tap');
   toast('\uD83C\uDFB2 ' + scelto.title, 'ok');
   if (state.layout !== 'carousel') el.panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
@@ -7870,7 +7898,6 @@ function initPullRefresh(){
     azzera();
     if (!pronto) return;
     buzz(APTICA.apri);
-    sfx.play('tap');
     const key = resolveKey();
     if (!key){ toast('Serve una API key TMDB per aggiornare', 'warn'); return; }
     toast('Aggiorno le uscite…', 'ok');
@@ -8084,14 +8111,12 @@ function apriWatchlist(on){
     renderWatchlist();
     el.wDrawer.hidden = false;
     document.body.classList.add('no-scroll');
-    sfx.play('open');
     buzz(APTICA.apri);
     const primo = el.wDrawer.querySelector('.w-row, .sheet-x');
     if (primo) primo.focus();
   } else {
     el.wDrawer.hidden = true;
     document.body.classList.remove('no-scroll');
-    sfx.play('close');
     el.favFilter.focus();
   }
 }
@@ -8128,7 +8153,6 @@ async function condividiWatchlist(){
   const testo = `🍿 La mia watchlist CineGlass (${lista.length} film)\n${righe}` +
                 (lista.length > 12 ? `\n…e altri ${lista.length - 12}.` : '') +
                 `\n${location.origin + location.pathname}`;
-  sfx.play('tap');
   if (navigator.share){
     try{ await navigator.share({ title: 'La mia watchlist CineGlass', text: testo }); return; }
     catch(err){ if (err && err.name === 'AbortError') return; }
@@ -8173,7 +8197,6 @@ async function apriOled(){
   aggiornaOled();
   el.oled.hidden = false;
   document.body.classList.add('no-scroll');
-  sfx.play('open');
   buzz(APTICA.apri);
   clearInterval(oledTimer);
   oledTimer = setInterval(aggiornaOled, 1000);
@@ -8189,7 +8212,6 @@ function chiudiOled(){
   document.body.classList.remove('no-scroll');
   clearInterval(oledTimer);
   oledTimer = 0;
-  sfx.play('close');
   if (oledLock){ try{ oledLock.release(); }catch(err){ /* gia' rilasciato */ } oledLock = null; }
 }
 
@@ -8202,8 +8224,8 @@ function aggiornaOledBtn(){
 /* =========================================================
    13. EVENTI
    ========================================================= */
-el.next.addEventListener('click', () => { next(); buzz(APTICA.micro); sfx.play('swipe'); });
-el.prev.addEventListener('click', () => { prev(); buzz(APTICA.micro); sfx.play('swipe'); });
+el.next.addEventListener('click', () => { next(); buzz(APTICA.micro); });
+el.prev.addEventListener('click', () => { prev(); buzz(APTICA.micro); });
 
 /* --- Creatore, audio, mini player, classifiche, esportazioni --- */
 el.creatorBtn.addEventListener('click', () => openSheet(el.creatorSheet));
@@ -8234,7 +8256,6 @@ el.boAnni.addEventListener('click', e => {
   state.boAnno = Number(b.dataset.annoBo) || null;
   renderAnniChips();
   state.boxoffice = [];
-  sfx.play('tap');
   buzz(APTICA.micro);
   loadBoxOffice();
 });
@@ -8269,14 +8290,12 @@ el.stage.addEventListener('pointerover', e => {
   const t = performance.now();
   if (t - ultimoHover < 260) return;
   ultimoHover = t;
-  sfx.play('hover');
 });
 el.boList.addEventListener('pointerover', e => {
   if (!e.target.closest('.bo-row')) return;
   const t = performance.now();
   if (t - ultimoHover < 260) return;
   ultimoHover = t;
-  sfx.play('hover');
 });
 
 /* --- Il badge sulle locandine resta vivo --- */
@@ -8338,61 +8357,12 @@ el.searchInput.addEventListener('keydown', e => {
   if (e.key === 'Escape'){ e.preventDefault(); exitSearch(); }
 });
 
-/* --- Jingle "apertura sala": sub-bass con riverbero sintetico --- */
-function impulso(ctx, sec, decay){
-  const rate = ctx.sampleRate, len = Math.max(1, Math.floor(rate * sec));
-  const buf = ctx.createBuffer(2, len, rate);
-  for (let ch = 0; ch < 2; ch++){
-    const d = buf.getChannelData(ch);
-    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay);
-  }
-  return buf;
-}
-
-sfx.jingle = function(){
-  if (!this.on) return;
-  this.init();
-  const ctx = this.ctx;
-  if (!ctx) return;
-  if (ctx.state === 'suspended') ctx.resume();
-  const t = ctx.currentTime;
-  const out = ctx.createGain();
-  out.gain.setValueAtTime(0.0001, t);
-  out.gain.exponentialRampToValueAtTime(.12, t + .5);
-  out.gain.exponentialRampToValueAtTime(.0001, t + 3.2);
-  let coda = out;
-  try{
-    const rev = ctx.createConvolver();
-    rev.buffer = impulso(ctx, 2.2, 2.6);
-    const wet = ctx.createGain();
-    wet.gain.value = .5;
-    out.connect(rev).connect(wet).connect(ctx.destination);
-    coda = out;
-  }catch(err){ /* senza riverbero resta il solo tono */ }
-  out.connect(ctx.destination);
-  const sub = ctx.createOscillator();
-  sub.type = 'sine';
-  sub.frequency.setValueAtTime(26, t);
-  sub.frequency.exponentialRampToValueAtTime(58, t + 1.8);
-  const arm = ctx.createOscillator();
-  arm.type = 'triangle';
-  arm.frequency.setValueAtTime(104, t);
-  arm.frequency.exponentialRampToValueAtTime(208, t + 2.4);
-  const gArm = ctx.createGain();
-  gArm.gain.value = .18;
-  sub.connect(coda);
-  arm.connect(gArm).connect(coda);
-  sub.start(t); arm.start(t);
-  sub.stop(t + 3.3); arm.stop(t + 3.3);
-};
-
 /* --- Risultati della ricerca --- */
 el.hypeClear.addEventListener('click', svuotaHype);
 el.results.addEventListener('click', e => {
   const svuota = e.target.closest('[data-svuota]');
   if (svuota){
     store.set(TERMINI_KEY, []);
-    sfx.play('tap');
     mostraRecenti();
     toast('Ricerche recenti cancellate 🧹', 'ok');
     return;
@@ -8401,7 +8371,6 @@ el.results.addEventListener('click', e => {
   if (del){
     e.stopPropagation();
     togliTermine(del.dataset.del);
-    sfx.play('tap');
     mostraRecenti();
     return;
   }
@@ -8449,14 +8418,13 @@ el.chipsYear.addEventListener('click', e => {
   const chip = e.target.closest('[data-anno]');
   if (!chip) return;
   state.anno = chip.dataset.anno || null;
-  sfx.play('tap');
   renderTimeline();
 });
 el.timelineBody.addEventListener('click', e => {
   const it = e.target.closest('.tl-item');
   if (!it) return;
   const i = movies().findIndex(m => String(m.id) === it.dataset.id);
-  if (i >= 0){ goTo(i); sfx.play('tap'); el.panel.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+  if (i >= 0){ goTo(i); el.panel.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
 });
 el.diceBtn.addEventListener('click', sorprendimi);
 el.dimBtn.addEventListener('click', toggleDim);
@@ -8472,7 +8440,6 @@ el.wDrawer.addEventListener('click', e => {
 el.wOnly.addEventListener('click', () => {
   setFavOnly(!state.favOnly);
   el.wOnly.setAttribute('aria-pressed', state.favOnly ? 'true' : 'false');
-  sfx.play('tap');
 });
 el.wShare.addEventListener('click', condividiWatchlist);
 el.wClear.addEventListener('click', () => { svuotaWatchlist(); renderWatchlist(); });
@@ -8484,7 +8451,6 @@ el.temaSeg.addEventListener('click', e => {
   if (!b) return;
   setTema(b.dataset.tema);
   buzz(APTICA.apri);
-  sfx.play('tap');
 });
 el.menuSheet.addEventListener('click', e => {
   /* chiudendo si aggiorna lo stato: le voci restano coerenti alla riapertura */
@@ -8511,14 +8477,12 @@ function toggleFiltri(forza){
   const apri = forza === undefined ? el.filterMenu.hidden : forza;
   el.filterMenu.hidden = !apri;
   el.filtersBtn.setAttribute('aria-expanded', apri ? 'true' : 'false');
-  if (apri) sfx.play('tap');
 }
 
 /* --- Filtri durata e storia vera --- */
 el.chipsExtra.addEventListener('click', async e => {
   const chip = e.target.closest('.chip');
   if (!chip) return;
-  sfx.play('tap');
   if (chip.dataset.bo){ toggleFiltri(false); vaiAlBoxOffice(); return; }
   if (chip.dataset.durata) state.durata = state.durata === chip.dataset.durata ? null : chip.dataset.durata;
   else if (chip.dataset.vera) state.storiaVera = !state.storiaVera;
@@ -8633,8 +8597,8 @@ misuraNavbar();
 syncNav();
 setTema(store.get(STORE.tema) || 'scuro', true);
 window.addEventListener('load', misuraNavbar);
-/* il jingle parte al primo gesto: i browser bloccano l'audio prima */
-document.addEventListener('pointerdown', () => { sfx.jingle(); avviaGiroscopio(); initScuotimento(); }, { once: true });
+/* giroscopio e scuotimento vogliono un gesto dell'utente per partire */
+document.addEventListener('pointerdown', () => { avviaGiroscopio(); initScuotimento(); }, { once: true });
 if (/[?&]debug/.test(location.search)){
   el.debugBox.hidden = false;
   /* ganci per i test automatici */
