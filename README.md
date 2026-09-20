@@ -243,7 +243,68 @@ film ordinati per imminenza di uscita, il livello di hype accumulato, `🔗 Cond
 
 ## Gamification e micro-interazioni
 
-**Popcorn Hype Drop** sostituisce il cuore "Non perdertelo": un secchiello in vetro disegnato su
+### La micro-interazione del popcorn
+
+Salvare un film è il gesto più frequente dell'app, quindi è quello che doveva costare meno
+attesa. Il ciclo intero sta in **430ms**.
+
+Il pulsante sulla locandina attiva ha tre stati dichiarati da una sola classe (`.salvato`):
+
+| Stato | Icona | Come ci si arriva |
+|---|---|---|
+| Non salvato | chicco di mais, solo contorno, colore spento | stato di partenza |
+| Salvato | secchiello pieno colorato + spunta verde | primo tocco, con un **POP!** (`scale` 0.76 → 1.22 → 1) |
+| Si toglie | tremolio e ritorno al chicco | secondo tocco (`translate3d` + `rotate`, 380ms) |
+
+Al tocco l'icona **si sdoppia**: sulla scheda resta subito lo stato salvato (non sparisce
+nulla), e un clone `position:fixed` parte in volo verso il secchiello 🍿 nell'header.
+
+La traiettoria è una **Bezier quadratica** costruita da `traiettoriaPopcorn()`: gli estremi
+sono i centri dei due elementi letti con `getBoundingClientRect()`, e il punto di controllo sta
+sopra entrambi (`min(y0,y1) - max(80, |x1-x0| * 0.34)`), così il popcorn *salta* invece di
+strisciare in diagonale. La curva viene campionata in 17 fotogrammi passati a
+`element.animate()`: si toccano **solo `transform` e `opacity`**, quindi il browser manda
+l'animazione sul compositor e restano 60fps anche salvando cinque film di fila. Ogni volo ha il
+suo elemento, quindi i tocchi rapidi non si disturbano a vicenda.
+
+**Il contatore aspetta l'atterraggio.** Al tocco la watchlist è già aggiornata, ma il numero
+nell'header resta fermo: lo sblocca `rimbalzaSecchiello()` all'82% del volo, insieme al rimbalzo
+del secchiello. È quel piccolo ritardo a far sembrare che sia il popcorn a riempire il
+secchiello, invece di due animazioni scollegate.
+
+Il rimbalzo e il `+1` stanno su un `setTimeout`, non sull'evento `finish` dell'animazione: se la
+scheda è in secondo piano e i fotogrammi non arrivano, la wishlist resta comunque in pari e il
+clone viene rimosso da una rete di sicurezza a 1330ms.
+
+### Personalizzare i tempi
+
+Tutto quello che regola la durata sta in tre punti:
+
+- `VOLO_MS` (JavaScript, `430`) — durata del volo; il rimbalzo scatta sempre all'82% di questo
+  valore, quindi si sposta da solo.
+- `CP_TAGLIO_MS` (JavaScript, `760`) — corsa della forbice sul CinePass; il tagliando si svela al
+  72%. La keyframe `cgTaglio` legge `var(--cp-ms)`, quindi cambiando la variabile CSS cambia
+  l'animazione e cambiando la costante cambia il momento in cui compare il QR: vanno tenute in pari.
+- Le keyframe `cgPop`, `cgScuoti`, `cgRimbalzo` e `cgTick` nel `<style>` — durate scritte nella
+  regola che le usa (`.pop-btn.pop`, `.pop-btn.scuoti`, `.pill-btn.rimbalza`, `.badge.tick`).
+
+Con `prefers-reduced-motion: reduce` il volo, il rimbalzo e la corsa della forbice non partono
+affatto: il film si salva, il contatore va avanti e il QR compare subito.
+
+### Collegare un backend
+
+L'interazione non sa nulla di dove finiscano i dati: `tapPopcorn()` scrive in `state.favs` e
+chiama `store.set(STORE.favs, ...)`. Per sincronizzare con un'API basta intercettare quel punto
+(un `POST /wishlist` con `movie.id`) e lasciare intatto il resto: l'animazione parte prima della
+richiesta, quindi l'interfaccia resta immediata, e in caso di errore si rimette lo stato
+chiamando `updateFavUI()` dopo aver rimesso a posto `state.favs`. Il QR del CinePass codifica
+`deepLink(movie)`, cioè `origin + pathname + '?movie=' + id`: cambiando quella funzione cambia
+l'URL condiviso ovunque, QR e immagine scaricabile compresi.
+
+### Il secchiello dell'hype
+
+**Popcorn Hype Drop** è la cosa diversa dal salvataggio: misura quanto un film è atteso. Un
+secchiello in vetro disegnato su
 `<canvas>` con fisica 2D scritta a mano (gravità, rimbalzo sulle pareti trapezoidali, collisioni
 fra chicchi). Ogni tocco lancia tre chicchi, alza il contatore hype e — al primo — salva il film
 nella watchlist locale. Il loop `requestAnimationFrame` si spegne da solo quando i chicchi si
@@ -275,11 +336,16 @@ della pagina e quelli che partono da un controllo vengono ignorati.
 e luminosità: resta acceso solo il film. Si riaccende chiudendo il trailer, passando al mini
 player o premendo *Luci accese*.
 
-**Biglietto con le forbici** — sulla perforazione c'è un'icona ✂️ che si può **trascinare lungo
-il taglio oppure toccare e basta**: parte il rumore di carta sintetizzato, la vibrazione aptica
-(`navigator.vibrate`) e una **pioggia di micro-schegge di vetro disegnata su `<canvas>`**, e il
-film entra in watchlist. Sotto al QR la dicitura *📱 SCANSIONA O TAP PER CONDIVIDERE*: al tocco
-copia negli appunti il deep link `?movie=<id>` e apre `navigator.share` dove esiste.
+**Popcorn della wishlist** — il chicco in alto a destra sulla locandina attiva ha tre stati:
+contorno spento quando il film non è salvato, secchiello pieno con la spunta verde quando lo è,
+e un tremolio quando lo si toglie. Al tocco l'icona fa **POP!** e si sdoppia: una copia resta
+fissa come stato salvato sulla scheda, un clone vola lungo una **parabola** fino al secchiello
+🍿 nell'header, che rimbalza e fa scattare il contatore di +1. Vedi sotto per i dettagli.
+
+**CinePass con le forbici** — il biglietto in vetro si apre tagliandolo: la forbice ✂️ percorre
+la perforazione tratteggiata e a fine corsa svela il tagliando col QR, accompagnata dal rumore
+di carta sintetizzato, dalla vibrazione aptica e da una **pioggia di micro-schegge di vetro
+disegnata su `<canvas>`**.
 
 **Altro** — vetro appannato anti-spoiler sulla scena post-credit (si pulisce strofinando),
 locandina a schermo intero al tap, interruttore "luci in sala" e **anteprima di 30 secondi della
@@ -309,10 +375,25 @@ l'`<iframe>` nel DOM: la riproduzione non si interrompe e il sito resta navigabi
 vetro scorribili; il click apre `/person/{id}/movie_credits` con i 5 film più popolari, e
 sceglierne uno lo carica direttamente nel carosello.
 
-**Biglietto di sala** — riepilogo a forma di biglietto con bordo perforato e **codice QR
-generato dall'app** (codificatore QR scritto da zero: modalità byte, correzione L, versioni 1‑5,
-mascheratura scelta per penalità). Nessuna libreria esterna; la leggibilità è verificata nei
-test decodificando l'output con `jsQR`.
+**CinePass** — il biglietto di condivisione, in fondo alla scheda. Dall'alto: badge
+`🎬 CINEGLASS PASS`, mini‑locandina con titolo, genere, data, durata, visto censura e voto;
+separatore perforato con la forbice; tagliando col **codice QR generato dall'app**
+(codificatore QR scritto da zero: modalità byte, correzione L, versioni 1‑5, mascheratura
+scelta per penalità — nessuna libreria esterna, e nei test l'output viene riletto con `jsQR`);
+box del link in monospace ciano col codice del biglietto; `Copia link` e `Scarica CinePass`.
+
+Il vetro è `rgba(18,18,24,.75)` con `backdrop-filter: blur(16px)` e bordo neon
+`rgba(255,45,111,.4)`. **Gli incavi laterali sono buchi veri**, non cerchietti dipinti: due
+`radial-gradient` in `mask` composti con `mask-composite: intersect`, così si vede attraverso
+il biglietto quello che ci sta dietro. La loro altezza (`--cut`) viene misurata da JavaScript
+sulla posizione reale della perforazione, quindi restano allineati anche quando il titolo va
+a capo. Senza supporto a `mask-composite` il biglietto resta rettangolare: nessuna rottura.
+
+`Copia link` usa `navigator.clipboard` e ripiega su una selezione nascosta fuori da HTTPS,
+con conferma `✓ Copiato!` sul pulsante per due secondi. `Scarica CinePass` ridisegna il
+biglietto su un canvas 900×1180 — incavi compresi, ritagliati con
+`globalCompositeOperation = 'destination-out'` — e lo passa a `navigator.share` sul telefono
+o lo scarica come PNG altrove.
 
 **Condivisione** — un solo tasto **Invita amici**: su telefono usa `navigator.share` con
 l'immagine 9:16 generata su canvas, su desktop apre WhatsApp; in entrambi i casi allega il
@@ -369,7 +450,7 @@ ciano/magenta e titolo in evidenza.
 rendering di quel che non si vede.
 
 **Aptica graduata** — 10 ms per i micro-tap su filtri e tab, 20 ms per l'apertura di modali e
-drawer, `[30, 40, 30]` per i gesti meccanici (strappo del biglietto, svuotamento della watchlist).
+drawer, `[30, 40, 30]` per i gesti meccanici (taglio del CinePass, svuotamento della watchlist).
 
 **Pull-to-refresh** — trascinando verso il basso in cima alla pagina si allunga una goccia di
 vetro; al rilascio oltre la soglia le uscite si ricaricano da TMDB senza perdere lo stato

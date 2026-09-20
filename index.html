@@ -797,51 +797,192 @@ body.lights-out .beam{opacity:0}
   animation:dustFloat 34s linear infinite}
 @keyframes dustFloat{to{background-position:520px -260px,-420px 210px,300px -300px,-380px -190px,230px 230px}}
 
-/* --- Biglietto strappabile --- */
-.ticket{position:relative;margin-top:22px;display:grid;grid-template-columns:1fr 132px;
-  border-radius:20px;overflow:hidden;background:linear-gradient(140deg, rgba(255,255,255,.1), rgba(255,255,255,.03));
-  border:1px solid var(--stroke);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-  box-shadow:0 22px 50px -26px rgba(0,0,0,.95), inset 0 1px 0 rgba(255,255,255,.16)}
-.ticket-main{padding:18px 20px}
-.ticket-lab{font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)}
-.ticket-title{font-size:17px;font-weight:600;letter-spacing:-.02em;margin-top:3px;line-height:1.2}
-.ticket-row{display:flex;gap:22px;margin-top:12px;flex-wrap:wrap}
-.ticket-val{font-size:13.5px;font-weight:500;margin-top:2px}
-.ticket-stub{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;
-  padding:14px 10px;background:rgba(255,255,255,.05);transition:transform .5s var(--ease)}
-.ticket-stub::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;
-  background-image:radial-gradient(circle at 1px 6px, rgba(6,5,12,.9) 0 2.6px, transparent 2.8px);
-  background-size:2px 13px}
-.ticket:hover .ticket-stub{transform:translateX(4px) rotate(1.2deg)}
-.ticket-qr{display:block;width:92px;height:92px;border-radius:9px;background:#fff;padding:6px;image-rendering:pixelated}
-.ticket-code{display:block;font-size:9px;letter-spacing:.14em;color:var(--faint);text-transform:uppercase}
-/* il QR e' cliccabile: copia il link e apre la condivisione nativa */
-.qr-btn{display:block;padding:0;border-radius:11px;line-height:0;
+/* ==========================================================
+   Popcorn della wishlist: tre stati e volo verso il secchiello
+   ========================================================== */
+.pop-btn{position:relative;display:inline-flex;align-items:center;gap:10px;min-height:44px;
+  border-radius:999px;color:var(--muted);background:rgba(255,255,255,.05);
+  border:1px solid var(--stroke-soft);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  transition:color .25s, background .25s, border-color .25s}
+.pop-btn.mini{width:52px;height:52px;min-height:52px;padding:0;justify-content:center;border-radius:50%;
+  color:rgba(255,255,255,.78);background:rgba(10,8,18,.55);border-color:rgba(255,255,255,.2)}
+.pop-btn.mini:hover{color:#fff;background:rgba(10,8,18,.72)}
+.pop-btn.mini .pop-chicco{color:rgba(255,255,255,.72)}
+.pop-btn.full{padding:0 18px 0 13px;font-size:13px;font-weight:500}
+.pop-btn:hover{color:var(--txt);background:rgba(255,255,255,.09)}
+.pop-ico{position:relative;display:block;width:26px;height:26px;flex:0 0 auto}
+.pop-ico > svg{position:absolute;inset:0;width:100%;height:100%;
+  transition:opacity .2s var(--ease), transform .32s var(--elastic)}
+/* chicco non ancora scoppiato: contorno sottile e spento */
+.pop-chicco{color:var(--faint);opacity:1}
+/* secchiello pieno: compare solo da salvato */
+.pop-pieno{opacity:0;transform:scale(.55) rotate(-16deg)}
+.pop-btn.salvato .pop-chicco{opacity:0;transform:scale(.5)}
+.pop-btn.salvato .pop-pieno{opacity:1;transform:none}
+.pop-pieno .mais{fill:#ffd67a}
+.pop-pieno .secchio{fill:#ff2d6f}
+.pop-pieno .riga{fill:rgba(255,255,255,.92)}
+.pop-check{position:absolute;right:-5px;bottom:-4px;width:15px;height:15px;border-radius:50%;
+  display:grid;place-items:center;color:#06210f;background:#5ef2a4;
+  box-shadow:0 0 11px -2px rgba(94,242,164,.95);
+  opacity:0;transform:scale(.3);transition:opacity .18s, transform .34s var(--elastic) .07s}
+.pop-check svg{position:static;width:9px;height:9px}
+.pop-btn.salvato .pop-check{opacity:1;transform:none}
+.pop-btn.salvato{color:var(--txt);border-color:rgba(255,45,111,.45);
+  background:linear-gradient(120deg, rgba(255,45,111,.22), rgba(255,45,111,.05))}
+/* POP! al salvataggio e tremolio al contrario: due animazioni brevissime */
+.pop-btn.pop{animation:cgPop .34s var(--elastic)}
+@keyframes cgPop{0%{transform:scale(1)}30%{transform:scale(.76)}62%{transform:scale(1.2)}100%{transform:scale(1)}}
+.pop-btn.scuoti{animation:cgScuoti .38s ease}
+@keyframes cgScuoti{0%,100%{transform:translate3d(0,0,0) rotate(0)}
+  22%{transform:translate3d(-4px,0,0) rotate(-8deg)}
+  48%{transform:translate3d(4px,0,0) rotate(8deg)}
+  74%{transform:translate3d(-2px,0,0) rotate(-3deg)}}
+/* il clone in volo: solo transform e opacity, cosi' resta sul compositor */
+.pop-volante{position:fixed;z-index:1600;left:0;top:0;margin:-14px 0 0 -14px;
+  width:28px;height:28px;font-size:23px;line-height:28px;text-align:center;
+  pointer-events:none;will-change:transform,opacity;
+  filter:drop-shadow(0 6px 12px rgba(0,0,0,.55))}
+/* reazione del secchiello nell'header: rimbalzo e contatore che scatta */
+.pill-btn.rimbalza{animation:cgRimbalzo .44s var(--elastic)}
+@keyframes cgRimbalzo{0%{transform:none}26%{transform:translate3d(0,-7px,0) scale(1.09)}
+  56%{transform:translate3d(0,2px,0) scale(.97)}100%{transform:none}}
+.badge.tick{animation:cgTick .38s var(--elastic)}
+@keyframes cgTick{0%{transform:translate3d(0,-85%,0) scale(.65);opacity:0}45%{opacity:1}100%{transform:none;opacity:1}}
+/* il popcorn sulla locandina compare solo sulla scheda attiva */
+.card-bucket{position:absolute;top:10px;right:10px;z-index:30}
+.card .pop-btn.mini{opacity:0;scale:.6;pointer-events:none;transition:opacity .3s var(--ease), scale .4s var(--elastic)}
+.card.is-active .pop-btn.mini{opacity:1;scale:1;pointer-events:auto}
+
+/* ==========================================================
+   CinePass: il biglietto in vetro con gli incavi e la forbice
+   ========================================================== */
+.cinepass{position:relative;margin-top:24px;padding:20px 22px 22px;border-radius:22px;
+  --notch:26px;--cut:50%;
+  background:rgba(18,18,24,.75);
+  backdrop-filter:blur(16px) saturate(1.15);-webkit-backdrop-filter:blur(16px) saturate(1.15);
+  border:1px solid rgba(255,45,111,.4);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12), inset 0 0 52px -20px rgba(255,45,111,.95)}
+/* Gli incavi sono buchi veri: due maschere radiali intersecate.
+   Senza supporto il biglietto resta rettangolare, senza rompersi. */
+@supports (mask-composite: intersect) or (-webkit-mask-composite: source-in){
+  .cinepass{
+    -webkit-mask:radial-gradient(circle calc(var(--notch) / 2) at 0 var(--cut), transparent 97%, #000 100%),
+                 radial-gradient(circle calc(var(--notch) / 2) at 100% var(--cut), transparent 97%, #000 100%);
+    mask:radial-gradient(circle calc(var(--notch) / 2) at 0 var(--cut), transparent 97%, #000 100%),
+         radial-gradient(circle calc(var(--notch) / 2) at 100% var(--cut), transparent 97%, #000 100%);
+    -webkit-mask-composite:source-in;mask-composite:intersect}
+}
+.cp-badge{position:absolute;top:15px;right:17px;padding:5px 11px;border-radius:999px;
+  font-size:8.5px;font-weight:600;letter-spacing:.17em;white-space:nowrap;
+  color:#ffd2e0;background:rgba(255,45,111,.16);border:1px solid rgba(255,45,111,.42);
+  box-shadow:0 0 16px -6px rgba(255,45,111,.95)}
+.cp-head{display:flex;align-items:center;gap:14px;padding-right:126px}
+.cp-poster{width:62px;height:93px;flex:0 0 auto;border-radius:11px;object-fit:cover;
+  background:rgba(255,255,255,.06);box-shadow:0 10px 22px -12px #000}
+.cp-info{min-width:0}
+.cp-title{font-size:17px;font-weight:600;letter-spacing:-.02em;line-height:1.22}
+.cp-meta{margin-top:4px;font-size:11.5px;color:var(--muted);font-weight:300}
+.cp-facts{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.cp-fact{padding:4px 9px;border-radius:999px;font-size:10.5px;color:var(--muted);
+  background:rgba(255,255,255,.06);border:1px solid var(--stroke-soft);white-space:nowrap}
+.cp-fact.voto{color:#ffd67a;border-color:rgba(255,214,122,.32)}
+/* --- Separatore perforato con la forbice --- */
+.cp-taglio{position:relative;height:26px;margin:16px -22px 4px;cursor:pointer;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.cp-linea{position:absolute;left:0;right:0;top:50%;height:2px;translate:0 -50%;width:100%;overflow:visible}
+.cp-linea line{stroke:rgba(255,255,255,.32);stroke-width:2;stroke-dasharray:7 6;stroke-linecap:round;
+  vector-effect:non-scaling-stroke}
+.cp-taglio:hover .cp-linea line{stroke:rgba(255,45,111,.6)}
+/* anelli luminosi che bordano i due incavi: la maschera ne lascia solo la metà interna */
+.cp-taglio::before,.cp-taglio::after{content:'';position:absolute;top:50%;width:var(--notch,26px);
+  height:var(--notch,26px);translate:0 -50%;border-radius:50%;pointer-events:none;
+  box-shadow:inset 0 0 0 1px rgba(255,45,111,.42), inset 0 0 14px -4px rgba(255,45,111,.8)}
+.cp-taglio::before{left:calc(var(--notch,26px) / -2)}
+.cp-taglio::after{right:calc(var(--notch,26px) / -2)}
+.cp-forbice{position:absolute;top:0;left:0;width:30px;height:30px;display:grid;place-items:center;
+  font-size:16px;line-height:1;border-radius:50%;
+  background:linear-gradient(150deg,#ffffff,#cfe9ff);
+  box-shadow:0 8px 20px -8px #000, 0 0 20px -5px rgba(0,242,254,.8);
+  opacity:0;pointer-events:none;will-change:offset-distance,rotate,scale,opacity;
+  offset-path:path("M 14 13 H 306");offset-distance:0%;offset-rotate:0deg}
+.cp-taglio.taglia .cp-linea line{stroke:rgba(255,45,111,.75)}
+/* La corsa della forbice: offset-distance la porta da un capo all'altro del
+   tracciato. rotate e scale restano proprieta' separate perche' transform e'
+   gia' occupato da offset-path e sovrascriverlo bloccherebbe la corsa. */
+.cp-taglio.taglia .cp-forbice{animation:cgTaglio var(--cp-ms,760ms) cubic-bezier(.6,.02,.35,1) forwards}
+@keyframes cgTaglio{
+  0%{offset-distance:0%;opacity:0;scale:.55;rotate:-20deg}
+  13%{opacity:1;scale:1;rotate:-9deg}
+  38%{rotate:9deg}
+  62%{rotate:-8deg}
+  86%{rotate:7deg}
+  93%{opacity:1;scale:1}
+  100%{offset-distance:100%;opacity:0;scale:.6;rotate:16deg}}
+/* Senza CSS Motion Path la forbice scorre con una traslazione: stesso gesto, meno curva. */
+@supports not (offset-path: path("M 0 0 H 10")){
+  .cp-forbice{top:50%;left:15px;margin:-15px 0 0 -15px}
+  .cp-taglio.taglia .cp-forbice{animation:cgTaglioPiano var(--cp-ms,760ms) cubic-bezier(.6,.02,.35,1) forwards}
+  @keyframes cgTaglioPiano{
+    0%{translate:0 0;opacity:0;scale:.55}
+    13%{opacity:1;scale:1}
+    93%{opacity:1;scale:1}
+    100%{translate:var(--cp-w,280px) 0;opacity:0;scale:.6}}
+}
+/* --- Tagliando: si svela a taglio finito --- */
+.cp-body{visibility:hidden;opacity:0;transform:translate3d(0,-10px,0) scale(.97);
+  transition:opacity .42s var(--ease), transform .5s var(--elastic), visibility 0s linear .5s}
+.cinepass.aperto .cp-body{visibility:visible;opacity:1;transform:none;transition-delay:0s}
+.cp-qr{display:block;margin:16px auto 0;padding:11px;border-radius:16px;background:#fff;line-height:0;
+  box-shadow:0 16px 34px -18px #000, 0 0 0 1px rgba(255,255,255,.5);
   transition:transform .4s var(--elastic), box-shadow .3s}
-.qr-btn:hover{transform:scale(1.05);box-shadow:0 0 26px -6px rgba(0,242,254,.8)}
-.qr-btn:active{transform:scale(.95)}
-.qr-cta{display:block;max-width:108px;text-align:center;font-size:9px;line-height:1.35;letter-spacing:.06em;
-  text-transform:uppercase;color:var(--muted)}
-/* forbici sulla perforazione: si trascinano o si toccano */
-.scissors{position:absolute;z-index:6;top:7px;right:132px;translate:50% 0;width:44px;height:44px;border-radius:50%;
-  display:grid;place-items:center;color:#0a0812;
-  background:linear-gradient(150deg, #ffffff, #cfe9ff);
-  border:1px solid rgba(255,255,255,.7);
-  box-shadow:0 10px 26px -10px #000, inset 0 1px 0 #fff, 0 0 22px -6px rgba(0,242,254,.7);
-  cursor:grab;touch-action:none;
-  transition:transform .4s var(--elastic), box-shadow .3s, translate .25s var(--ease)}
-.scissors svg{width:21px;height:21px}
-.scissors:hover{transform:scale(1.12) rotate(-12deg)}
-.scissors:active{cursor:grabbing;transform:scale(.94)}
-.scissors::after{content:'';position:absolute;top:100%;left:50%;width:2px;height:0;translate:-50% 0;
-  background:linear-gradient(180deg, rgba(0,242,254,.85), transparent);transition:height .3s var(--ease)}
-.scissors:active::after{height:70px}
-.ticket.strappato .scissors{opacity:0;transform:scale(.6) rotate(25deg);transition:opacity .4s, transform .4s}
-/* tela delle micro-schegge di vetro */
+.cp-qr canvas{display:block;width:168px;height:168px;image-rendering:pixelated}
+.cp-qr:hover{transform:scale(1.04);box-shadow:0 0 30px -6px rgba(0,242,254,.85)}
+.cp-qr:active{transform:scale(.96)}
+.cp-hint{margin-top:11px;text-align:center;font-size:11px;line-height:1.55;color:var(--muted)}
+.cp-linkbox{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;
+  padding:11px 14px;border-radius:13px;background:rgba(0,0,0,.34);
+  border:1px solid rgba(0,242,254,.26);box-shadow:inset 0 0 24px -12px rgba(0,242,254,.9)}
+.cp-url{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11.5px;color:#7af4ff;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.cp-code{flex:0 0 auto;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:9px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+.cp-actions{display:flex;gap:9px;margin-top:13px;flex-wrap:wrap}
+.cp-actions .btn{flex:1 1 152px;justify-content:center}
+#cpCopy.fatto{color:#8dffc0;border-color:rgba(141,255,192,.5);background:rgba(141,255,192,.12)}
+.cp-pop{display:flex;justify-content:center;margin-top:13px}
+/* Tela delle micro-schegge di vetro: sta sopra al biglietto, non nel flusso */
 .shards{position:absolute;inset:0;z-index:7;width:100%;height:100%;pointer-events:none;opacity:0}
 .shards.on{opacity:1}
 
-/* --- Riflesso specchiato sulla card attiva --- */
+/* Il CinePass resta scuro anche a tema chiaro: e' un biglietto del cinema, e
+   il QR bianco ha bisogno di un fondo scuro attorno per staccare. Qui dentro
+   i colori del testo non seguono il tema, altrimenti diventano illeggibili. */
+body.tema-chiaro .cinepass,body.hc .cinepass{color:#f4f1fa}
+body.tema-chiaro .cp-title,body.hc .cp-title{color:#f4f1fa}
+body.tema-chiaro .cp-meta,body.tema-chiaro .cp-hint,body.tema-chiaro .cp-fact,
+body.hc .cp-meta,body.hc .cp-hint,body.hc .cp-fact{color:rgba(244,241,250,.68)}
+body.tema-chiaro .cp-code,body.hc .cp-code{color:rgba(244,241,250,.46)}
+body.tema-chiaro .cp-fact,body.hc .cp-fact{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.15)}
+body.tema-chiaro .cp-fact.voto,body.hc .cp-fact.voto{color:#ffd67a;border-color:rgba(255,214,122,.34)}
+body.tema-chiaro .cinepass .pop-btn,body.tema-chiaro .cinepass .btn.ghost,
+body.hc .cinepass .pop-btn,body.hc .cinepass .btn.ghost{color:rgba(244,241,250,.8);
+  background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.17)}
+body.tema-chiaro .cinepass .pop-btn.salvato,body.hc .cinepass .pop-btn.salvato{color:#f4f1fa}
+
+/* --- Avviso di CinePass arrivato da un amico --- */
+.cp-ricevuto{display:flex;align-items:center;gap:13px;flex-wrap:wrap;margin-bottom:20px;
+  padding:14px 16px;border-radius:18px;
+  background:linear-gradient(120deg, rgba(255,45,111,.18), rgba(0,242,254,.1));
+  border:1px solid rgba(255,45,111,.34);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.cp-ricevuto[hidden]{display:none}
+.cpr-ico{font-size:24px;line-height:1}
+.cpr-txt{min-width:0;flex:1 1 160px}
+.cpr-txt b{display:block;font-size:14px;font-weight:600}
+.cpr-txt small{display:block;margin-top:2px;font-size:11.5px;color:var(--muted)}
+
+/* --- Riflesso specchiato sulla card attiva --- *//* --- Riflesso specchiato sulla card attiva --- */
 .glare{position:absolute;inset:0;pointer-events:none;z-index:6;opacity:0;border-radius:inherit;
   background:radial-gradient(circle at var(--gx,50%) var(--gy,50%), rgba(255,255,255,.4), rgba(255,255,255,.08) 34%, transparent 62%);
   transition:opacity .4s var(--ease)}
@@ -851,15 +992,12 @@ body.lights-out .beam{opacity:0}
 .sfx-toggle.off{opacity:.45}
 
 @media (max-width:640px){
-  .ticket{grid-template-columns:1fr}
-  .ticket-stub{flex-direction:row;justify-content:space-between;padding:12px 18px;flex-wrap:wrap}
-  .qr-cta{max-width:none;flex:1 0 100%;text-align:left;order:3;margin-top:2px}
-  /* qui la perforazione e' orizzontale: le forbici la seguono da sinistra */
-  .scissors{right:auto;left:18px;top:auto;bottom:calc(100% - 22px);translate:0 0}
-  .scissors::after{top:auto;bottom:100%;background:linear-gradient(0deg, rgba(0,242,254,.85), transparent)}
-  .scissors:active::after{height:44px}
-  .ticket-stub::before{left:0;right:0;top:0;bottom:auto;width:auto;height:2px;
-    background-image:radial-gradient(circle at 6px 1px, rgba(6,5,12,.9) 0 2.6px, transparent 2.8px);background-size:13px 2px}
+  .cinepass{padding:18px 16px 20px}
+  .cp-badge{position:static;display:inline-block;margin-bottom:12px}
+  .cp-head{padding-right:0}
+  .cp-taglio{margin-left:-16px;margin-right:-16px}
+  .cp-actions .btn{flex:1 1 100%}
+  .cp-qr canvas{width:150px;height:150px}
   .creator-head{gap:12px}
   .avatar{width:56px;height:56px;font-size:25px}
 }
@@ -903,11 +1041,6 @@ body.lights-out .beam{opacity:0}
   text-decoration:underline;text-underline-offset:3px;transition:color .25s}
 .hype-clear:hover{color:var(--txt)}
 .hype-clear[hidden]{display:none}
-.card-bucket{position:absolute;top:10px;right:10px;z-index:30;pointer-events:none;width:54px;height:60px;
-  opacity:0;scale:.8;transition:opacity .35s var(--ease), scale .35s var(--ease);
-  -webkit-tap-highlight-color:transparent;touch-action:manipulation;cursor:pointer}
-.card.is-active .card-bucket{opacity:1;scale:1;pointer-events:auto}
-.card-bucket canvas{position:absolute;inset:0;width:100%;height:100%}
 
 /* --- Menu "Salva Data" --- */
 .savewrap{position:relative;display:inline-flex}
@@ -961,7 +1094,7 @@ body.lights-out .beam{opacity:0}
 *{-webkit-tap-highlight-color:transparent}
 button,a,input,select,textarea,summary,label,[role="button"],
 .chip,.frame,.dot-btn,.card,.card-play,.card-quick,.card-bucket,.cast-pill,.res-row,.w-row,
-.tl-item,.bo-row,.filmo-row,.menu-row,.term-go,.term-x,.qr-btn,.scissors,.ost-disc,.rat,.prov-row{
+.tl-item,.bo-row,.filmo-row,.menu-row,.term-go,.term-x,.cp-qr,.cp-taglio,.pop-btn,.ost-disc,.rat,.prov-row{
   touch-action:manipulation}
 @media (hover:none){
   .btn:hover,.chip:hover,.pill-btn:hover,.icon-btn:hover,.cast-pill:hover,.bo-row:hover,
@@ -1041,11 +1174,8 @@ button,a,input,select,textarea,summary,label,[role="button"],
   transition:opacity .25s linear, backdrop-filter .25s linear}
 .spoiler.pulito .spoiler-glass{opacity:0;pointer-events:none}
 
-/* --- Biglietto strappabile --- */
-.ticket{touch-action:pan-y}
-.ticket-stub{will-change:transform}
-.ticket.strappato .ticket-stub{transform:translate(18px,10px) rotate(7deg);opacity:.55}
-.ticket-hint{grid-column:1 / -1;padding:0 20px 12px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+/* --- CinePass: lo scorrimento verticale non deve mai restare bloccato --- */
+.cinepass{touch-action:pan-y}
 
 /* --- Locandina a schermo intero --- */
 .lightbox{position:fixed;inset:0;z-index:230;display:grid;place-items:center;padding:clamp(14px,4vw,40px);
@@ -1321,9 +1451,9 @@ a.prov-row:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,
 }
 
 /* ---------- Refrazione prismatica sui bordi in vetro ---------- */
-.panel-inner,.spot-box,.wdrawer-box,.sheet-box,.navseg,.ticket,.bo-wrap,.modal-box{position:relative}
+.panel-inner,.spot-box,.wdrawer-box,.sheet-box,.navseg,.bo-wrap,.modal-box{position:relative}
 .panel-inner::after,.spot-box::after,.wdrawer-box::after,.sheet-box::after,
-.navseg::after,.ticket::after,.modal-box::after{
+.navseg::after,.modal-box::after{
   content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:1;
   padding:1px;opacity:.55;
   background:linear-gradient(135deg, rgba(122,244,255,.85), rgba(255,255,255,0) 32%,
@@ -1372,7 +1502,7 @@ a.prov-row:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,
 /* ---------- Adattamento prestazionale: meno sfocatura, stessi 60 fps ---------- */
 .perf-bassa .topbar,.perf-bassa .navseg,.perf-bassa .panel-inner,.perf-bassa .spot-bd,
 .perf-bassa .spot-box,.perf-bassa .wdrawer-box,.perf-bassa .sheet-bd,.perf-bassa .sheet-box,
-.perf-bassa .lens,.perf-bassa .ticket,.perf-bassa .frost,.perf-bassa .card-play,
+.perf-bassa .lens,.perf-bassa .cinepass,.perf-bassa .frost,.perf-bassa .card-play,
 .perf-bassa .card-quick,.perf-bassa .modal-backdrop,.perf-bassa .lightbox,.perf-bassa .rip{
   backdrop-filter:blur(8px)!important;-webkit-backdrop-filter:blur(8px)!important}
 .perf-bassa .grain,.perf-bassa .dust{display:none}
@@ -1803,7 +1933,7 @@ body.tema-chiaro .navseg-slider{background:linear-gradient(135deg, color-mix(in 
 body.tema-chiaro .eyebrow,body.tema-chiaro .search-tag{background:rgba(255,255,255,.78);border-color:rgba(21,19,31,.12)}
 body.tema-chiaro .tagline{color:#26213c;text-shadow:none}
 body.tema-chiaro .overview{color:rgba(21,19,31,.82)}
-body.tema-chiaro .fact,body.tema-chiaro .release-row,body.tema-chiaro .ticket,body.tema-chiaro .hype,
+body.tema-chiaro .fact,body.tema-chiaro .release-row,body.tema-chiaro .hype,
 body.tema-chiaro .cast-pill,body.tema-chiaro .bo-row,body.tema-chiaro .tl-item,body.tema-chiaro .empty,
 body.tema-chiaro .w-row,body.tema-chiaro .gpill,body.tema-chiaro .tag-glass,
 body.tema-chiaro .bo-empty,body.tema-chiaro .bo-verify,body.tema-chiaro .fonte-link{
@@ -1835,13 +1965,13 @@ body.tema-chiaro .rat-imdb .rat-ico{color:#9a7900}
 /* ---------- Feedback tattile: una sola trasformazione, niente blur ---------- */
 .btn,.pill-btn,.icon-btn,.chip,.lens,.navseg button,.layout-mini button,.menu-row,.tema-seg button,
 .card-play,.card-quick,.cast-pill,.res-row,.w-row,.tl-item,.bo-row,.filmo-row,.term-go,.term-x,
-.qr-btn,.ost-disc,.scissors,.fs-btn,.sheet-x,.dot-btn,.frame,.foot-links button,.foot-links a,
+.cp-qr,.ost-disc,.cp-taglio,.pop-btn,.fs-btn,.sheet-x,.dot-btn,.frame,.foot-links button,.foot-links a,
 .social-btn,.wdrawer-foot .btn,.res-clear,.fm-reset,.ask-skip{
   -webkit-user-select:none;user-select:none}
 .btn:active,.pill-btn:active,.icon-btn:active,.chip:active,.lens:active,.navseg button:active,
 .layout-mini button:active,.menu-row:active,.tema-seg button:active,.cast-pill:active,
 .res-row:active,.w-row:active,.tl-item:active,.bo-row:active,.filmo-row:active,.term-go:active,
-.qr-btn:active,.fs-btn:active,.sheet-x:active,.foot-links button:active,.foot-links a:active,
+.cp-qr:active,.fs-btn:active,.sheet-x:active,.foot-links button:active,.foot-links a:active,
 .social-btn:active,.res-clear:active,.fm-reset:active{
   transform:scale(.96);transition-duration:.06s}
 
@@ -1866,7 +1996,7 @@ footer,#boxoffice{content-visibility:auto;contain-intrinsic-size:1px 400px}
   /* una sfocatura larga su telefono costa piu' di quanto renda */
   .topbar,.navseg,.lens,.pill-btn,.icon-btn,.chip,.layout-mini,.metabar,.qbar,.menu-row,
   .filtermenu,.savemenu,.spot-box,.wdrawer-box,.sheet-box,.ost,.prov-row,.panel-inner,
-  .ticket,.frost,.card-play,.card-quick,.modal-backdrop,.lightbox,.spot-bd,.sheet-bd,
+  .cinepass,.frost,.card-play,.card-quick,.modal-backdrop,.lightbox,.spot-bd,.sheet-bd,
   .wdrawer-bd,.toast,.net-badge,.eyebrow,.status,.rip,.term{
     backdrop-filter:blur(8px)!important;-webkit-backdrop-filter:blur(8px)!important}
   .topbar{background:rgba(18,18,24,.88)}
@@ -2004,8 +2134,9 @@ body.trascina .card-play,body.trascina .card-quick,body.trascina .card-bucket{po
   .layout-mini button,.w-row,.w-only,.wdrawer-foot .btn,
   .foot-links button,.foot-links a,.social-btn,.rat,.term-go,.term-x,.res-clear{min-height:44px}
   .term-x{width:44px}
-  .scissors,.oled-x{width:48px;height:48px}
-  .qr-btn{min-height:44px}
+  .oled-x{width:48px;height:48px}
+  .cp-taglio{height:34px}
+  .cp-forbice{width:34px;height:34px;font-size:18px}
   .pill-btn,.icon-btn{min-width:44px}
   .icon-btn{width:44px;height:44px}
   .frame{width:44px;height:62px}
@@ -2022,7 +2153,7 @@ body.trascina .card-play,body.trascina .card-quick,body.trascina .card-bucket{po
   .layout-mini button{min-width:44px;justify-content:center}
   .sheet-x{width:44px;height:44px}
   .wdrawer-head .sheet-x{width:44px;height:44px}
-  .card-bucket{width:62px;height:68px}
+  .card .pop-btn.mini{width:56px;height:56px}
 }
 </style>
 </head>
@@ -2293,6 +2424,17 @@ body.trascina .card-play,body.trascina .card-quick,body.trascina .card-bucket{po
   <section class="panel" id="panel" hidden aria-live="polite">
     <div class="panel-bg" id="panelBg" aria-hidden="true"></div>
     <div class="panel-inner" id="panelInner">
+
+      <!-- Si vede solo arrivando da un link condiviso -->
+      <div class="cp-ricevuto" id="cpRicevuto" hidden>
+        <span class="cpr-ico" aria-hidden="true">🎟️</span>
+        <div class="cpr-txt">
+          <b>CinePass ricevuto</b>
+          <small>Un amico ti ha condiviso questo film.</small>
+        </div>
+        <div class="cpr-pop" id="cprPop"></div>
+      </div>
+
       <div class="panel-head">
         <h2 id="pTitle">—</h2>
         <p class="tagline" id="pTagline"></p>
@@ -2443,32 +2585,55 @@ body.trascina .card-play,body.trascina .card-quick,body.trascina .card-bucket{po
         </div>
       </div>
 
-      <!-- Promemoria -->
-      <div class="ticket" id="ticket">
-        <div class="ticket-main">
-          <div class="ticket-lab">Promemoria · CineGlass</div>
-          <div class="ticket-title" id="tkTitle">—</div>
-          <div class="ticket-row">
-            <div><div class="ticket-lab">Uscita in Italia</div><div class="ticket-val" id="tkDate">—</div></div>
+      <!-- ====================== CINEPASS ====================== -->
+      <section class="cinepass" id="cinePass" aria-labelledby="cpTitle">
+        <span class="cp-badge">🎬 CINEGLASS PASS</span>
+
+        <header class="cp-head">
+          <img class="cp-poster" id="cpPoster" alt="" draggable="false" decoding="async" loading="lazy">
+          <div class="cp-info">
+            <h3 class="cp-title" id="cpTitle">—</h3>
+            <p class="cp-meta" id="cpMeta">—</p>
+            <div class="cp-facts" id="cpFacts"></div>
           </div>
-        </div>
-        <button type="button" class="scissors" id="tkCut" aria-label="Taglia il biglietto e salvalo in watchlist"
-                title="Trascina o tocca per tagliare">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="6.2" cy="17.4" r="2.6"/><circle cx="6.2" cy="6.6" r="2.6"/>
-            <path d="M8.4 15.9 19.5 5.2M8.4 8.1 19.5 18.8"/><path d="m12.4 12 1.6-1.5"/>
+        </header>
+
+        <!-- Separatore perforato: la forbice lo percorre e svela il tagliando -->
+        <div class="cp-taglio" id="cpTaglio" role="button" tabindex="0"
+             aria-label="Taglia il biglietto e mostra il codice QR" title="Taglia il biglietto">
+          <svg class="cp-linea" viewBox="0 0 320 2" preserveAspectRatio="none" aria-hidden="true">
+            <line x1="0" y1="1" x2="320" y2="1"></line>
           </svg>
-        </button>
-        <div class="ticket-stub">
-          <button type="button" class="qr-btn" id="tkQrBtn" aria-label="Condividi il link del film">
-            <canvas class="ticket-qr" id="tkQr" width="92" height="92" aria-label="Codice QR della scheda del film"></canvas>
-          </button>
-          <span class="ticket-code" id="tkCode">—</span>
-          <span class="qr-cta">📱 Scansiona o tap per condividere</span>
+          <span class="cp-forbice" id="cpForbice" aria-hidden="true">✂️</span>
         </div>
-        <canvas class="shards" id="tkShards" aria-hidden="true"></canvas>
-        <div class="ticket-hint">Trascina le forbici ✂️ (o fai tap) per tagliare e salvare in Watchlist</div>
-      </div>
+
+        <div class="cp-body" id="cpBody">
+          <button type="button" class="cp-qr" id="cpQrBtn" aria-label="Condividi il link del film">
+            <canvas id="cpQr" width="168" height="168" aria-label="Codice QR della scheda del film"></canvas>
+          </button>
+          <p class="cp-hint">Inquadra con la fotocamera o copia il link per inviare la scheda al tuo amico</p>
+
+          <div class="cp-linkbox">
+            <span class="cp-url" id="cpUrl">—</span>
+            <span class="cp-code" id="cpCode">—</span>
+          </div>
+
+          <div class="cp-actions">
+            <button type="button" class="btn ghost ripple" id="cpCopy">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2.4"/><path d="M15 6.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h1.5"/></svg>
+              <span id="cpCopyLbl">Copia link</span>
+            </button>
+            <button type="button" class="btn primary sweep ripple" id="cpSave">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v11m0 0 4-4m-4 4-4-4"/><path d="M4 16.5V19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2.5"/></svg>
+              Scarica CinePass
+            </button>
+          </div>
+
+          <div class="cp-pop" id="cpPop"></div>
+        </div>
+
+        <canvas class="shards" id="cpShards" aria-hidden="true"></canvas>
+      </section>
     </div>
   </section>
 
@@ -2978,7 +3143,7 @@ function rilevaPrestazioni(){
 const state = {
   movies: [], favs: [], favOnly: false, detailsCache: {},
   view: [], genre: null, mode: 'upcoming', searchList: [], searchQuery: '',
-  layout: 'carousel', ultimaPiatta: 'carousel', anno: null, providers: {}, boxoffice: [], boTab: 'sala', boAnno: null, classifiche: false,
+  layout: 'carousel', ultimaPiatta: 'carousel', anno: null, providers: {}, boxoffice: [], boTab: 'sala', boAnno: null, classifiche: false, ricevuto: false,
   credits: {}, custom: null,
   section: 'soon', nowPlaying: [], durata: null, storiaVera: false,
   tiltX: 0, tiltY: 0, perfBassa: false, tema: 'scuro',
@@ -3017,9 +3182,11 @@ const el = {
   filmoRole:$('#filmoRole'), filmoList:$('#filmoList'),
   pipBtn:$('#pipBtn'),
   filmstrip:$('#filmstrip'), stripTrack:$('#stripTrack'),
-  ticket:$('#ticket'), tkTitle:$('#tkTitle'), tkDate:$('#tkDate'),
-  tkQr:$('#tkQr'), tkQrBtn:$('#tkQrBtn'), tkCode:$('#tkCode'),
-  tkCut:$('#tkCut'), tkShards:$('#tkShards'),
+  cinePass:$('#cinePass'), cpPoster:$('#cpPoster'), cpTitle:$('#cpTitle'), cpMeta:$('#cpMeta'),
+  cpFacts:$('#cpFacts'), cpTaglio:$('#cpTaglio'), cpForbice:$('#cpForbice'), cpBody:$('#cpBody'),
+  cpQr:$('#cpQr'), cpQrBtn:$('#cpQrBtn'), cpUrl:$('#cpUrl'), cpCode:$('#cpCode'),
+  cpCopy:$('#cpCopy'), cpCopyLbl:$('#cpCopyLbl'), cpSave:$('#cpSave'), cpPop:$('#cpPop'),
+  cpShards:$('#cpShards'), cpRicevuto:$('#cpRicevuto'), cprPop:$('#cprPop'),
   icsBtn:$('#icsBtn'), cinemaBtn:$('#cinemaBtn'), inviteBtn:$('#inviteBtn'),
   hypeBucket:$('#hypeBucket'), hypeCount:$('#hypeCount'), hypeVal:$('#hypeVal'), hypeHint:$('#hypeHint'),
   hypeClear:$('#hypeClear'),
@@ -4427,7 +4594,7 @@ function renderPanel(movie, details){
   renderCountdown();
   aggiornaOledBtn();
   renderTrailerCard(movie, details);
-  renderTicket(movie, details);
+  renderCinePass(movie, details);
   renderTags(movie, details);
   renderProviders(movie);
   renderOst(movie);
@@ -4642,7 +4809,10 @@ function toggleFav(movie){
 }
 
 function updateFavUI(){
-  el.favCount.textContent = String(state.favs.length);
+  /* mentre un popcorn e' in volo il numero resta indietro di uno: lo aggiorna
+     l'atterraggio, ed e' quel ritardo a rendere credibile l'animazione */
+  if (!contatoreFermo) el.favCount.textContent = String(state.favs.length);
+  sincronizzaPop();
   aggiornaImminenti();
   if (!el.wDrawer.hidden) renderWatchlist();
   const list = movies();
@@ -6093,23 +6263,6 @@ async function applyAmbient(movie){
   if (acc) document.documentElement.style.setProperty('--c1', acc);
 }
 
-/* --- Biglietto di sala con QR --- */
-function renderTicket(movie, details){
-  const iso = (details && details.releaseIT) || movie.release_date;
-  el.tkTitle.textContent = movie.title;
-  el.tkDate.textContent = fmtDate(iso);
-  const id = Math.abs(Number(movie.id) || 0);
-  el.tkCode.textContent = 'CG-' + id.toString(36).toUpperCase().padStart(5, '0');
-  /* Il QR punta alla scheda dentro CineGlass: chi lo scansiona apre il film */
-  const url = deepLink(movie);
-  el.ticket.dataset.link = url;
-  if (!drawQR(el.tkQr, url)){
-    const ctx = el.tkQr.getContext('2d');
-    ctx.fillStyle = '#fff';
-    ctx.fillRect(0, 0, el.tkQr.width, el.tkQr.height);
-  }
-}
-
 /* --- Evento .ics per Apple Calendar e Outlook --- */
 const icsEsc = t => String(t == null ? '' : t).replace(/\\/g, '\\\\').replace(/([,;])/g, '\\$1').replace(/\r?\n/g, '\\n');
 
@@ -6486,26 +6639,24 @@ class Bucket {
   }
 }
 
-let bucketPanel = null, bucketCard = null, cardBucketEl = null;
+let bucketPanel = null, cardBucketEl = null;
 
 function initBuckets(){
   bucketPanel = new Bucket($('#hypeCanvas'));
+  /* Sulla locandina attiva vive il popcorn della wishlist: un tap salva,
+     un altro toglie. Il secchiello a chicchi resta nel widget dell'hype. */
   cardBucketEl = document.createElement('div');
   cardBucketEl.className = 'card-bucket';
-  cardBucketEl.setAttribute('role', 'button');
-  cardBucketEl.setAttribute('aria-label', 'Aggiungi popcorn');
-  const cv = document.createElement('canvas');
-  cv.width = 108; cv.height = 120;
-  cardBucketEl.appendChild(cv);
-  bucketCard = new Bucket(cv);
-  /* i due controlli fermano la propagazione: né tilt né swipe devono rubarli */
-  [[el.hypeBucket, 'panel'], [cardBucketEl, 'card']].forEach(([nodo]) => {
-    nodo.addEventListener('click', e => { e.stopPropagation(); popcorn(); });
-    nodo.addEventListener('pointerdown', e => e.stopPropagation(), { passive: true });
-    nodo.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); popcorn(); }
-    });
+  cardBucketEl.appendChild(creaPopBtn('mini'));
+  el.cpPop.appendChild(creaPopBtn('full'));
+  el.cprPop.appendChild(creaPopBtn('full'));
+  /* il widget dell'hype aggiunge chicchi: né tilt né swipe devono rubarlo */
+  el.hypeBucket.addEventListener('click', e => { e.stopPropagation(); popcorn(); });
+  el.hypeBucket.addEventListener('pointerdown', e => e.stopPropagation(), { passive: true });
+  el.hypeBucket.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); popcorn(); }
   });
+  sincronizzaPop();
 }
 
 function popcorn(){
@@ -6514,13 +6665,15 @@ function popcorn(){
   const primo = hypeOf(movie.id) === 0;
   const tot = hypeAdd(movie.id, 3);
   bucketPanel.pop(3);
-  bucketCard.pop(3);
+
   sfx.play('tap');
   buzz(primo ? APTICA.meccanico : APTICA.micro);
   if (primo && !isFav(movie.id)){
     state.favs.unshift(JSON.parse(JSON.stringify(movie)));
     store.set(STORE.favs, state.favs);
+    contatoreFermo = true;
     updateFavUI();
+    volaPopcorn(el.hypeBucket);
     toast('Salvato nella tua lista 🍿', 'ok');
   }
   renderHype(movie);
@@ -6536,7 +6689,7 @@ function renderHype(movie){
     : 'Al primo popcorn il film entra nella tua lista';
   el.hypeClear.hidden = n === 0 && !isFav(movie.id);
   bucketPanel.setCount(n);
-  bucketCard.setCount(n);
+
 }
 
 /* Il popcorn aggiunge: serve anche il gesto opposto */
@@ -6847,8 +7000,26 @@ async function apriDaLink(){
   if (!key) return;
   try{
     const d = await fetchJSON(`${API_BASE}/movie/${encodeURIComponent(id)}?api_key=${encodeURIComponent(key)}&language=it-IT`);
-    if (d && d.id) mostraSingolo(d);
+    if (d && d.id){
+      mostraSingolo(d);
+      apriCinePassRicevuto(d);
+    }
   }catch(err){ /* link non valido: si resta sulla home */ }
+}
+
+/* Chi arriva da un CinePass condiviso deve capirlo al primo sguardo, e
+   trovare subito il popcorn per salvarsi il film nella propria lista. */
+function apriCinePassRicevuto(movie){
+  state.ricevuto = true;
+  el.cpRicevuto.hidden = false;
+  sincronizzaPop();
+  document.body.classList.add('da-cinepass');
+  toast('\ud83c\udf9f\ufe0f CinePass ricevuto: ecco ' + movie.title, 'ok');
+  /* il biglietto risulta gia' tagliato: l'amico vede il QR senza doverlo aprire */
+  setTimeout(() => {
+    if (el.cinePass) apriCinePass(movie.id);
+    el.cpRicevuto.scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth', block: 'center' });
+  }, 500);
 }
 
 /* --- Un solo invito: condivisione nativa, altrimenti WhatsApp --- */
@@ -6953,57 +7124,453 @@ sfx.paper = function(){
   src.start(t);
 };
 
-/* Le forbici si trascinano lungo la perforazione oppure si toccano e basta */
-function initTear(){
-  let inizio = null, trascinate = false;
+/* =========================================================
+   POPCORN DELLA WISHLIST
+   Tre stati sulla scheda (chicco spento, popcorn salvato con
+   spunta, tremolio quando si toglie) e un clone che vola in
+   parabola fino al secchiello nell'header. Tutto in 400-500ms:
+   chi salva cinque film di fila non deve aspettare nessuno.
+   ========================================================= */
+const POP_SVG =
+  '<span class="pop-ico" aria-hidden="true">' +
+    /* chicco ancora da scoppiare: solo contorno */
+    '<svg class="pop-chicco" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' +
+      '<path d="M12 3.8c3.4 0 5.7 2.5 5.7 5.9 0 4-2.7 8.4-5.7 9.7-3-1.3-5.7-5.7-5.7-9.7 0-3.4 2.3-5.9 5.7-5.9Z"/>' +
+      '<path d="M12 6.8v9.8" opacity=".45"/>' +
+      '<path d="M9.3 9.6c1.1.8 1.8 2 2.1 3.3M14.7 9.6c-1.1.8-1.8 2-2.1 3.3" opacity=".45"/>' +
+    '</svg>' +
+    /* secchiello pieno: chicchi caldi sopra, righe rosse sotto */
+    '<svg class="pop-pieno" viewBox="0 0 24 24">' +
+      '<g class="mais">' +
+        '<circle cx="8.3" cy="6.6" r="2.6"/><circle cx="12" cy="4.9" r="2.8"/><circle cx="15.7" cy="6.8" r="2.5"/>' +
+        '<circle cx="10.1" cy="8.7" r="2.3"/><circle cx="13.9" cy="8.9" r="2.2"/>' +
+      '</g>' +
+      '<path class="secchio" d="M5.9 10.4h12.2l-1.3 9.1a1.9 1.9 0 0 1-1.9 1.6H9.1a1.9 1.9 0 0 1-1.9-1.6Z"/>' +
+      '<path class="riga" d="M10.3 10.4 9.6 21.1h1.6l.4-10.7ZM13.7 10.4l.7 10.7h-1.6l-.4-10.7Z"/>' +
+    '</svg>' +
+    '<span class="pop-check">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.6 4.6 4.6L19 7.6"/></svg>' +
+    '</span>' +
+  '</span>';
 
-  el.ticket.addEventListener('pointerdown', e => {
-    if (e.target.closest('button, a')) return;
-    inizio = { x: e.clientX, y: e.clientY };
-  });
-  el.ticket.addEventListener('pointerup', e => {
-    if (!inizio) return;
-    const dx = e.clientX - inizio.x, dy = Math.abs(e.clientY - inizio.y);
-    inizio = null;
-    if (Math.abs(dx) < 60 || dy > 70) return;
-    strappa();
-  });
+function creaPopBtn(variante){
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'pop-btn ' + (variante === 'mini' ? 'mini' : 'full');
+  b.setAttribute('aria-pressed', 'false');
+  b.innerHTML = POP_SVG + (variante === 'mini' ? '' : '<span class="pop-lbl">Aggiungi alla Wishlist</span>');
+  /* niente propagazione: il tilt della card e lo swipe non devono rubare il tap */
+  b.addEventListener('click', e => { e.stopPropagation(); tapPopcorn(b); });
+  b.addEventListener('pointerdown', e => e.stopPropagation(), { passive: true });
+  return b;
+}
 
-  /* Gesto dedicato sulle forbici: scorrono lungo il taglio e lo completano */
-  el.tkCut.addEventListener('pointerdown', e => {
-    e.stopPropagation();
-    trascinate = false;
-    const partenza = e.clientY;
-    const alt = el.ticket.getBoundingClientRect().height;
-    el.tkCut.setPointerCapture(e.pointerId);
-    const muovi = ev => {
-      const d = ev.clientY - partenza;
-      if (Math.abs(d) > 6) trascinate = true;
-      el.tkCut.style.transform = 'translateY(' + Math.max(-6, Math.min(alt, d)) + 'px)';
-      if (d > alt * 0.45){ fine(ev, true); }
-    };
-    const fine = (ev, tagliato) => {
-      el.tkCut.removeEventListener('pointermove', muovi);
-      el.tkCut.removeEventListener('pointerup', su);
-      el.tkCut.removeEventListener('pointercancel', su);
-      try{ el.tkCut.releasePointerCapture(e.pointerId); }catch(err){ /* gia' rilasciato */ }
-      el.tkCut.style.transform = '';
-      if (tagliato || !trascinate) strappa();
-    };
-    const su = ev => fine(ev, false);
-    el.tkCut.addEventListener('pointermove', muovi);
-    el.tkCut.addEventListener('pointerup', su);
-    el.tkCut.addEventListener('pointercancel', su);
+/* Rimette tutti i pulsanti popcorn in pari con la watchlist */
+function sincronizzaPop(){
+  const movie = movies()[state.activeIndex];
+  const salvato = !!movie && isFav(movie.id);
+  const etichetta = salvato ? 'In Wishlist'
+    : (state.ricevuto ? 'Aggiungi alla mia Wishlist' : 'Aggiungi alla Wishlist');
+  const descrizione = salvato ? 'Togli dalla wishlist' : 'Salva nella wishlist';
+  $$('.pop-btn').forEach(b => {
+    b.classList.toggle('salvato', salvato);
+    b.setAttribute('aria-pressed', salvato ? 'true' : 'false');
+    b.setAttribute('aria-label', descrizione);
+    b.title = descrizione;
+    const lbl = b.querySelector('.pop-lbl');
+    if (lbl) lbl.textContent = etichetta;
   });
-  el.tkCut.addEventListener('keydown', e => {
-    if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); strappa(); }
-  });
+}
+
+/* Riavvia un'animazione anche se e' gia' in corso: serve ai tap a raffica */
+function riparti(nodo, classe, ms){
+  nodo.classList.remove(classe);
+  void nodo.offsetWidth;
+  nodo.classList.add(classe);
+  setTimeout(() => nodo.classList.remove(classe), ms);
+}
+
+function tapPopcorn(btn){
+  const movie = movies()[state.activeIndex];
+  if (!movie) return;
+  const salva = !isFav(movie.id);
+  if (salva){
+    /* POP! e stato salvato: il pulsante non sparisce, resta pieno con la spunta */
+    riparti(btn, 'pop', 360);
+    state.favs.unshift(JSON.parse(JSON.stringify(movie)));
+    if (hypeOf(movie.id) === 0) hypeAdd(movie.id, 3);
+    store.set(STORE.favs, state.favs);
+    sfx.play('tap');
+    buzz(APTICA.apri);
+    contatoreFermo = true;      /* il +1 arriva quando il popcorn atterra */
+    volaPopcorn(btn);
+  } else {
+    riparti(btn, 'scuoti', 400);
+    const i = state.favs.findIndex(f => f.id === movie.id);
+    if (i >= 0) state.favs.splice(i, 1);
+    const tutti = hypeAll();
+    delete tutti[movie.id];
+    store.set(HYPE_KEY, tutti);
+    store.set(STORE.favs, state.favs);
+    sfx.play('close');
+    buzz(APTICA.micro);
+  }
+  updateFavUI();
+  if (state.favOnly) rebuild(state.activeId);
+}
+
+/* Il contatore resta fermo finche' il popcorn non entra nel secchiello:
+   e' quel piccolo ritardo a rendere credibile il volo. */
+let contatoreFermo = false;
+
+function sbloccaContatore(){
+  contatoreFermo = false;
+  el.favCount.textContent = String(state.favs.length);
+}
+
+const VOLO_MS = 430;
+
+/* Traiettoria del popcorn: una Bezier quadratica campionata in fotogrammi.
+   Il punto di controllo sta sopra entrambi gli estremi, cosi' il chicco salta
+   verso il secchiello invece di strisciare in diagonale. Sta in una funzione
+   a parte perche' cosi' la parabola si controlla leggendo dei numeri, senza
+   dover guardare un'animazione scorrere. */
+function traiettoriaPopcorn(x0, y0, x1, y1, passi){
+  const n = passi || 16;
+  const cx = (x0 + x1) / 2;
+  const cy = Math.min(y0, y1) - Math.max(80, Math.abs(x1 - x0) * .34);
+  const frames = [];
+  for (let i = 0; i <= n; i++){
+    const t = i / n, u = 1 - t;
+    const x = u * u * x0 + 2 * u * t * cx + t * t * x1;
+    const y = u * u * y0 + 2 * u * t * cy + t * t * y1;
+    frames.push({
+      offset: t,
+      transform: 'translate3d(' + (x - x0).toFixed(1) + 'px,' + (y - y0).toFixed(1) + 'px,0)' +
+                 ' rotate(' + Math.round(t * 400) + 'deg) scale(' + (1 - t * .42).toFixed(3) + ')',
+      opacity: t < .9 ? 1 : 0
+    });
+  }
+  return frames;
+}
+
+function volaPopcorn(origine){
+  const meta = el.favFilter;
+  const b = meta ? meta.getBoundingClientRect() : null;
+  const a = origine ? origine.getBoundingClientRect() : null;
+  /* senza misure, o con le animazioni ridotte, si va dritti alla reazione */
+  if (!a || !b || !a.width || !b.width || REDUCED){ rimbalzaSecchiello(); return; }
+
+  const x0 = a.left + a.width / 2, y0 = a.top + a.height / 2;
+  const x1 = b.left + b.width / 2, y1 = b.top + b.height / 2;
+
+  const clone = document.createElement('span');
+  clone.className = 'pop-volante';
+  clone.setAttribute('aria-hidden', 'true');
+  clone.textContent = '\ud83c\udf7f';
+  clone.style.left = x0 + 'px';
+  clone.style.top = y0 + 'px';
+  document.body.appendChild(clone);
+
+  /* Solo transform e opacity: il browser manda l'animazione sul compositor
+     e resta fluida anche salvando piu' film di fila. */
+  const frames = traiettoriaPopcorn(x0, y0, x1, y1);
+
+  let via = false;
+  const rimuovi = () => { if (via) return; via = true; clone.remove(); };
+  try{
+    const anim = clone.animate(frames, { duration: VOLO_MS, easing: 'cubic-bezier(.34,.02,.46,1)', fill: 'forwards' });
+    anim.addEventListener('finish', rimuovi);
+    anim.addEventListener('cancel', rimuovi);
+  }catch(err){ rimuovi(); rimbalzaSecchiello(); return; }
+  /* Reti di sicurezza: a scheda nascosta i fotogrammi non arrivano e
+     l'animazione puo' non concludersi mai. Il rimbalzo e il contatore stanno
+     su un timer apposta per questo, cosi' la wishlist resta sempre in pari. */
+  setTimeout(rimuovi, VOLO_MS + 1200);
+  /* il rimbalzo parte poco prima dell'arrivo: sembra l'urto */
+  setTimeout(rimbalzaSecchiello, Math.round(VOLO_MS * .82));
+}
+
+/* Reazione del secchiello: rimbalza e fa scattare il contatore di uno */
+function rimbalzaSecchiello(){
+  sbloccaContatore();
+  if (!el.favFilter) return;
+  if (!REDUCED){
+    riparti(el.favFilter, 'rimbalza', 460);
+    if (el.favCount) riparti(el.favCount, 'tick', 400);
+  }
+  sfx.play('hover');
+  buzz(APTICA.micro);
+}
+
+/* =========================================================
+   CINEPASS: taglio, copia del link e immagine da salvare
+   ========================================================= */
+/* La forbice corre su un percorso calcolato sulla larghezza reale del
+   biglietto: con un path fisso offset-distance andrebbe fuori misura. */
+function misuraTaglio(){
+  const box = el.cpTaglio.getBoundingClientRect();
+  if (!box.width) return;
+  const bordo = 15, y = Math.round(box.height / 2);
+  const largo = Math.max(40, Math.round(box.width) - bordo * 2);
+  el.cpForbice.style.offsetPath = 'path("M ' + bordo + ' ' + y + ' H ' + (bordo + largo) + '")';
+  el.cpTaglio.style.setProperty('--cp-w', largo + 'px');
+  /* gli incavi vanno esattamente all'altezza della perforazione */
+  const alto = el.cpTaglio.offsetTop + el.cpTaglio.offsetHeight / 2;
+  el.cinePass.style.setProperty('--cut', Math.round(alto) + 'px');
+}
+
+function apriCinePass(id){
+  el.cinePass.classList.add('aperto');
+  el.cinePass.dataset.tagliato = String(id == null ? (el.cinePass.dataset.id || '') : id);
+}
+
+const CP_TAGLIO_MS = 760;
+
+/* Il taglio: la forbice percorre il tratteggio e a fine corsa svela il QR.
+   Il tracciato e' un CSS Motion Path — offset-path lo definisce, misuraTaglio
+   lo adatta alla larghezza reale del biglietto e le keyframe fanno avanzare
+   offset-distance da 0% a 100% ruotando la forbice lungo la linea. */
+function tagliaCinePass(){
+  const movie = movies()[state.activeIndex];
+  if (!movie) return;
+  if (REDUCED){ apriCinePass(movie.id); return; }
+  if (el.cpTaglio.classList.contains('taglia')) return;   // taglio gia' in corso
+  misuraTaglio();
+  el.cinePass.classList.remove('aperto');
+  el.cpTaglio.classList.remove('taglia');
+  void el.cpTaglio.offsetWidth;                            // riavvia l'animazione
+  el.cpTaglio.classList.add('taglia');
+  sfx.paper();
+  buzz(APTICA.apri);
+  /* Il tagliando compare poco prima che la forbice esca: sembra che sia lei ad
+     aprirlo. Sta su un timer e non sulla fine dell'animazione, cosi' il QR si
+     vede comunque anche quando i fotogrammi non arrivano. */
+  setTimeout(() => apriCinePass(movie.id), Math.round(CP_TAGLIO_MS * .72));
+  setTimeout(() => {
+    el.cpTaglio.classList.remove('taglia');
+    esplodiSchegge();
+  }, CP_TAGLIO_MS);
+}
+
+function renderCinePass(movie, details){
+  const url = deepLink(movie);
+  el.cinePass.dataset.link = url;
+  el.cinePass.dataset.id = String(movie.id);
+
+  el.cpPoster.src = img(movie.poster_path, 'w185') || placeholderPoster(movie.title);
+  el.cpPoster.alt = 'Locandina di ' + movie.title;
+  el.cpTitle.textContent = movie.title;
+
+  const iso = (details && details.releaseIT) || movie.release_date;
+  const ids = details && details.genreIds && details.genreIds.length ? details.genreIds : movie.genre_ids;
+  el.cpMeta.textContent = [genreNames(ids, 2), iso ? 'dal ' + fmtDate(iso) : null].filter(Boolean).join(' \u00b7 ');
+
+  /* durata, visto censura e voto: le prime tre cose che guarda un amico */
+  const voti = Number(details ? details.votes : movie.vote_count) || 0;
+  const voto = Number(details ? details.vote : movie.vote_average) || 0;
+  const fatti = [];
+  if (details && details.runtime) fatti.push(['', fmtRuntime(details.runtime)]);
+  if (details && details.cert && details.cert.etichetta)
+    fatti.push(['', 'Visto censura ' + details.cert.etichetta]);
+  if (voti >= MIN_VOTES) fatti.push(['voto', '\u2605 ' + voto.toFixed(1)]);
+  el.cpFacts.innerHTML = fatti.map(([cls, txt]) =>
+    '<span class="cp-fact' + (cls ? ' ' + cls : '') + '">' + esc(txt) + '</span>').join('');
+
+  el.cpUrl.textContent = url.replace(/^https?:\/\//, '');
+  el.cpUrl.title = url;
+  const id = Math.abs(Number(movie.id) || 0);
+  el.cpCode.textContent = 'CG-' + id.toString(36).toUpperCase().padStart(5, '0');
+
+  /* Il QR porta alla scheda dentro CineGlass: chi lo inquadra apre il film */
+  if (!drawQR(el.cpQr, url)){
+    const ctx = el.cpQr.getContext('2d');
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, el.cpQr.width, el.cpQr.height);
+  }
+
+  misuraTaglio();
+  /* cambiando film il biglietto torna intero: si riapre col taglio */
+  if (el.cinePass.dataset.tagliato !== String(movie.id)){
+    el.cinePass.classList.remove('aperto');
+    el.cpTaglio.classList.remove('taglia');
+    if (REDUCED) apriCinePass(movie.id);
+  }
+  sincronizzaPop();
+}
+
+/* --- Copia del link negli appunti, con conferma sul pulsante --- */
+let copiaTimer = 0;
+async function copiaLinkCinePass(){
+  const url = el.cinePass.dataset.link;
+  if (!url) return;
+  sfx.play('tap');
+  buzz(APTICA.micro);
+  let fatto = false;
+  try{ await navigator.clipboard.writeText(url); fatto = true; }
+  catch(err){ fatto = copiaDiRipiego(url); }   // fuori da HTTPS, o permesso negato
+  el.cpCopy.classList.toggle('fatto', fatto);
+  el.cpCopyLbl.textContent = fatto ? '\u2713 Copiato!' : 'Copia non riuscita';
+  clearTimeout(copiaTimer);
+  copiaTimer = setTimeout(() => {
+    el.cpCopy.classList.remove('fatto');
+    el.cpCopyLbl.textContent = 'Copia link';
+  }, 2200);
+  toast(fatto ? 'Link del CinePass copiato \ud83d\udd17' : 'Copia negata: tieni premuto sul link',
+        fatto ? 'ok' : 'warn');
+}
+
+/* Senza HTTPS navigator.clipboard non esiste: si passa da una selezione */
+function copiaDiRipiego(testo){
+  try{
+    const ta = document.createElement('textarea');
+    ta.value = testo;
+    ta.setAttribute('readonly', '');
+    ta.style.cssText = 'position:fixed;top:-1000px;opacity:0';
+    document.body.appendChild(ta);
+    ta.select();
+    const ok = document.execCommand('copy');
+    ta.remove();
+    return !!ok;
+  }catch(err){ return false; }
+}
+
+/* --- Il CinePass come immagine da salvare o inoltrare --- */
+async function cinePassPng(movie, details){
+  const W = 900, H = 1180;
+  const c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  const ctx = c.getContext('2d');
+  if (!ctx) return null;
+
+  const rr = (x, y, w, h, rad) => {
+    ctx.beginPath();
+    ctx.moveTo(x + rad, y);
+    ctx.arcTo(x + w, y, x + w, y + h, rad);
+    ctx.arcTo(x + w, y + h, x, y + h, rad);
+    ctx.arcTo(x, y + h, x, y, rad);
+    ctx.arcTo(x, y, x + w, y, rad);
+    ctx.closePath();
+  };
+
+  const sfondo = ctx.createLinearGradient(0, 0, W, H);
+  sfondo.addColorStop(0, '#17101f');
+  sfondo.addColorStop(.52, '#0b0913');
+  sfondo.addColorStop(1, '#130a15');
+  ctx.fillStyle = sfondo;
+  ctx.fillRect(0, 0, W, H);
+  const alone = ctx.createRadialGradient(W / 2, 240, 30, W / 2, 240, W);
+  alone.addColorStop(0, 'rgba(255,45,111,.32)');
+  alone.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = alone;
+  ctx.fillRect(0, 0, W, H);
+
+  const bx = 56, by = 66, bw = W - 112, bh = H - 132;
+  ctx.fillStyle = 'rgba(18,18,24,.88)';
+  rr(bx, by, bw, bh, 46);
+  ctx.fill();
+
+  ctx.font = '600 22px Outfit, Helvetica, Arial, sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#ffd2e0';
+  ctx.fillText('\ud83c\udfac CINEGLASS PASS', bx + 44, by + 64);
+
+  const poster = await caricaImg(img(movie.poster_path, 'w500'));
+  const px = bx + 44, py = by + 102, pw = 196, ph = 294;
+  ctx.save();
+  rr(px, py, pw, ph, 20);
+  ctx.clip();
+  if (poster) ctx.drawImage(poster, px, py, pw, ph);
+  else { ctx.fillStyle = 'rgba(255,255,255,.08)'; ctx.fillRect(px, py, pw, ph); }
+  ctx.restore();
+
+  const tx = px + pw + 32, tw = bx + bw - 44 - tx;
+  ctx.font = '600 38px Outfit, Helvetica, Arial, sans-serif';
+  ctx.fillStyle = '#f4f1fa';
+  testoACapo(ctx, movie.title, tw, 3).forEach((riga, i) => ctx.fillText(riga, tx, py + 46 + i * 46));
+  ctx.font = '300 23px Outfit, Helvetica, Arial, sans-serif';
+  ctx.fillStyle = 'rgba(244,241,250,.6)';
+  const iso = (details && details.releaseIT) || movie.release_date;
+  const sotto = [genreNames(movie.genre_ids, 2), iso ? 'dal ' + fmtDate(iso) : ''].filter(Boolean).join('  \u00b7  ');
+  ctx.fillText(sotto, tx, py + 212);
+  if (details && details.runtime)
+    ctx.fillText(fmtRuntime(details.runtime) +
+                 (details.cert && details.cert.etichetta ? '  \u00b7  ' + details.cert.etichetta : ''), tx, py + 250);
+
+  /* perforazione con i due incavi, come nel biglietto a schermo */
+  const cy = py + ph + 66;
+  ctx.save();
+  ctx.globalCompositeOperation = 'destination-out';
+  ctx.beginPath(); ctx.arc(bx, cy, 26, 0, 6.283); ctx.fill();
+  ctx.beginPath(); ctx.arc(bx + bw, cy, 26, 0, 6.283); ctx.fill();
+  ctx.restore();
+  ctx.strokeStyle = 'rgba(255,255,255,.32)';
+  ctx.lineWidth = 3;
+  ctx.setLineDash([12, 10]);
+  ctx.beginPath();
+  ctx.moveTo(bx + 42, cy); ctx.lineTo(bx + bw - 42, cy);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  /* bordo neon disegnato per ultimo, cosi' non lo cancella il ritaglio */
+  ctx.strokeStyle = 'rgba(255,45,111,.55)';
+  ctx.lineWidth = 3;
+  rr(bx, by, bw, bh, 46);
+  ctx.stroke();
+
+  const qs = 330, qx = (W - qs) / 2, qy = cy + 58;
+  ctx.fillStyle = '#fff';
+  rr(qx - 22, qy - 22, qs + 44, qs + 44, 26);
+  ctx.fill();
+  const qc = document.createElement('canvas');
+  qc.width = qc.height = qs;
+  if (drawQR(qc, deepLink(movie))) ctx.drawImage(qc, qx, qy, qs, qs);
+
+  ctx.textAlign = 'center';
+  ctx.font = '300 23px Outfit, Helvetica, Arial, sans-serif';
+  ctx.fillStyle = 'rgba(244,241,250,.66)';
+  ctx.fillText('Inquadra con la fotocamera per aprire la scheda', W / 2, qy + qs + 66);
+  ctx.font = '500 21px ui-monospace, Menlo, Consolas, monospace';
+  ctx.fillStyle = '#7af4ff';
+  ctx.fillText(deepLink(movie).replace(/^https?:\/\//, ''), W / 2, qy + qs + 104);
+  ctx.font = '600 20px Outfit, Helvetica, Arial, sans-serif';
+  ctx.fillStyle = 'rgba(244,241,250,.38)';
+  ctx.fillText('CineGlass', W / 2, by + bh - 38);
+
+  return new Promise(res => c.toBlob(res, 'image/png', .94));
+}
+
+async function scaricaCinePass(){
+  const movie = movies()[state.activeIndex];
+  if (!movie) return;
+  sfx.play('tap');
+  buzz(APTICA.micro);
+  el.cpSave.disabled = true;
+  try{
+    const blob = await cinePassPng(movie, state.activeDetails);
+    if (!blob){ toast('Non riesco a generare il CinePass', 'warn'); return; }
+    const nome = 'cinepass-' + movie.title.replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '-').toLowerCase() + '.png';
+    /* sul telefono la condivisione nativa vale piu' di un download */
+    const file = new File([blob], nome, { type: 'image/png' });
+    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })){
+      try{
+        await navigator.share({ files: [file], title: 'CinePass \u00b7 ' + movie.title, text: deepLink(movie) });
+        return;
+      }catch(err){ if (err && err.name === 'AbortError') return; }
+    }
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = nome;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    toast('CinePass salvato \ud83c\udf9f\ufe0f', 'ok');
+  } finally { el.cpSave.disabled = false; }
 }
 
 /* --- Pioggia di micro-schegge di vetro al taglio --- */
 function esplodiSchegge(){
-  const c = el.tkShards;
-  const box = el.ticket.getBoundingClientRect();
+  const c = el.cpShards;
+  const box = el.cinePass.getBoundingClientRect();
   if (!box.width || !box.height) return;
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
   c.width = Math.round(box.width * dpr);
@@ -7013,17 +7580,17 @@ function esplodiSchegge(){
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   c.classList.add('on');
 
-  /* il taglio parte dalla perforazione, cioe' dal bordo del tagliando */
-  const stub = el.ticket.querySelector('.ticket-stub');
-  const sx = stub ? stub.getBoundingClientRect().left - box.left : box.width * 0.7;
+  /* le schegge partono dalla perforazione, cioe' dalla linea appena tagliata */
+  const linea = el.cpTaglio.getBoundingClientRect();
+  const sy = linea.height ? linea.top + linea.height / 2 - box.top : box.height * .45;
   const quante = state.perfBassa ? 26 : 54;
   const schegge = [];
   for (let i = 0; i < quante; i++){
     const a = (Math.random() - .5) * Math.PI * 1.1;
     const v = 2.2 + Math.random() * 5.4;
     schegge.push({
-      x: sx + (Math.random() - .5) * 14,
-      y: Math.random() * box.height,
+      x: Math.random() * box.width,
+      y: sy + (Math.random() - .5) * 14,
       vx: Math.cos(a) * v * (Math.random() < .5 ? -1 : 1),
       vy: Math.sin(a) * v - 2.4,
       r: 1.6 + Math.random() * 4.6,
@@ -7071,30 +7638,11 @@ function esplodiSchegge(){
   raf = requestAnimationFrame(passo);
 }
 
-function strappa(){
-  const movie = movies()[state.activeIndex];
-  if (!movie) return;
-  el.ticket.classList.add('strappato');
-  esplodiSchegge();
-  sfx.paper();
-  buzz(APTICA.meccanico);
-  setTimeout(() => el.ticket.classList.remove('strappato'), 1400);
-  if (!isFav(movie.id)){
-    state.favs.unshift(JSON.parse(JSON.stringify(movie)));
-    store.set(STORE.favs, state.favs);
-    if (hypeOf(movie.id) === 0) hypeAdd(movie.id, 3);
-    updateFavUI();
-    toast('Biglietto strappato: film salvato 🎟️', 'ok');
-  } else {
-    toast('Già nella tua lista 🎟️', 'ok');
-  }
-}
-
 /* --- Tap sul QR: copia il link e apre la condivisione nativa --- */
 async function condividiQR(){
   const movie = movies()[state.activeIndex];
   if (!movie) return;
-  const url = el.ticket.dataset.link || deepLink(movie);
+  const url = el.cinePass.dataset.link || deepLink(movie);
   const testo = `🎬 ${movie.title} — ${dataEstesa(state.lastRelease || movie.release_date)}`;
   sfx.play('tap');
   buzz(APTICA.micro);
@@ -7513,7 +8061,7 @@ function renderWatchlist(){
   el.wShare.disabled = el.wClear.disabled = !lista.length;
   if (!lista.length){
     el.wList.innerHTML = '<div class="w-empty">Qui finiscono i film che non vuoi perderti.<br>' +
-      'Tocca il secchiello 🍿 su una scheda oppure strappa il biglietto lungo la perforazione.</div>';
+      'Tocca il popcorn 🍿 sulla locandina: vola dritto qui dentro.</div>';
     return;
   }
   el.wList.innerHTML = lista.map(m => {
@@ -7691,11 +8239,18 @@ el.boAnni.addEventListener('click', e => {
   loadBoxOffice();
 });
 el.icsBtn.addEventListener('click', scaricaIcs);
-el.tkQrBtn.addEventListener('click', condividiQR);
+el.cpQrBtn.addEventListener('click', condividiQR);
+el.cpCopy.addEventListener('click', copiaLinkCinePass);
+el.cpSave.addEventListener('click', scaricaCinePass);
+el.cpTaglio.addEventListener('click', tagliaCinePass);
+el.cpTaglio.addEventListener('keydown', e => {
+  if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); tagliaCinePass(); }
+});
+/* il tasto “Taglia biglietto” della barra azioni porta al CinePass e lo apre */
 el.cutBtn.addEventListener('click', () => {
-  el.ticket.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  /* si aspetta che il biglietto sia in vista, altrimenti le schegge volano fuori campo */
-  setTimeout(strappa, 340);
+  el.cinePass.scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth', block: 'center' });
+  /* si aspetta che il biglietto sia in vista: altrimenti la forbice corre fuori campo */
+  setTimeout(tagliaCinePass, 340);
 });
 el.cinemaBtn.addEventListener('click', orariInSala);
 el.cittaForm.addEventListener('submit', e => {
@@ -8045,7 +8600,7 @@ window.addEventListener('resize', () => {
   misuraNavbar();
   syncNav();
   clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(() => { measure(); render(); }, 120);
+  resizeTimer = setTimeout(() => { measure(); render(); misuraTaglio(); }, 120);
 });
 if (window.ResizeObserver){
   const ro = new ResizeObserver(() => { misuraNavbar(); syncNav(); });
@@ -8060,7 +8615,6 @@ el.sfxBtn.classList.toggle('off', !sfx.on);
 el.sfxBtn.setAttribute('aria-pressed', sfx.on ? 'true' : 'false');
 initTilt();
 initSpoiler();
-initTear();
 if (store.get('cineglass:dim:v1')){
   document.body.classList.add('dim');
   el.dimBtn.classList.add('on');
@@ -8084,7 +8638,8 @@ document.addEventListener('pointerdown', () => { sfx.jingle(); avviaGiroscopio()
 if (/[?&]debug/.test(location.search)){
   el.debugBox.hidden = false;
   /* ganci per i test automatici */
-  window.__cineglass = { qrMatrix, drawQR, dominantColor, state, sfx, formatCurrency, ALLTIME, ALLTIME_AGGIORNATO };
+  window.__cineglass = { qrMatrix, drawQR, dominantColor, state, sfx, formatCurrency, ALLTIME, ALLTIME_AGGIORNATO,
+                         traiettoriaPopcorn, VOLO_MS, CP_TAGLIO_MS };
 }
 renderStatus();
 initDrag();
