@@ -7,7 +7,8 @@ API di TMDB.
 Accanto a `index.html` ci sono solo file statici, nessuno dei quali va compilato: `manifest.json`
 e `sw.js` servono a installare l'app sulla schermata Home (vedi
 [Installare CineGlass sul telefono](#installare-cineglass-sul-telefono)), `icons/` tiene le icone,
-`data/` i file facoltativi per correggere gli incassi senza toccare il codice.
+`data/` i file facoltativi per correggere gli incassi e dichiarare gli orari delle sale senza
+toccare il codice.
 
 ## Avvio rapido
 
@@ -778,6 +779,133 @@ pillole portano alla scheda ufficiale e dichiarano la stima nel sottotitolo e ne
 nessun numero inventato viene spacciato per ufficiale. Sotto i 10 voti la pillola diventa
 **spenta** (`opacity: .5`, valore `—`) e il sottotitolo smette di promettere una stima che non
 c'è.
+
+## Sale vicine
+
+Il pulsante **Orari e biglietti** della scheda apre l'elenco dei cinema intorno a te.
+
+1. `navigator.geolocation.getCurrentPosition` con timeout di 11 secondi (su alcuni Android la
+   richiesta resta appesa e senza timeout non torna mai). La posizione si tiene in `localStorage`
+   per 30 minuti. Le coordinate **vengono inviate a Overpass/OpenStreetMap**, perché è così che
+   si chiede "i cinema entro N km da qui": non passano da nessun server di CineGlass — che non
+   esiste — e non vengono associate a un profilo. Il riquadro lo dice all'utente invece di
+   scrivere il solito "la tua posizione non lascia mai il dispositivo", che sarebbe falso.
+2. I cinema arrivano da **Overpass / OpenStreetMap** (`amenity=cinema`), con nome, indirizzo,
+   sito e numero di sale quando la mappa li dichiara. La distanza è calcolata con la formula
+   dell'emisenoverso (*haversine*) ed è etichettata **in linea d'aria**, perché non è la
+   distanza stradale: a piedi o in auto sarà sempre di più.
+3. Se il permesso viene negato, il GPS è spento o scade il tempo, compare il campo
+   **Cerca per città o CAP**, geocodificato con **Nominatim** limitato all'Italia.
+4. I chip 10 / 15 / 25 km rifanno la ricerca; un secondo filtro lato client garantisce che
+   l'etichetta "entro N km" sia vera anche se la risposta è più larga.
+5. Se la mappa non risponde o nel raggio non c'è nulla, resta il pulsante **Cerca gli orari su
+   Google**: meglio mandare alla fonte vera che a un vicolo cieco.
+
+Lo stesso cinema in OpenStreetMap sta spesso due volte — un nodo col nome e il poligono
+dell'edificio, a pochi metri — quindi le schede si raggruppano per nome e posizione arrotondata
+e vince **la scheda più completa**, non la prima che capita.
+
+### Gli orari: perché quasi sempre non ci sono
+
+**In Italia non esiste un'API pubblica e gratuita con gli orari degli spettacoli.** TMDB non li
+ha, i circuiti li pubblicano solo sui propri siti. Inventare un `18:30` credibile sarebbe
+banale e sarebbe la cosa peggiore che quest'app possa fare: qualcuno ci andrebbe davvero.
+
+Quindi gli orari compaiono **solo** se dichiarati in `data/sale.json`, e per tutti gli altri
+cinema c'è il collegamento agli orari ufficiali della sala:
+
+```json
+{
+  "aggiornato": "2026-09-20",
+  "sale": [
+    {
+      "nome": "Cinema Astra",
+      "citta": "Roma",
+      "spettacoli": [
+        { "data": "2026-09-24", "film_tmdb": 299534, "titolo": "Avengers: Endgame Encore",
+          "orari": ["18:30", "21:15"] }
+      ]
+    }
+  ]
+}
+```
+
+Il nome della sala si abbina a quello di OpenStreetMap ignorando accenti e punteggiatura. Il
+badge **🎟️ CinePass disponibile** compare quando `film_tmdb` è un film già nella tua watchlist.
+
+## Story 9:16 per Instagram e TikTok
+
+`storyPng()` disegna una card **1080×1920** con la sola Canvas API: niente html2canvas, niente
+librerie. Locandina sfocata di fondo, marchio e data in alto, locandina `w500` al centro con
+ombra profonda, titolo, voto e generi, e in basso il piede a biglietto strappato con il QR del
+CinePass.
+
+Due dettagli che sembrano dettagli e non lo sono:
+
+- **Il layout si misura prima di disegnare.** Il piede è fisso in basso; il blocco di testo si
+  misura, e solo lo spazio che avanza va alla locandina. Con un titolo su due righe la locandina
+  si stringe invece di far finire il testo sotto il biglietto.
+- **La locandina si ritaglia "a copertura"**, come `object-fit: cover`. Allargarla a tutto
+  schermo la deformerebbe, e una locandina stirata si vede subito.
+
+La sfocatura usa `ctx.filter` dove c'è; dove manca, ripiega sull'ingrandimento di una copia
+minuscola, che sfoca per interpolazione. Al click su **Condividi Story** il canvas diventa un
+Blob: se il browser accetta file in `navigator.share` parte la condivisione nativa, altrimenti
+scatta il download di `CineGlass-Story-[TITOLO].png`. Il ramo lo decide `canShare`, non lo user
+agent.
+
+## Importare la cronologia da Letterboxd
+
+**Impostazioni → Importa cronologia**, poi si trascina uno dei file dello zip di Letterboxd
+(`Settings → Data → Export your data`): `watched.csv`, `ratings.csv`, `diary.csv` o
+`watchlist.csv`. Funziona anche un export JSON di Trakt.
+
+Il parser CSV è scritto a mano, venti righe, e vale più di una libreria: un CSV vero **non si
+spezza con `split(',')`**. I titoli contengono virgole (*Good Night, and Good Luck.*), le
+virgolette si raddoppiano per sfuggire a se stesse, e un campo fra virgolette può contenere un
+a capo. Le intestazioni si cercano per nome e non per posizione, perché cambiano da un file
+all'altro.
+
+- I voti Letterboxd vanno da 0,5 a 5 stelle: qui diventano su dieci.
+- Ogni riga viene abbinata a TMDB con `/search/movie?query=&year=`, e **il titolo esatto vince
+  sul primo risultato** — senza quel controllo *Dune* diventa il documentario omonimo del 2020.
+  Gli abbinamenti sono memorizzati, quindi reimportare è veloce.
+- `watchlist.csv` finisce nella watchlist dei popcorn, non nella cronologia: quei film non sono
+  stati visti.
+- Una visione è unica per film **e data**: reimportare lo stesso file non raddoppia l'anno al
+  cinema.
+
+**E Trakt?** Il collegamento con l'account non si può fare da qui: lo scambio del codice OAuth
+richiede un *client secret*, e un sito statico non ha dove tenerlo al sicuro — chiunque aprisse
+il sorgente lo leggerebbe. Un proxy server-side lo risolverebbe, ma sarebbe la fine del file
+unico. L'export JSON di Trakt, invece, questo riquadro lo legge.
+
+## CineGlass Wrapped
+
+Dalla cronologia importata, **Apri il tuo Wrapped** calcola l'anno al cinema e lo racconta in
+slide verticali a tutto schermo, con le barre di avanzamento in alto: si avanza toccando lo
+schermo o con le frecce, si torna indietro toccando la fascia sinistra, si esce con Esc.
+
+| Slide | Da dove viene |
+|---|---|
+| Film visti | righe della cronologia dell'anno |
+| Ore e giorni | somma delle durate TMDB dei titoli visti |
+| Genere preferito + % | generi TMDB, primi due per film |
+| Top 3 registi | `/movie/{id}/credits`, `job: Director` |
+| Top 5 attori | primi cinque nel cartellone di ogni film |
+| Mese d'oro | mese con più visioni |
+| Voto medio | solo sui film che hai votato |
+
+Un film visto due volte **pesa due volte** nelle classifiche di registi e attori: ci sei andato
+due volte. Con pochi film le classifiche restano corte invece di riempirsi di posti vuoti — un
+Wrapped con tre film deve dire tre film. Se nessuna riga ha una data (capita con certe
+esportazioni) si usa tutta la cronologia e la slide lo dice.
+
+L'ultima slide riepiloga tutto ed esporta la card 9:16 **con lo stesso modulo della Story**:
+al posto di voto e generi, `storyPng` accetta fino a quattro righe di statistica.
+
+Durata, generi e crediti si scaricano solo per i film dell'anno scelto e restano in cache: su
+una cronologia da mille film scaricare tutto all'importazione sarebbe stato inutile.
 
 ## Una nota sull'onestà dei numeri
 

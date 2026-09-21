@@ -12,7 +12,9 @@
      programmazione della settimana scorsa senza dirlo a nessuno.
    - non mette in cache niente che non sia di questa origine.
    ===================================================================== */
-const VERSIONE = 'cineglass-v1';
+/* Cambiare questo nome butta via la cache precedente all'attivazione:
+   si alza a ogni modifica del guscio o di questo file. */
+const VERSIONE = 'cineglass-v2';
 
 /* Il guscio: la pagina e le icone. I percorsi sono relativi, cosi' il
    service worker funziona sia su un dominio dedicato sia sotto la
@@ -60,6 +62,15 @@ self.addEventListener('fetch', e => {
         }
         return res;
       })
-      .catch(() => caches.match(req).then(c => c || caches.match('./index.html')))
+      .catch(() => caches.match(req).then(c => {
+        if (c) return c;
+        /* Il ripiego sulla pagina vale SOLO per una navigazione. Per un
+           file di dati che non c'e' bisogna restituire un errore vero:
+           rispondere index.html a una richiesta di data/sale.json
+           significa consegnare dell'HTML a chi si aspetta JSON, e
+           trasformare un 404 onesto in un errore di analisi. */
+        if (req.mode === 'navigate') return caches.match('./index.html');
+        return Response.error();
+      }))
   );
 });
