@@ -943,40 +943,54 @@ body.lights-out .beam{opacity:0}
 
 /* La forbice: ferma a destra sulla riga, centrata in verticale. */
 .cp-forbice{position:absolute;right:16px;top:50%;translate:0 -50%;z-index:3;
-  width:32px;height:32px;display:grid;place-items:center;
-  font-size:16px;line-height:1;border-radius:50%;cursor:pointer;
+  width:32px;height:32px;display:grid;place-items:center;border-radius:50%;cursor:pointer;
   background:linear-gradient(150deg,#ffffff,#cfe9ff);
   box-shadow:0 8px 20px -8px #000, 0 0 18px -6px rgba(255,59,92,.9);
   pointer-events:none;will-change:transform,opacity;
   animation:cgForbicePulse 2.6s ease-in-out infinite}
+.cp-forbice svg{width:26px;height:26px;display:block}
+/* Il perno e' il centro del viewBox, e il centro del viewBox e' il
+   centro dell'elemento: le lame ruotano esattamente sulla riga. */
+.cp-forbice .lama{transform-box:view-box;transform-origin:50% 50%;
+  transition:transform .3s var(--ease)}
 @keyframes cgForbicePulse{
   0%,100%{box-shadow:0 8px 20px -8px #000, 0 0 16px -7px rgba(255,59,92,.8);scale:1}
   50%{box-shadow:0 8px 22px -8px #000, 0 0 26px -4px rgba(255,59,92,1);scale:1.08}}
 
-/* Hover: la riga si accende e la forbice apre e chiude le lame */
+/* Hover: la riga si accende e le lame si aprono e chiudono piano */
 .cp-taglio:hover .cp-linea line{stroke:#ff3b5c}
 .cp-taglio:hover{filter:drop-shadow(0 0 10px rgba(255,59,92,.5))}
-.cp-taglio:hover .cp-forbice{animation:cgForbiceApre .7s ease-in-out infinite}
-@keyframes cgForbiceApre{0%,100%{rotate:-11deg}50%{rotate:11deg}}
+.cp-taglio:hover .lama-a{animation:cgLamaA .62s ease-in-out infinite}
+.cp-taglio:hover .lama-b{animation:cgLamaB .62s ease-in-out infinite}
+/* Le due lame si aprono in senso opposto intorno al perno: e' questo,
+   e non la rotazione di tutta la forbice, a somigliare a un taglio. */
+@keyframes cgLamaA{0%,100%{transform:rotate(-10deg)}50%{transform:rotate(4deg)}}
+@keyframes cgLamaB{0%,100%{transform:rotate(10deg)}50%{transform:rotate(-4deg)}}
 
 /* Taglio: la forbice corre da destra a sinistra lungo la riga, la linea
    si spegne e il tagliando si svela. */
 .cp-taglio.taglia{cursor:default}
 .cp-taglio.taglia .tear-hint{opacity:0}
-.cp-taglio.taglia .cp-linea line{stroke:#ff3b5c;animation:cgLineaTagliata var(--cp-ms,760ms) ease-in forwards}
+.cp-taglio.taglia .cp-linea line{stroke:#ff3b5c}
+/* Il tratteggio sparisce alle spalle della forbice: si ritaglia da
+   destra, alla stessa velocita' della corsa, cosi' il foglio sembra
+   separarsi mentre la lama passa. Corsa e ritaglio hanno la stessa
+   durata e la stessa curva, o uno resterebbe indietro. */
+.cp-taglio.taglia .cp-linea{
+  animation:cgLineaTagliata var(--cp-ms,760ms) cubic-bezier(.3,0,.35,1) forwards}
 @keyframes cgLineaTagliata{
-  0%{stroke-opacity:1;transform:translateY(0)}
-  70%{stroke-opacity:.5}
-  100%{stroke-opacity:0;transform:translateY(-3px)}}
-.cp-taglio.taglia .cp-forbice{animation:cgTaglio var(--cp-ms,760ms) cubic-bezier(.55,.02,.35,1) forwards}
+  from{clip-path:inset(0 24px 0 0)}
+  to{clip-path:inset(0 calc(24px + var(--cp-corsa,260px)) 0 0)}}
+/* La forbice scorre sull'asse della riga: nessuna oscillazione in
+   verticale, il movimento vero lo fanno le lame. */
+.cp-taglio.taglia .cp-forbice{
+  animation:cgTaglio var(--cp-ms,760ms) cubic-bezier(.3,0,.35,1) forwards}
+.cp-taglio.taglia .lama-a{animation:cgLamaA .18s ease-in-out infinite}
+.cp-taglio.taglia .lama-b{animation:cgLamaB .18s ease-in-out infinite}
 @keyframes cgTaglio{
-  0%{transform:translateX(0);rotate:-14deg;scale:1;opacity:1}
-  12%{rotate:12deg;scale:1.12}
-  30%{rotate:-12deg}
-  50%{rotate:12deg}
-  70%{rotate:-12deg}
-  88%{rotate:10deg;opacity:1;scale:1}
-  100%{transform:translateX(calc(-1 * var(--cp-corsa,260px)));rotate:16deg;scale:.75;opacity:0}}
+  0%{transform:translateX(0) scale(1.06);opacity:1}
+  86%{opacity:1}
+  100%{transform:translateX(calc(-1 * var(--cp-corsa,260px))) scale(.9);opacity:0}}
 
 /* --- Tagliando: si svela a taglio finito --- */
 /* A riposo il tagliando e' compresso a zero: cosi' prima del taglio
@@ -2643,7 +2657,7 @@ body.trascina .card-play,body.trascina .card-quick,body.trascina .card-bucket{po
     <button class="sheet-x" data-close aria-label="Chiudi">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
     </button>
-    <h3 id="saleTitle" class="ask-title">📍 Sale vicine</h3>
+    <h3 id="saleTitle" class="ask-title">📍 Il cinema vicino a me</h3>
     <div class="chips sale-raggi" id="saleRaggi" role="group" aria-label="Raggio di ricerca">
       <button type="button" class="chip" data-raggio="10">10 km</button>
       <button type="button" class="chip on" data-raggio="15">15 km</button>
@@ -2917,9 +2931,9 @@ body.trascina .card-play,body.trascina .card-quick,body.trascina .card-bucket{po
               </svg>
               Taglia biglietto
             </button>
-            <button class="btn ghost ripple magnetic" id="cinemaBtn" title="Orari delle proiezioni e biglietti nella tua città">
+            <button class="btn ghost ripple magnetic" id="cinemaBtn" title="I cinema intorno a te, con gli orari ufficiali">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z"/><circle cx="12" cy="10" r="2.6"/></svg>
-              Orari e biglietti
+              Il cinema vicino a me
             </button>
             <span class="savewrap">
               <button class="btn ghost ripple magnetic" id="saveBtn" aria-expanded="false" aria-haspopup="true">
@@ -3029,8 +3043,32 @@ body.trascina .card-play,body.trascina .card-quick,body.trascina .card-bucket{po
           <svg class="cp-linea" viewBox="0 0 320 2" preserveAspectRatio="none" aria-hidden="true">
             <line x1="0" y1="1" x2="320" y2="1"></line>
           </svg>
-          <span class="tear-hint" id="cpHint">✂️ Clicca per strappare<span class="hint-long"> il biglietto</span></span>
-          <span class="cp-forbice" id="cpForbice" aria-hidden="true">✂️</span>
+          <!-- niente emoji nella scritta: la forbice vera ce l'abbiamo
+               gia' accanto, disegnata, e l'emoji cambia faccia da un
+               sistema all'altro -->
+          <span class="tear-hint" id="cpHint">Clicca per strappare<span class="hint-long"> il biglietto</span></span>
+          <!-- Forbice disegnata, non emoji: le lame devono aprirsi e
+               chiudersi davvero, e il perno deve stare sulla riga.
+               Il viewBox e' 32x32, quindi il centro (16,16) e' il perno:
+               le lame ruotano intorno a quel punto, che coincide con il
+               centro verticale dell'elemento, cioe' col tratteggio. -->
+          <span class="cp-forbice" id="cpForbice" aria-hidden="true">
+            <svg viewBox="0 0 32 32" fill="none">
+              <g class="lama lama-a">
+                <path d="M16.6 15.1 2.4 9.2" stroke="#1a2230" stroke-width="3.1" stroke-linecap="round"/>
+                <path d="M16.6 15.1 6.6 11" stroke="#7fd8ff" stroke-width="1.1" stroke-linecap="round"/>
+                <path d="M16 16.3 22.6 19" stroke="#1a2230" stroke-width="2.1" stroke-linecap="round"/>
+                <circle cx="25.4" cy="20.6" r="3.6" stroke="#1a2230" stroke-width="2.1"/>
+              </g>
+              <g class="lama lama-b">
+                <path d="M16.6 16.9 2.4 22.8" stroke="#1a2230" stroke-width="3.1" stroke-linecap="round"/>
+                <path d="M16.6 16.9 6.6 21" stroke="#7fd8ff" stroke-width="1.1" stroke-linecap="round"/>
+                <path d="M16 15.7 22.6 13" stroke="#1a2230" stroke-width="2.1" stroke-linecap="round"/>
+                <circle cx="25.4" cy="11.4" r="3.6" stroke="#1a2230" stroke-width="2.1"/>
+              </g>
+              <circle class="perno" cx="16" cy="16" r="1.9" fill="#ff3b5c"/>
+            </svg>
+          </span>
         </div>
 
         <!-- Guida e tagliando occupano la stessa cella: prima del taglio si
@@ -9619,7 +9657,13 @@ if (/[?&]debug/.test(location.search)){
    ========================================================= */
 const POS_KEY = 'cineglass:posizione:v1';
 const POS_TTL = 30 * 60 * 1000;
-const OVERPASS = 'https://overpass-api.de/api/interpreter';
+/* Overpass va giu' spesso e risponde 504: si prova il secondo server
+   quando il primo non risponde entro il tempo. */
+const OVERPASS = [
+  'https://overpass-api.de/api/interpreter',
+  'https://overpass.kumi.systems/api/interpreter',
+  'https://maps.mail.ru/osm/tools/overpass/api/interpreter'
+];
 const NOMINATIM = 'https://nominatim.openstreetmap.org/search';
 
 let saleRaggio = 15;
@@ -9663,59 +9707,81 @@ async function geocodifica(citta){
            nome: String(primo.display_name || citta).split(',')[0], ts: now() };
 }
 
-/* Overpass vuole la query nel corpo della richiesta, non nell'URL */
+/* La query va nel corpo della richiesta, in forma `data=`: e' quella
+   che usa il client ufficiale di Overpass ed e' la piu' accettata dai
+   mirror. `out center;` restituisce anche i tag: `out center tags;`
+   invece viene rifiutato da alcuni server. */
+function queryOverpass(lat, lon, raggio){
+  return '[out:json][timeout:10];(' +
+         `node["amenity"="cinema"](around:${raggio},${lat},${lon});` +
+         `way["amenity"="cinema"](around:${raggio},${lat},${lon});` +
+         ');out center;';
+}
+
+async function interrogaOverpass(q){
+  let ultimo = null;
+  for (const via of OVERPASS){
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 14000);
+    try{
+      const res = await fetch(via, {
+        method: 'POST', signal: ctrl.signal,
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'data=' + encodeURIComponent(q)
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const d = await res.json();
+      if (d && Array.isArray(d.elements)) return d;
+      throw new Error('risposta senza elementi');
+    }catch(err){
+      ultimo = err;                 /* si prova il server successivo */
+    } finally { clearTimeout(timer); }
+  }
+  throw ultimo || new Error('nessun server Overpass disponibile');
+}
+
 async function cinemaVicini(lat, lon, km){
   const raggio = Math.round(km * 1000);
-  const q = '[out:json][timeout:25];(' +
-            `node["amenity"="cinema"](around:${raggio},${lat},${lon});` +
-            `way["amenity"="cinema"](around:${raggio},${lat},${lon});` +
-            ');out center tags;';
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 20000);
-  try{
-    const res = await fetch(OVERPASS, {
-      method: 'POST', signal: ctrl.signal,
-      headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
-      body: q
-    });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const d = await res.json();
+  const d = await interrogaOverpass(queryOverpass(lat, lon, raggio));
     const sale = (d && d.elements ? d.elements : []).map(e => {
-      const t = e.tags || {};
-      const la = e.lat != null ? e.lat : (e.center || {}).lat;
-      const lo = e.lon != null ? e.lon : (e.center || {}).lon;
-      if (la == null || lo == null || !t.name) return null;
-      const via = [t['addr:street'], t['addr:housenumber']].filter(Boolean).join(' ');
-      return {
-        id: e.type + '/' + e.id,
-        nome: t.name,
-        indirizzo: [via, t['addr:city']].filter(Boolean).join(', '),
-        sito: t.website || t['contact:website'] || '',
-        telefono: t.phone || t['contact:phone'] || '',
-        schermi: Number(t.screen) || 0,
-        lat: la, lon: lo,
-        km: distanzaKm(lat, lon, la, lo)
-      };
-    }).filter(Boolean);
-    /* Lo stesso cinema in OpenStreetMap sta spesso due volte: un nodo
-       col nome e il poligono dell'edificio, a pochi metri. Si tengono
-       insieme per nome e posizione arrotondata a trecento metri, e
-       vince la scheda piu' completa, non la prima che capita. */
-    const migliori = {};
-    sale.forEach(c => {
-      const k = normTitle(c.nome) + '|' + c.km.toFixed(1);
-      const peso = (c.indirizzo ? 2 : 0) + (c.sito ? 1 : 0) + (c.schermi ? 1 : 0);
-      const gia = migliori[k];
-      if (!gia || peso > gia.peso) migliori[k] = { c, peso };
-    });
-    const unici = Object.keys(migliori).map(k => migliori[k].c)
-      /* Overpass filtra gia' per raggio, ma un secondo controllo qui
-         rende vera l'etichetta "entro N km" anche se la risposta e'
-         piu' larga del richiesto. */
-      .filter(c => c.km <= km + .2)
-      .sort((a, b) => a.km - b.km);
-    return unici.slice(0, 14);
-  } finally { clearTimeout(timer); }
+    const t = e.tags || {};
+    const la = e.lat != null ? e.lat : (e.center || {}).lat;
+    const lo = e.lon != null ? e.lon : (e.center || {}).lon;
+    if (la == null || lo == null) return null;
+    /* Una sala senza nome sulla mappa resta utile: ha indirizzo e
+       posizione. Scartarla vorrebbe dire dire "nessun cinema" a chi
+       ne ha uno sotto casa. */
+    const nome = t.name || t.brand || t.operator || 'Cinema senza nome sulla mappa';
+    const via = [t['addr:street'], t['addr:housenumber']].filter(Boolean).join(' ');
+    return {
+      id: e.type + '/' + e.id,
+      nome,
+      indirizzo: [via, t['addr:city']].filter(Boolean).join(', '),
+      sito: t.website || t['contact:website'] || '',
+      telefono: t.phone || t['contact:phone'] || '',
+      schermi: Number(t.screen) || 0,
+      lat: la, lon: lo,
+      km: distanzaKm(lat, lon, la, lo)
+    };
+  }).filter(Boolean);
+  /* Lo stesso cinema in OpenStreetMap sta spesso due volte: un nodo
+     col nome e il poligono dell'edificio, a pochi metri. Si tengono
+     insieme per nome e posizione arrotondata a trecento metri, e
+     vince la scheda piu' completa, non la prima che capita. */
+  const migliori = {};
+  sale.forEach(c => {
+    const k = normTitle(c.nome) + '|' + c.km.toFixed(1);
+    const peso = (c.indirizzo ? 2 : 0) + (c.sito ? 1 : 0) + (c.schermi ? 1 : 0);
+    const gia = migliori[k];
+    if (!gia || peso > gia.peso) migliori[k] = { c, peso };
+  });
+  const unici = Object.keys(migliori).map(k => migliori[k].c)
+    /* Overpass filtra gia' per raggio, ma un secondo controllo qui
+       rende vera l'etichetta "entro N km" anche se la risposta e'
+       piu' larga del richiesto. */
+    .filter(c => c.km <= km + .2)
+    .sort((a, b) => a.km - b.km);
+  return unici.slice(0, 14);
 }
 
 /* Orari dichiarati a mano nel repository: l'unica fonte onesta che
@@ -9756,8 +9822,9 @@ function renderSale(sale){
   const titolo = film ? film.title : '';
   if (!sale.length){
     el.saleLista.innerHTML =
-      '<li class="sale-vuota">Nessun cinema mappato entro ' + saleRaggio + ' km. ' +
-      'Prova ad allargare il raggio o a cercare per città.</li>';
+      '<li class="sale-vuota">Su OpenStreetMap non risulta nessun cinema entro ' + saleRaggio +
+      ' km. Prova ad allargare il raggio o a cercare per città: la mappa la fanno i ' +
+      'volontari, e in qualche zona è ancora incompleta.</li>';
     return;
   }
   el.saleLista.innerHTML = sale.map(c => {
@@ -9832,9 +9899,12 @@ async function apriSale(){
   }catch(err){
     /* permesso negato, GPS spento o timeout: si chiede la citta' */
     const perche = err && err.code === 1
-      ? 'Hai negato l’accesso alla posizione: nessun problema, scrivi la città.'
-      : 'Non riesco a leggere la posizione: scrivi la città e la cerco lo stesso.';
+      ? 'Hai negato l’accesso alla posizione. Inserisci la tua città o il CAP per trovare ' +
+        'il cinema vicino a te.'
+      : 'Non riesco a leggere la posizione. Inserisci la tua città o il CAP per trovare ' +
+        'il cinema vicino a te.';
     statoSale('errore', perche);
+    setTimeout(() => el.saleCitta.focus(), 120);
   }
 }
 
@@ -10472,6 +10542,61 @@ function sfondoSfocato(ctx, im, w, h){
   ctx.restore();
 }
 
+/* Un pomodoro disegnato: l'emoji 🍅 su canvas cambia faccia da un
+   sistema all'altro e su alcuni non compare affatto. */
+function pomodoroDraw(ctx, cx, cy, r, colore){
+  ctx.fillStyle = colore;
+  ctx.beginPath();
+  ctx.arc(cx, cy + r * .16, r, 0, 6.283);
+  ctx.fill();
+  ctx.fillStyle = '#3f8f3a';
+  ctx.beginPath();
+  for (let i = 0; i < 5; i++){
+    const a = -Math.PI / 2 + i * (Math.PI * 2 / 5);
+    ctx.moveTo(cx, cy - r * .62);
+    ctx.lineTo(cx + Math.cos(a) * r * .72, cy - r * .62 + Math.sin(a) * r * .46);
+    ctx.lineTo(cx + Math.cos(a + .5) * r * .3, cy - r * .62 + Math.sin(a + .5) * r * .3);
+  }
+  ctx.fill();
+}
+
+/* ---- Le tre valutazioni come pillole in vetro, disegnate a mano ----
+   Sono le stesse della scheda: TMDB e' il dato vero, IMDb e Rotten
+   Tomatoes sono stime ricavate da quel voto. Sulla card restano marcate
+   con la tilde e la didascalia sotto lo dice: una Story finisce in mano
+   a chi non ha aperto l'app, e non deve sembrare un dato ufficiale. */
+function disegnaVoti(ctx, cy, voci, F){
+  if (!voci.length) return 0;
+  const h = 62, pad = 26, gap = 16;
+  ctx.font = '600 32px ' + F;
+  const misure = voci.map(v => {
+    const largo = ctx.measureText(v.testo).width + pad * 2 + (v.icona ? 40 : 0);
+    return Math.round(largo);
+  });
+  const totale = misure.reduce((a, b) => a + b, 0) + gap * (voci.length - 1);
+  let x = (STORY_W - totale) / 2;
+  voci.forEach((v, i) => {
+    const w = misure[i], y = cy - h / 2;
+    ctx.fillStyle = 'rgba(255,255,255,.07)';
+    rettoTondo(ctx, x, y, w, h, 18);
+    ctx.fill();
+    ctx.strokeStyle = v.bordo;
+    ctx.lineWidth = 2;
+    rettoTondo(ctx, x, y, w, h, 18);
+    ctx.stroke();
+    let tx = x + pad;
+    if (v.icona === 'pomodoro'){ pomodoroDraw(ctx, tx + 13, cy - 2, 14, v.colore); tx += 40; }
+    else if (v.icona === 'stella'){ ctx.fillStyle = '#ffc107'; starDraw(ctx, tx + 13, cy - 2, 15); tx += 40; }
+    ctx.font = '600 32px ' + F;
+    ctx.textAlign = 'left';
+    ctx.fillStyle = v.colore;
+    ctx.fillText(v.testo, tx, cy + 11);
+    x += w + gap;
+  });
+  ctx.textAlign = 'center';
+  return h;
+}
+
 function starDraw(ctx, cx, cy, r){
   ctx.beginPath();
   for (let i = 0; i < 10; i++){
@@ -10560,9 +10685,30 @@ async function storyPng(movie, details, extra){
   /* Il Wrapped passa le sue righe di statistica al posto di voto e
      generi: stesso disegno, contenuto diverso. */
   const statistiche = Array.isArray(o.righe) ? o.righe.slice(0, 4) : [];
-  const conVoto = mostraVoto && !statistiche.length;
+
+  /* riga sintetica sotto il titolo: 2026 \u00b7 1h 55m */
+  const annoFilm = fmtYear((details && details.releaseIT) || movie.release_date);
+  const durata = details && details.runtime ? fmtRuntime(details.runtime) : '';
+  const meta = statistiche.length ? '' :
+    [annoFilm && annoFilm !== '\u2014' ? annoFilm : '', durata].filter(Boolean).join('  \u00b7  ');
+
+  /* Le tre valutazioni. TMDB e' il dato reale; le altre due sono le
+     stesse stime della scheda, marcate con la tilde. */
+  const stimaRT = mostraVoto ? stimaCritica(votoN, votiN) : null;
+  const voti = [];
+  if (mostraVoto && !statistiche.length){
+    voti.push({ testo: 'IMDb  ~' + votoN.toFixed(1).replace('.', ','),
+                colore: '#f5c518', bordo: 'rgba(245,197,24,.6)' });
+    if (stimaRT !== null)
+      voti.push({ testo: '~' + stimaRT + '%', icona: 'pomodoro',
+                  colore: stimaRT >= 60 ? '#fa320a' : '#6a9325',
+                  bordo: stimaRT >= 60 ? 'rgba(250,50,10,.55)' : 'rgba(106,147,37,.55)' });
+    voti.push({ testo: 'TMDB  ' + votoN.toFixed(1).replace('.', ','),
+                colore: '#01b4e4', bordo: 'rgba(1,180,228,.6)' });
+  }
   const conGeneri = !!generi && !statistiche.length;
-  const altezzaTesto = righeTitolo.length * 78 + (conVoto ? 58 : 0) +
+  const altezzaTesto = righeTitolo.length * 78 + (meta ? 48 : 0) +
+                       (voti.length ? 128 : 0) +
                        (conGeneri ? 56 : 0) + statistiche.length * 92 + righeSotto.length * 44;
 
   /* ---- locandina al centro, con ombra profonda ---- */
@@ -10573,9 +10719,10 @@ async function storyPng(movie, details, extra){
   const px = (STORY_W - pw) / 2, py = 268;
   const poster = await caricaImg(img(movie.poster_path, 'w500'));
   ctx.save();
-  ctx.shadowColor = 'rgba(0,0,0,.85)';
-  ctx.shadowBlur = 90;
-  ctx.shadowOffsetY = 40;
+  /* ombra profonda e uniforme: stacca la locandina dal fondo sfocato */
+  ctx.shadowColor = 'rgba(0,0,0,.6)';
+  ctx.shadowBlur = 60;
+  ctx.shadowOffsetY = 26;
   ctx.fillStyle = '#14121c';
   rettoTondo(ctx, px, py, pw, ph, 38);
   ctx.fill();
@@ -10602,7 +10749,20 @@ async function storyPng(movie, details, extra){
   righeTitolo.forEach((r, i) => ctx.fillText(r, STORY_W / 2, y + i * 78));
   y += (righeTitolo.length - 1) * 78 + 62;
 
-  const voto = votoN;
+  if (meta){
+    ctx.font = '300 34px ' + F;
+    ctx.fillStyle = 'rgba(244,241,250,.72)';
+    ctx.fillText(meta, STORY_W / 2, y);
+    y += 48;
+  }
+  if (voti.length){
+    disegnaVoti(ctx, y + 6, voti, F);
+    y += 82;
+    ctx.font = '300 23px ' + F;
+    ctx.fillStyle = 'rgba(244,241,250,.42)';
+    ctx.fillText('TMDB \u00e8 il voto reale \u00b7 IMDb e Rotten Tomatoes sono stime', STORY_W / 2, y);
+    y += 46;
+  }
   if (statistiche.length){
     statistiche.forEach(st => {
       ctx.font = '700 54px ' + F;
@@ -10614,21 +10774,6 @@ async function storyPng(movie, details, extra){
       y += 92;
     });
     y += 6;
-  }
-  if (conVoto){
-    /* stella disegnata, non un'emoji: le emoji cambiano faccia da un
-       sistema all'altro e su canvas a volte non si vedono affatto */
-    const testo = voto.toFixed(1).replace('.', ',') + '/10';
-    ctx.font = '600 44px ' + F;
-    const larg = ctx.measureText(testo).width;
-    const tot = larg + 56;
-    ctx.fillStyle = '#ffc107';
-    starDraw(ctx, STORY_W / 2 - tot / 2 + 18, y - 14, 22);
-    ctx.fillStyle = '#f4f1fa';
-    ctx.textAlign = 'left';
-    ctx.fillText(testo, STORY_W / 2 - tot / 2 + 52, y);
-    ctx.textAlign = 'center';
-    y += 58;
   }
   if (conGeneri){
     ctx.font = '300 36px ' + F;
@@ -10670,7 +10815,12 @@ async function storyPng(movie, details, extra){
   ctx.textAlign = 'left';
   ctx.fillText('CINEGLASS PASS', bx + 44, by + 48);
 
-  const qs = 250, qx = bx + 44, qy = by + 122;
+  /* Il QR e il testo che lo spiega stanno su una riga sola, centrati
+     insieme nello spazio sotto la perforazione. Il link scritto per
+     esteso non c'e' piu': su una Story e' rumore, e il codice lo porta
+     gia' dentro. */
+  const zonaY = by + 108, zonaH = bh - 108 - 34;
+  const qs = 236, qx = bx + 46, qy = Math.round(zonaY + (zonaH - qs) / 2);
   ctx.fillStyle = '#fff';
   rettoTondo(ctx, qx - 18, qy - 18, qs + 36, qs + 36, 22);
   ctx.fill();
@@ -10679,16 +10829,30 @@ async function storyPng(movie, details, extra){
   const link = o.link || deepLink(movie);
   if (drawQR(qc, link)) ctx.drawImage(qc, qx, qy, qs, qs);
 
-  const lx = qx + qs + 44;
-  ctx.font = '300 30px ' + F;
-  ctx.fillStyle = 'rgba(244,241,250,.72)';
-  testoACapo(ctx, o.piede || 'Inquadra il codice per aprire la scheda del film su CineGlass',
-             bx + bw - 44 - lx, 3)
-    .forEach((r, i) => ctx.fillText(r, lx, qy + 44 + i * 40));
-  ctx.font = '500 25px ui-monospace, Menlo, Consolas, monospace';
-  ctx.fillStyle = '#7af4ff';
-  testoACapo(ctx, link.replace(/^https?:\/\//, ''), bx + bw - 44 - lx, 2)
-    .forEach((r, i) => ctx.fillText(r, lx, qy + qs - 18 + i * 32));
+  const lx = qx + qs + 46, lw = bx + bw - 46 - lx;
+  ctx.font = '300 31px ' + F;
+  const righeGuida = testoACapo(
+    ctx, o.piede || 'Inquadra il codice per aprire la scheda del film su CineGlass', lw, 3);
+  /* il blocco di testo si centra sull'altezza del QR, non parte dall'alto */
+  const altoTesto = righeGuida.length * 42 + 60;
+  let ty = Math.round(qy + (qs - altoTesto) / 2) + 34;
+  ctx.fillStyle = 'rgba(244,241,250,.76)';
+  righeGuida.forEach((r, i) => ctx.fillText(r, lx, ty + i * 42));
+  ty += righeGuida.length * 42 + 8;
+
+  /* Timbro al posto dell'indirizzo */
+  ctx.font = '700 22px ' + F;
+  const timbro = 'CINEGLASS \u00b7 PASS UFFICIALE';
+  const tw = ctx.measureText(timbro).width + 34;
+  ctx.fillStyle = 'rgba(255,45,111,.14)';
+  rettoTondo(ctx, lx, ty - 24, tw, 38, 12);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,45,111,.45)';
+  ctx.lineWidth = 2;
+  rettoTondo(ctx, lx, ty - 24, tw, 38, 12);
+  ctx.stroke();
+  ctx.fillStyle = '#ffb3c6';
+  ctx.fillText(timbro, lx + 17, ty + 2);
 
   return new Promise(res => c.toBlob(res, 'image/png', .95));
 }

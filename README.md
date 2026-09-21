@@ -780,9 +780,9 @@ nessun numero inventato viene spacciato per ufficiale. Sotto i 10 voti la pillol
 **spenta** (`opacity: .5`, valore `—`) e il sottotitolo smette di promettere una stima che non
 c'è.
 
-## Sale vicine
+## Il cinema vicino a me
 
-Il pulsante **Orari e biglietti** della scheda apre l'elenco dei cinema intorno a te.
+Il pulsante **Il cinema vicino a me** della scheda apre l'elenco dei cinema intorno a te.
 
 1. `navigator.geolocation.getCurrentPosition` con timeout di 11 secondi (su alcuni Android la
    richiesta resta appesa e senza timeout non torna mai). La posizione si tiene in `localStorage`
@@ -804,6 +804,22 @@ Il pulsante **Orari e biglietti** della scheda apre l'elenco dei cinema intorno 
 Lo stesso cinema in OpenStreetMap sta spesso due volte — un nodo col nome e il poligono
 dell'edificio, a pochi metri — quindi le schede si raggruppano per nome e posizione arrotondata
 e vince **la scheda più completa**, non la prima che capita.
+
+### Perché la prima versione non trovava niente
+
+Tre motivi, tutti reali, tutti corretti:
+
+| Causa | Rimedio |
+|---|---|
+| `out center tags;` | forma rifiutata da parte dei server. Ora è `out center;`, che i tag li restituisce comunque |
+| Corpo della richiesta in `text/plain` | ora `data=` in `application/x-www-form-urlencoded`, la forma che usa il client ufficiale ed è accettata da tutti i mirror |
+| Un solo endpoint | `overpass-api.de` va giù spesso e risponde 504. Ora ci sono **tre server in fila**: si passa al successivo quando il primo non risponde entro 14 secondi |
+| Sale senza `name` scartate | una sala senza nome sulla mappa ha comunque indirizzo e posizione: ora compare come *"Cinema senza nome sulla mappa"* invece di sparire |
+
+Il `timeout` della query è sceso a 10 secondi: meglio un fallimento rapido che passa al mirror
+successivo, che un'attesa lunga che finisce comunque male. E quando la ricerca torna **zero
+risultati** — che non è un errore ma è comunque un vicolo cieco — il campo della città si
+riapre da solo.
 
 ### Gli orari: perché quasi sempre non ci sono
 
@@ -840,6 +856,21 @@ librerie. Locandina sfocata di fondo, marchio e data in alto, locandina `w500` a
 ombra profonda, titolo, voto e generi, e in basso il piede a biglietto strappato con il QR del
 CinePass.
 
+Sotto il titolo c'è la riga sintetica `2026 · 1h 25m`, poi **tre badge brandizzati** disegnati
+a mano sul canvas: IMDb in `#F5C518`, il Tomatometer con un pomodoro disegnato (fresh `#FA320A`
+o rotten `#6A9325`) e TMDB in `#01B4E4`. Il pomodoro è disegnato e non è l'emoji 🍅, per lo
+stesso motivo delle bandiere: su canvas le emoji cambiano faccia da un sistema all'altro e su
+alcuni non compaiono affatto. Un punteggio assente fa sparire **solo quel badge**, e gli altri
+restano centrati.
+
+Sotto i badge c'è una riga piccola: *"TMDB è il voto reale · IMDb e Rotten Tomatoes sono
+stime"*. Non è pignoleria: una Story finisce in mano a chi non ha mai aperto l'app, e un
+`IMDb 7,5` senza contesto sembra il punteggio ufficiale. Con la tilde e quella riga, no.
+
+Nel biglietto in basso **non c'è più l'URL scritto per esteso**: su una Story era rumore, e il
+QR quel link lo porta già dentro. Al suo posto c'è il timbro `CINEGLASS · PASS UFFICIALE`, e il
+QR è centrato verticalmente sul testo che lo spiega invece di partire dall'alto.
+
 Due dettagli che sembrano dettagli e non lo sono:
 
 - **Il layout si misura prima di disegnare.** Il piede è fisso in basso; il blocco di testo si
@@ -853,6 +884,28 @@ minuscola, che sfoca per interpolazione. Al click su **Condividi Story** il canv
 Blob: se il browser accetta file in `navigator.share` parte la condivisione nativa, altrimenti
 scatta il download di `CineGlass-Story-[TITOLO].png`. Il ramo lo decide `canShare`, non lo user
 agent.
+
+### Lo strappo del CinePass
+
+La forbice non è più un'emoji: è un **SVG con due lame separate** che ruotano ciascuna intorno
+al perno. Il trucco geometrico è semplice e va detto, perché è quello che tiene tutto allineato:
+il `viewBox` è `0 0 32 32`, quindi il centro del viewBox è `(16,16)`; con
+`transform-box: view-box` il `transform-origin` predefinito (`50% 50%`) cade **esattamente sul
+perno**, e il perno coincide col centro verticale dell'elemento, che è ancorato alla riga
+tratteggiata. Misurato in pagina: scarto fra perno e linea **0,00 px**.
+
+Durante il taglio succedono tre cose insieme:
+
+| Cosa | Come |
+|---|---|
+| La forbice corre da destra a sinistra | `translateX` fino a `--cp-corsa`, misurata sulla larghezza reale del biglietto |
+| Le lame si aprono e si chiudono | due keyframe opposti, `0.18s` in loop — sull'hover rallentano a `0.62s` |
+| Il tratteggio sparisce dietro di lei | `clip-path: inset(0 X 0 0)` che cresce da destra |
+
+Corsa e ritaglio hanno **la stessa durata e la stessa curva di easing**, altrimenti la linea
+resterebbe indietro rispetto alla lama e l'effetto si romperebbe. La corsa usa `translateX` e
+non `right`, come chiedeva la bozza: animare `right` fa ricalcolare il layout a ogni fotogramma,
+mentre `transform` resta sul compositore — è la stessa regola dell'audit GPU.
 
 ## Importare la cronologia da Letterboxd
 
