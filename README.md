@@ -960,6 +960,95 @@ al posto di voto e generi, `storyPng` accetta fino a quattro righe di statistica
 Durata, generi e crediti si scaricano solo per i film dell'anno scelto e restano in cache: su
 una cronologia da mille film scaricare tutto all'importazione sarebbe stato inutile.
 
+## Aprire i link condivisi da altre app
+
+Con l'app installata, CineGlass compare nel menu **Condividi** del telefono. Il manifest dichiara
+`share_target`, quindi il sistema apre l'app con `?link=&text=&titolo=` e tocca a noi capire di
+che film si parla:
+
+| Sorgente | Come si risolve |
+|---|---|
+| `themoviedb.org/movie/1234-slug` | l'id è già nell'URL |
+| `imdb.com/title/tt0111161` | `/find/tt0111161?external_source=imdb_id` |
+| `letterboxd.com/film/dune-part-two-2024` | dallo slug si ricava titolo e anno, poi ricerca |
+| qualsiasi altro testo | si cerca il testo: meglio che non fare niente |
+
+## CineGlass Match
+
+**Watchlist → 🍿 Trova film da vedere insieme.** La lista sta tutta dentro il link: nessun
+server, nessun account, nessuna chiamata a terzi — verificato in test, **zero richieste esterne**
+durante l'incrocio.
+
+Gli id TMDB vengono scritti in **base 36** separati da un punto, così un identificativo da sette
+cifre occupa cinque caratteri. Il QR però ha un tetto vero: il generatore integrato arriva alla
+versione 5, cioè un centinaio di caratteri. Quando la lista non ci sta il codice porta i primi
+film e **il riquadro lo scrive** (*"Il codice contiene i primi N film su M: per mandarli tutti
+usa il link"*), invece di troncare di nascosto.
+
+Chi apre il link vede i titoli presenti in **entrambe** le watchlist, ordinati per voto TMDB
+decrescente, col primo marcato *"✨ Ottima scelta per stasera!"*.
+
+## Il biglietto nel telefono
+
+Sotto il QR del CinePass c'è **Metti nel telefono**: genera un evento `.ics` con titolo, sala,
+coordinate `GEO` e un allarme 90 minuti prima. Il file rispetta iCalendar sul serio — terminatori
+`CRLF`, righe spezzate a **75 ottetti** (non 75 caratteri: un'emoji ne pesa quattro e un trattino
+lungo tre, e contare i caratteri lascia passare righe che certi calendari rifiutano).
+
+### Perché non è un .pkpass
+
+Un pass di Apple Wallet non è un file che si "genera": è uno zip il cui manifest va **firmato**
+con un certificato Pass Type ID emesso da Apple, e la firma viene verificata sul telefono.
+Firmare qui vorrebbe dire spedire la chiave privata dentro il browser, dove chiunque aprirebbe
+il sorgente e se la prenderebbe. Google Wallet chiede la stessa cosa: un JWT firmato con la
+chiave di un service account. **Senza un server che firmi, nessuno dei due si può fare**, e un
+pulsante "Aggiungi al Wallet" che scarica un file rifiutato dal telefono sarebbe peggio di non
+averlo.
+
+L'evento di calendario ottiene però la cosa che serviva davvero: sta nel telefono anche offline,
+porta con sé la sala e le sue coordinate, e il sistema lo mostra sulla schermata di blocco quando
+l'ora si avvicina.
+
+## Box Office Versus
+
+Nella sezione Box Office, **⚔️ Confronta due film** mette la classifica in modalità scelta: si
+toccano due righe e si apre il duello. La scelta avviene **per posizione e non per id TMDB**,
+perché molte righe curate non hanno un film TMDB abbinato ma l'incasso ce l'hanno lo stesso.
+
+| Misura | Da dove viene |
+|---|---|
+| Incasso totale | la classifica (curata o TMDB) |
+| Incasso del primo weekend | solo `data/boxoffice.json`, dove qualcuno l'ha dichiarato |
+| Media per sala | incasso weekend ÷ schermi, dallo stesso file |
+| Budget, voto, durata | scheda TMDB |
+
+**"Settimane in classifica" non c'è.** Nessuna fonte aperta la pubblica, e una barra inventata
+sarebbe una bugia disegnata bene. Le misure mancanti si mostrano come *"dato non disponibile"*
+con la barra a zero — zero non è "ha incassato zero", vuol dire che il dato non c'è — e una nota
+in fondo conta quante non sono confrontabili.
+
+**📸 Condividi il duello** genera una card 9:16 dedicata: due locandine affiancate, il VS in
+mezzo e le barre contrapposte che partono dal centro. Nella card entrano solo le misure che
+esistono per **entrambi** i film.
+
+## Stasera al cinema
+
+Il riquadro in homepage risponde a una domanda sola: *che cosa posso andare a vedere adesso?*
+Due modi di rispondere, a seconda di quello che c'è davvero:
+
+1. se `data/sale.json` dichiara degli spettacoli, si mostrano **solo quelli che cominciano nelle
+   prossime 3 ore**, entro 15 km, ordinati per orario;
+2. altrimenti — cioè quasi sempre — si mostrano i film in sala adesso secondo TMDB, dicendo
+   chiaramente che gli orari li pubblica solo il sito della sala.
+
+**Il widget non chiede la posizione all'avvio.** Usa quella già in memoria se c'è (30 minuti di
+validità), altrimenti offre il pulsante. Una richiesta di geolocalizzazione a pagina appena
+aperta è un permesso chiesto senza aver spiegato perché.
+
+Un tocco apre il film, porta il CinePass in vista e lo strappa; sala e orario dello spettacolo
+scelto finiscono poi nell'evento `.ics`. La ✕ nasconde il riquadro **per la giornata**, non per
+sempre.
+
 ## Una nota sull'onestà dei numeri
 
 TMDB non espone i voti di IMDb né quelli di Rotten Tomatoes, e non esiste un'API pubblica e

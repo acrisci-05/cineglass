@@ -1521,6 +1521,105 @@ a.prov-row:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,
   .pwa-actions{flex-direction:column-reverse}
 }
 
+/* ---------- Widget "Stasera al cinema" ---------- */
+.stasera{position:relative;margin:18px 0 6px;padding:18px 20px;border-radius:22px;
+  background:linear-gradient(150deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+  border:1px solid var(--stroke);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18)}
+.stasera[hidden]{display:none}
+.st-x{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;
+  display:grid;place-items:center;color:var(--faint);background:transparent;
+  -webkit-tap-highlight-color:transparent}
+.st-x svg{width:14px;height:14px}
+.st-x:hover{color:#fff;background:rgba(255,255,255,.1)}
+.st-titolo{margin:0;padding-right:40px;font-size:17px;font-weight:600;letter-spacing:-.01em}
+.st-sotto{margin:5px 0 0;font-size:12.5px;line-height:1.6;color:var(--faint)}
+.st-lista{margin:14px 0 0;padding:0;list-style:none;display:grid;gap:8px}
+.st-riga{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:14px;cursor:pointer;
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
+  transition:background .2s var(--ease), border-color .2s var(--ease), transform .2s var(--ease)}
+.st-riga:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.22);transform:translateX(2px)}
+.st-ora{flex:0 0 auto;min-width:58px;padding:6px 10px;border-radius:10px;text-align:center;
+  font-size:13.5px;font-weight:700;color:#b7f4ff;
+  background:rgba(0,242,254,.14);border:1px solid rgba(0,242,254,.3)}
+.st-pic{flex:0 0 auto;width:38px;height:57px;border-radius:9px;object-fit:cover;
+  background:rgba(255,255,255,.07)}
+.st-info{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1 1 auto}
+.st-info b{font-size:13.5px;font-weight:600;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.st-info small{font-size:11.5px;color:var(--faint);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.st-vai{flex:0 0 auto;font-size:16px;color:var(--faint)}
+.st-azione{margin-top:12px;width:100%;justify-content:center;min-height:44px}
+.st-azione[hidden]{display:none}
+@media (max-width:768px){
+  .stasera{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+    background:rgba(22,20,32,.9);margin:14px 0 4px;padding:16px}
+}
+
+/* ---------- Box Office Versus ---------- */
+.bo-strumenti{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:14px 0 4px}
+.vs-btn.on{background:linear-gradient(135deg, color-mix(in oklab, var(--c1) 34%, transparent),
+  color-mix(in oklab, var(--c2) 34%, transparent));border-color:rgba(255,255,255,.3);color:#fff}
+.vs-avviso{font-size:11.5px;color:var(--faint)}
+.vs-avviso[hidden]{display:none}
+/* In modalità confronto le righe si fanno toccare tutte intere */
+body.vs-scelta .bo-row{cursor:pointer}
+body.vs-scelta .bo-row:hover{border-color:rgba(255,255,255,.28)}
+body.vs-scelta .bo-row .bo-act{opacity:.35;pointer-events:none}
+.bo-row.vs-on{border-color:var(--c1);box-shadow:0 0 0 1px var(--c1), 0 12px 30px -20px var(--c1)}
+.vs-box{max-width:600px}
+.vs-carica{margin:18px 0;font-size:13px;color:var(--faint);text-align:center}
+.vs-testa{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;margin-top:16px}
+.vs-film{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;min-width:0}
+.vs-film b{font-size:13.5px;font-weight:600;line-height:1.3}
+.vs-film small{font-size:11px;color:var(--faint)}
+.vs-pic{width:78px;height:117px;border-radius:12px;object-fit:cover;background:rgba(255,255,255,.07)}
+.vs-vs{font-size:13px;font-weight:700;letter-spacing:.14em;color:var(--faint)}
+.vs-punti{margin:14px 0 0;text-align:center;font-size:13px;font-weight:600}
+.vs-griglia{display:grid;gap:14px;margin-top:16px}
+.vs-riga{padding:12px 14px;border-radius:16px;background:rgba(255,255,255,.05);
+  border:1px solid var(--stroke);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.vs-nome{display:flex;flex-direction:column;gap:2px;font-size:12.5px;font-weight:600}
+.vs-nome small{font-size:10.5px;font-weight:400;color:var(--faint)}
+.vs-barre{display:grid;gap:7px;margin-top:9px}
+.vs-lato{display:grid;gap:4px}
+.vs-val{font-size:12.5px;color:var(--faint)}
+.vs-val.vince{color:#fff;font-weight:600}
+.vs-barra{display:block;height:9px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden}
+.vs-barra i{display:block;height:100%;border-radius:999px;transition:width .6s var(--ease)}
+.vs-a i{background:linear-gradient(90deg,#00f2fe,#4facfe)}
+.vs-b i{background:linear-gradient(90deg,#ff3b5c,#ff8a4c)}
+.vs-nota{margin:16px 0 0;padding-top:13px;font-size:11.5px;line-height:1.6;color:var(--faint);
+  border-top:1px solid var(--stroke)}
+@media (max-width:768px){
+  .vs-riga{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+    background:rgba(24,22,34,.8)}
+}
+
+/* ---------- CineGlass Match ---------- */
+.match-box{max-width:520px}
+.match-qr-box{display:grid;place-items:center;margin-top:16px;padding:16px;border-radius:20px;
+  background:#fff;width:max-content;margin-left:auto;margin-right:auto}
+.match-qr-box canvas{display:block;width:188px;height:188px;image-rendering:pixelated}
+.match-nota{margin:12px 0 0;font-size:11.5px;line-height:1.6;color:var(--faint);text-align:center}
+.match-linkbox{margin-top:12px}
+.match-lista{margin:14px 0 0;padding:0;list-style:none;display:grid;gap:9px;
+  max-height:min(56vh,480px);overflow:auto;overscroll-behavior:contain}
+.match-riga{display:flex;align-items:center;gap:13px;padding:10px 13px;border-radius:16px;
+  background:rgba(255,255,255,.05);border:1px solid var(--stroke);cursor:pointer;
+  transition:background .2s var(--ease), border-color .2s var(--ease)}
+.match-riga:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.2)}
+.match-pic{width:44px;height:66px;flex:0 0 auto;border-radius:9px;object-fit:cover;
+  background:rgba(255,255,255,.07)}
+.match-info{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1 1 auto}
+.match-info b{font-size:14px;font-weight:600;line-height:1.3}
+.match-info small{font-size:11.5px;color:var(--faint)}
+.match-top{align-self:flex-start;margin-top:2px;padding:3px 9px;border-radius:999px;font-size:10.5px;
+  background:rgba(90,230,160,.16);border:1px solid rgba(90,230,160,.36);color:#9df3c6}
+.match-voto{flex:0 0 auto;font-size:13px;font-weight:600;color:#ffd166}
+.match-vuoto{padding:18px;border-radius:16px;font-size:12.5px;line-height:1.65;color:var(--faint);
+  background:rgba(255,255,255,.04);border:1px dashed var(--stroke)}
+
 /* ---------- Sale vicine ---------- */
 .sale-box{max-width:560px}
 .sale-raggi{margin-top:14px}
@@ -2650,6 +2749,53 @@ body.trascina .card-play,body.trascina .card-quick,body.trascina .card-bucket{po
 </div>
 
 <!-- Richiesta della città: in vetro, niente finestre di sistema -->
+<!-- ====================== BOX OFFICE VERSUS ====================== -->
+<div class="sheet" id="vsSheet" hidden>
+  <div class="sheet-bd" data-close></div>
+  <div class="sheet-box vs-box" role="dialog" aria-modal="true" aria-labelledby="vsTitolo">
+    <button class="sheet-x" data-close aria-label="Chiudi">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+    <h3 id="vsTitolo" class="ask-title">⚔️ Il duello</h3>
+    <div id="vsCorpo"></div>
+    <div class="imp-azioni">
+      <button type="button" class="btn primary sweep ripple" id="vsShare" hidden>📸 Condividi il duello</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====================== CINEGLASS MATCH ====================== -->
+<div class="sheet" id="matchSheet" hidden>
+  <div class="sheet-bd" data-close></div>
+  <div class="sheet-box match-box" role="dialog" aria-modal="true" aria-labelledby="matchTitolo">
+    <button class="sheet-x" data-close aria-label="Chiudi">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+    <h3 id="matchTitolo" class="ask-title">🍿 Trova film da vedere insieme</h3>
+
+    <div id="matchInvito">
+      <p class="ask-sub">
+        La tua watchlist sta tutta dentro il link: nessun server, nessun account. Falla
+        inquadrare al tuo amico, o mandagli il link — CineGlass gli mostrerà i film che
+        avete in comune.
+      </p>
+      <div class="match-qr-box">
+        <canvas id="matchQr" width="188" height="188" aria-label="Codice QR della tua watchlist"></canvas>
+      </div>
+      <p class="match-nota" id="matchNota"></p>
+      <div class="cp-linkbox match-linkbox"><span class="cp-url" id="matchLink">—</span></div>
+      <div class="imp-azioni">
+        <button type="button" class="btn primary sweep ripple" id="matchInvia">🔗 Invia al tuo amico</button>
+      </div>
+    </div>
+
+    <div id="matchRisultati" hidden>
+      <p class="ask-sub" id="matchSotto"></p>
+      <ul class="match-lista" id="matchLista"></ul>
+    </div>
+  </div>
+</div>
+
 <!-- ====================== SALE VICINE ====================== -->
 <div class="sheet" id="saleSheet" hidden>
   <div class="sheet-bd" data-close></div>
@@ -2769,6 +2915,19 @@ body.trascina .card-play,body.trascina .card-quick,body.trascina .card-bucket{po
     <p class="eyebrow"><span class="dot"></span>Uscite italiane · dati TMDB</p>
     <h1>Prossimamente in sala</h1>
     <p class="sub"><em>Il grande schermo ti sta aspettando.</em><span class="sub-long"> Scorri il carosello, guarda il trailer ufficiale e segna la data sul calendario.</span></p>
+  </section>
+
+  <!-- ====================== STASERA AL CINEMA ====================== -->
+  <section class="stasera" id="stasera" hidden aria-label="Cosa c’è stasera al cinema">
+    <button type="button" class="st-x" id="staseraX" aria-label="Nascondi per oggi">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg>
+    </button>
+    <h2 class="st-titolo">🎬 Cosa c’è stasera al cinema?</h2>
+    <p class="st-sotto" id="staseraSotto"></p>
+    <ul class="st-lista" id="staseraLista"></ul>
+    <button type="button" class="btn ghost ripple st-azione" id="staseraAzione" hidden>
+      📍 Trova le sale vicine e gli orari
+    </button>
   </section>
 
   <!-- ====================== RICERCA + FILTRI ====================== -->
@@ -3099,6 +3258,10 @@ body.trascina .card-play,body.trascina .card-quick,body.trascina .card-bucket{po
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v11m0 0 4-4m-4 4-4-4"/><path d="M4 16.5V19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2.5"/></svg>
               Scarica CinePass
             </button>
+            <button type="button" class="btn ghost ripple" id="cpWallet" title="Crea un promemoria con sala, orario e posizione: il telefono te lo mostra quando si avvicina">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.8" y="5.5" width="18.4" height="14" rx="3"/><path d="M2.8 10h18.4"/><path d="M16.4 14.8h1.6"/></svg>
+              Metti nel telefono
+            </button>
             <button type="button" class="btn ghost ripple" id="cpStory" title="Immagine verticale per Instagram, TikTok e WhatsApp">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2.6" width="10" height="18.8" rx="2.6"/><path d="M10.5 5.6h3"/></svg>
               <span id="cpStoryLbl">Condividi Story</span>
@@ -3184,6 +3347,10 @@ body.trascina .card-play,body.trascina .card-quick,body.trascina .card-bucket{po
       </div>
     </div>
     <div class="chips bo-anni" id="boAnni" role="group" aria-label="Anno della classifica" hidden></div>
+    <div class="bo-strumenti">
+      <button type="button" class="chip vs-btn" id="vsBtn" aria-pressed="false">⚔️ Confronta due film</button>
+      <span class="vs-avviso" id="vsAvviso" hidden></span>
+    </div>
     <ol class="bo-list" id="boList"></ol>
     <p class="bo-note" id="boNote"></p>
     <p class="bo-foot">Dati d’incasso globali da TMDB / Box Office Mojo. Cifre aggiornate periodicamente.</p>
@@ -3379,6 +3546,7 @@ body.trascina .card-play,body.trascina .card-quick,body.trascina .card-bucket{po
     </div>
     <div class="wdrawer-list" id="wList"></div>
     <div class="wdrawer-foot">
+      <button class="btn ghost ripple" id="wMatch">🍿 Trova film da vedere insieme</button>
       <button class="btn ghost ripple" id="wShare">🔗 Condividi lista</button>
       <button class="btn ghost ripple" id="wClear">🗑️ Svuota</button>
     </div>
@@ -3726,10 +3894,18 @@ const el = {
   prev:$('#prevBtn'), next:$('#nextBtn'), panel:$('#panel'), panelInner:$('#panelInner'),
   title:$('#pTitle'), tagline:$('#pTagline'), overview:$('#pOverview'), vote:$('#pVote'),
   voteMeta:$('#voteMeta'),
-  cpStory:$('#cpStory'), cpStoryLbl:$('#cpStoryLbl'),
+  cpStory:$('#cpStory'), cpStoryLbl:$('#cpStoryLbl'), cpWallet:$('#cpWallet'),
   impSheet:$('#impSheet'), impBtn:$('#impBtn'), impDrop:$('#impDrop'), impFile:$('#impFile'),
   impStato:$('#impStato'), impBarra:$('#impBarra'), impTesto:$('#impTesto'), impEsito:$('#impEsito'),
   impConta:$('#impConta'), impSvuota:$('#impSvuota'), wrapBtn:$('#wrapBtn'),
+  stasera:$('#stasera'), staseraSotto:$('#staseraSotto'), staseraLista:$('#staseraLista'),
+  staseraAzione:$('#staseraAzione'), staseraX:$('#staseraX'),
+  vsSheet:$('#vsSheet'), vsCorpo:$('#vsCorpo'), vsBtn:$('#vsBtn'), vsAvviso:$('#vsAvviso'),
+  vsShare:$('#vsShare'),
+  matchSheet:$('#matchSheet'), matchTitolo:$('#matchTitolo'), matchInvito:$('#matchInvito'),
+  matchRisultati:$('#matchRisultati'), matchQr:$('#matchQr'), matchNota:$('#matchNota'),
+  matchLink:$('#matchLink'), matchInvia:$('#matchInvia'), matchSotto:$('#matchSotto'),
+  matchLista:$('#matchLista'), wMatch:$('#wMatch'),
   saleSheet:$('#saleSheet'), saleRaggi:$('#saleRaggi'), saleCarica:$('#saleCarica'),
   saleErrore:$('#saleErrore'), saleManuale:$('#saleManuale'), saleCitta:$('#saleCitta'),
   saleDove:$('#saleDove'), saleLista:$('#saleLista'), saleGoogle:$('#saleGoogle'),
@@ -5985,6 +6161,9 @@ async function loadBoxOfficeSala(key, mio){
     righe = locale.classifica.slice(0, BO_TOP).map(r => ({
       movie: perId.get(r.tmdb_id) || perTitolo.get(normTitle(r.titolo)) || null,
       titolo: r.titolo, incasso: r.incasso, totale: r.incasso_totale,
+      /* l'identificativo dichiarato nel file resta a disposizione anche
+         quando il film non e' fra quelli in sala secondo TMDB */
+      tmdb: Number(r.tmdb_id) || 0,
       schermi: r.schermi, ambito: t.chiave
     }));
     el.boSource.textContent = `Fonte: ${locale.fonte || 'file locale'}`;
@@ -6190,7 +6369,7 @@ function renderBoxOffice(righe){
       (m && m.vote_count >= MIN_VOTES) ? '\u2605 ' + (m.vote_average || 0).toFixed(1) : null,
       (!m && r.schermi) ? r.schermi + ' schermi' : null
     ].filter(Boolean).join(' \u00b7 ');
-    return `<li class="bo-row"${m ? ` data-id="${m.id}"` : ''}>` +
+    return `<li class="bo-row" data-i="${i}"${m ? ` data-id="${m.id}"` : ''}>` +
       `<span class="bo-rank${podio ? ' medaglia' : ''}">${podio ? MEDAGLIE[i] : (i + 1)}</span>` +
       `<img draggable="false" class="bo-poster" src="${esc(poster)}" alt="" loading="lazy" decoding="async">` +
       `<div class="bo-info"><div class="bo-title">${esc(titolo)}</div><div class="bo-meta">${esc(meta)}</div></div>` +
@@ -6219,10 +6398,27 @@ function renderAnniChips(){
 el.boList.addEventListener('click', e => {
   if (e.target.closest('.bo-verify')) return;   // il link alla fonte si apre da solo
   const row = e.target.closest('.bo-row');
-  if (!row || !row.dataset.id) return;
+  if (!row) return;
+  /* In modalita' confronto il tocco sceglie il film invece di aprire il trailer */
+  if (versusAttivo){ versusScegli(row); buzz(APTICA.micro); return; }
+  if (!row.dataset.id) return;
   const entry = state.boxoffice.find(r => r.movie && String(r.movie.id) === row.dataset.id);
   if (entry && entry.movie) openTrailerFor(entry.movie);
 });
+
+/* --- Stasera al cinema --- */
+el.staseraX.addEventListener('click', chiudiStasera);
+el.staseraAzione.addEventListener('click', apriSale);
+el.staseraLista.addEventListener('click', e => {
+  const riga = e.target.closest('.st-riga');
+  if (!riga) return;
+  buzz(APTICA.micro);
+  apriDaStasera(riga);
+});
+
+/* --- Il duello: scelta dei due film e condivisione --- */
+el.vsBtn.addEventListener('click', () => { versusToggle(); buzz(APTICA.micro); });
+el.vsShare.addEventListener('click', condividiVersus);
 
 /* =========================================================
    9-bis. RICERCA SU TMDB
@@ -8021,8 +8217,20 @@ function deepLink(movie){
 }
 
 async function apriDaLink(){
-  const id = new URLSearchParams(location.search).get('movie');
-  if (!id) return;
+  const q = new URLSearchParams(location.search);
+  const invito = q.get('match');
+  if (invito){
+    /* Watchlist di un amico dentro il link: si incrocia con la propria
+       e basta, senza mandare niente a nessuno. */
+    const ids = decodificaMatch(invito);
+    if (ids.length){ setTimeout(() => mostraMatch(ids), 600); return; }
+  }
+  const id = q.get('movie');
+  if (!id){
+    /* nessun CinePass: potrebbe essere una condivisione da un'altra app */
+    await apriDaCondivisione(q);
+    return;
+  }
   const key = resolveKey();
   if (!key) return;
   try{
@@ -8032,6 +8240,772 @@ async function apriDaLink(){
       apriCinePassRicevuto(d);
     }
   }catch(err){ /* link non valido: si resta sulla home */ }
+}
+
+/* =========================================================
+   28. STASERA AL CINEMA
+   ---------------------------------------------------------
+   Un riquadro che risponde a una domanda sola: "che cosa posso
+   andare a vedere adesso?". Due modi di rispondere, a seconda di
+   quello che c'e' davvero:
+
+   1. se data/sale.json dichiara degli spettacoli, si mostrano solo
+      quelli che cominciano nelle prossime tre ore, entro 15 km;
+   2. se non c'e' nessun orario dichiarato - cioe' quasi sempre, visto
+      che in Italia non esiste un'API aperta - si mostrano i film che
+      sono in sala adesso secondo TMDB, dicendo chiaramente che gli
+      orari vanno cercati sul sito della sala.
+
+   Il widget NON chiede la posizione all'avvio: usa quella gia' in
+   memoria se c'e', altrimenti offre il pulsante. Una richiesta di
+   geolocalizzazione a pagina appena aperta e' un permesso chiesto
+   senza aver spiegato perche'.
+   ========================================================= */
+const STASERA_KM = 15;
+const STASERA_ORE = 3;
+const STASERA_CHIUSO = 'cineglass:stasera:chiuso:v1';
+
+function minutiDa(hhmm){
+  const m = /^(\d{1,2}):(\d{2})$/.exec(String(hhmm || '').trim());
+  if (!m) return -1;
+  return Number(m[1]) * 60 + Number(m[2]);
+}
+
+/* Gli spettacoli dichiarati che cominciano da adesso a fra tre ore */
+function spettacoliStasera(sale){
+  const ora = new Date();
+  const adesso = ora.getHours() * 60 + ora.getMinutes();
+  const fine = adesso + STASERA_ORE * 60;
+  const fuori = [];
+  sale.forEach(sala => {
+    spettacoliDi(sala.nome).forEach(sp => {
+      (sp.orari || []).forEach(o => {
+        const min = minutiDa(o);
+        if (min < adesso || min > fine) return;
+        fuori.push({ sala, orario: o, min, titolo: sp.titolo || '', tmdb: Number(sp.film_tmdb) || 0 });
+      });
+    });
+  });
+  fuori.sort((a, b) => a.min - b.min || a.sala.km - b.sala.km);
+  return fuori.slice(0, 6);
+}
+
+function chiudiStasera(){
+  el.stasera.hidden = true;
+  try{ localStorage.setItem(STASERA_CHIUSO, String(new Date().toDateString())); }catch(err){ /* privata */ }
+}
+
+function staseraGiaChiuso(){
+  try{ return localStorage.getItem(STASERA_CHIUSO) === new Date().toDateString(); }
+  catch(err){ return false; }
+}
+
+function renderStasera(dati){
+  const { spettacoli, film, pos } = dati;
+  el.stasera.hidden = false;
+  if (spettacoli && spettacoli.length){
+    el.staseraSotto.textContent = 'Proiezioni che cominciano entro ' + STASERA_ORE +
+      ' ore, entro ' + STASERA_KM + ' km' + (pos && pos.nome ? ' da ' + pos.nome : '') + '.';
+    el.staseraLista.innerHTML = spettacoli.map(sp =>
+      '<li class="st-riga" data-tmdb="' + sp.tmdb + '" data-ora="' + esc(sp.orario) + '"' +
+        ' data-sala="' + esc(sp.sala.nome) + '">' +
+        '<span class="st-ora">' + esc(sp.orario) + '</span>' +
+        '<span class="st-info"><b>' + esc(sp.titolo || 'Spettacolo') + '</b>' +
+          '<small>' + esc(sp.sala.nome) + ' · ' + sp.sala.km.toFixed(1).replace('.', ',') + ' km</small></span>' +
+        '<span class="st-vai">→</span>' +
+      '</li>').join('');
+    el.staseraAzione.hidden = true;
+    return;
+  }
+  /* Nessun orario dichiarato: si dice cosa c'e' in sala e dove cercarlo */
+  el.staseraSotto.textContent = film.length
+    ? 'Questi film sono in sala adesso. Gli orari li pubblica solo il sito della tua sala: il pulsante ti porta lì.'
+    : 'Non riesco a leggere la programmazione in questo momento.';
+  el.staseraLista.innerHTML = film.slice(0, 4).map(m =>
+    '<li class="st-riga" data-tmdb="' + m.id + '">' +
+      '<img class="st-pic" alt="" loading="lazy" decoding="async" src="' +
+        esc(img(m.poster_path, 'w92') || placeholderPoster(m.title)) + '">' +
+      '<span class="st-info"><b>' + esc(m.title) + '</b>' +
+        '<small>' + esc(genreNames(m.genre_ids, 2) || 'In programmazione') + '</small></span>' +
+      '<span class="st-vai">→</span>' +
+    '</li>').join('');
+  el.staseraAzione.hidden = false;
+}
+
+async function caricaStasera(){
+  if (staseraGiaChiuso()) return;
+  const key = resolveKey();
+  if (!key || state.demo) return;
+  let film = [];
+  try{
+    const d = await fetchJSON(`${API_BASE}/movie/now_playing?api_key=${encodeURIComponent(key)}` +
+                              '&language=it-IT&page=1&region=IT');
+    film = (d && d.results ? d.results : []).filter(m => m.poster_path)
+      .sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+  }catch(err){ /* si mostra comunque il riquadro, con il pulsante */ }
+
+  /* La posizione si usa solo se e' gia' in memoria: niente permessi
+     chiesti a sorpresa all'apertura della pagina. */
+  let spettacoli = [];
+  const pos = posizioneSalvata();
+  if (pos){
+    try{
+      await caricaOrari();
+      const sale = await cinemaVicini(pos.lat, pos.lon, STASERA_KM);
+      spettacoli = spettacoliStasera(sale);
+    }catch(err){ /* la mappa non risponde: resta l'elenco dei film */ }
+  }
+  if (!film.length && !spettacoli.length) return;
+  renderStasera({ spettacoli, film, pos });
+}
+
+/* Un tocco apre il film con il CinePass gia' pronto, e quando lo
+   spettacolo e' dichiarato porta con se' sala e orario. */
+async function apriDaStasera(riga){
+  const id = Number(riga.dataset.tmdb) || 0;
+  const ora = riga.dataset.ora || '';
+  const sala = riga.dataset.sala || '';
+  if (!id){
+    apriSale();
+    return;
+  }
+  staseraContesto = ora ? { orario: ora, sala: { nome: sala } } : null;
+  vaiAlFilm(id);
+  setTimeout(() => {
+    if (el.cinePass){
+      el.cinePass.scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth', block: 'center' });
+      setTimeout(tagliaCinePass, 420);
+    }
+  }, 700);
+}
+
+/* Sala e orario scelti dal widget: li riusa il biglietto del telefono */
+let staseraContesto = null;
+
+/* =========================================================
+   27. BOX OFFICE VERSUS
+   ---------------------------------------------------------
+   Due film a confronto. Le misure sono solo quelle che esistono
+   davvero, e ognuna dice da dove viene:
+
+   - Incasso totale      dalla classifica (curata, o TMDB)
+   - Incasso del weekend  solo da data/boxoffice.json, dove qualcuno
+                          l'ha dichiarato
+   - Media per sala       incasso weekend diviso schermi, sempre da
+                          quel file
+   - Budget, voto, durata dalla scheda TMDB
+
+   "Settimane in classifica" non c'e': nessuna fonte aperta la
+   pubblica, e una barra inventata sarebbe una bugia disegnata bene.
+   Le misure mancanti si mostrano come "dato non disponibile" invece
+   di sparire, cosi' si vede che il confronto e' parziale.
+   ========================================================= */
+let versusAttivo = false;
+let versusScelti = [];
+
+function versusToggle(on){
+  versusAttivo = on === undefined ? !versusAttivo : !!on;
+  versusScelti = [];
+  document.body.classList.toggle('vs-scelta', versusAttivo);
+  el.vsBtn.setAttribute('aria-pressed', versusAttivo ? 'true' : 'false');
+  el.vsBtn.classList.toggle('on', versusAttivo);
+  $$('.bo-row', el.boList).forEach(r => r.classList.remove('vs-on'));
+  el.vsAvviso.hidden = !versusAttivo;
+  if (versusAttivo) el.vsAvviso.textContent = 'Tocca due film della classifica per confrontarli.';
+}
+
+function versusScegli(riga){
+  /* Si sceglie per posizione e non per id TMDB: molte righe curate non
+     hanno un film TMDB abbinato, ma l'incasso ce l'hanno lo stesso e
+     devono poter entrare nel duello. */
+  const i = Number(riga.dataset.i);
+  const r = state.boxoffice[i];
+  if (!r) return;
+  const gia = versusScelti.indexOf(r);
+  if (gia >= 0){
+    versusScelti.splice(gia, 1);
+    riga.classList.remove('vs-on');
+  } else {
+    if (versusScelti.length === 2) return;
+    versusScelti.push(r);
+    riga.classList.add('vs-on');
+  }
+  const nome = x => (x.movie && x.movie.title) || x.titolo || 'quel film';
+  el.vsAvviso.textContent = versusScelti.length === 1
+    ? 'Scelto “' + nome(versusScelti[0]) + '”. Ora tocca il secondo.'
+    : 'Tocca due film della classifica per confrontarli.';
+  if (versusScelti.length === 2){
+    const due = versusScelti.slice();
+    versusToggle(false);
+    apriVersus(due[0], due[1]);
+  }
+}
+
+/* Dati di una riga: quelli certi dalla classifica, il resto dalla
+   scheda TMDB, che arriva dopo e puo' mancare. */
+async function datiVersus(r){
+  /* Una riga curata puo' non avere un film TMDB abbinato: resta il
+     titolo e restano le cifre, che sono la parte che conta. */
+  const m = r.movie || {};
+  const idFilm = m.id || r.tmdb || 0;
+  const d = { id: idFilm, titolo: m.title || r.titolo, poster: m.poster_path || null,
+              anno: r.anno || Number(String(m.release_date || '').slice(0, 4)) || 0,
+              ambito: r.ambito || 'ww',
+              totale: Number(r.totale) || 0,
+              weekend: Number(r.incasso) || 0,
+              schermi: Number(r.schermi) || 0,
+              voto: Number(m.vote_average) || 0,
+              voti: Number(m.vote_count) || 0,
+              budget: 0, durata: 0 };
+  d.perSala = d.weekend && d.schermi ? d.weekend / d.schermi : 0;
+  const key = resolveKey();
+  if (key && idFilm){
+    try{
+      const s = await fetchJSON(`${API_BASE}/movie/${idFilm}?api_key=${encodeURIComponent(key)}&language=it-IT`);
+      if (s && s.id){
+        d.budget = Number(s.budget) || 0;
+        d.durata = Number(s.runtime) || 0;
+        if (!d.poster) d.poster = s.poster_path || null;
+        if (!d.anno) d.anno = Number(String(s.release_date || '').slice(0, 4)) || 0;
+        if (!d.voto) d.voto = Number(s.vote_average) || 0;
+        if (!d.voti) d.voti = Number(s.vote_count) || 0;
+      }
+    }catch(err){ /* si confronta con quello che c'e' */ }
+  }
+  return d;
+}
+
+function misureVersus(a, b){
+  const soldi = v => formatIncasso(v, a.ambito);
+  return [
+    { nome: 'Incasso totale', fonte: etichettaAmbito(a.ambito),
+      a: a.totale, b: b.totale, fmt: soldi },
+    { nome: 'Incasso del primo weekend', fonte: 'solo se dichiarato in data/boxoffice.json',
+      a: a.weekend, b: b.weekend, fmt: soldi },
+    { nome: 'Media per sala nel weekend', fonte: 'incasso weekend diviso schermi',
+      a: a.perSala, b: b.perSala, fmt: soldi },
+    { nome: 'Budget', fonte: 'TMDB',
+      a: a.budget, b: b.budget, fmt: v => fmtBudget(v) },
+    { nome: 'Voto del pubblico', fonte: 'media utenti TMDB',
+      a: a.voti >= MIN_VOTES ? a.voto : 0, b: b.voti >= MIN_VOTES ? b.voto : 0,
+      fmt: v => v.toFixed(1).replace('.', ',') + '/10' },
+    { nome: 'Durata', fonte: 'TMDB',
+      a: a.durata, b: b.durata, fmt: v => fmtRuntime(v) }
+  ];
+}
+
+let versusDati = null;
+
+async function apriVersus(ra, rb){
+  openSheet(el.vsSheet);
+  el.vsCorpo.innerHTML = '<p class="vs-carica">Metto insieme i due film…</p>';
+  el.vsShare.hidden = true;
+  const [a, b] = await Promise.all([datiVersus(ra), datiVersus(rb)]);
+  versusDati = { a, b, misure: misureVersus(a, b) };
+  renderVersus();
+  el.vsShare.hidden = false;
+}
+
+function renderVersus(){
+  if (!versusDati) return;
+  const { a, b, misure } = versusDati;
+  const testa = (f, lato) =>
+    '<div class="vs-film vs-' + lato + '">' +
+      '<img class="vs-pic" alt="" loading="lazy" decoding="async" src="' +
+        esc(img(f.poster, 'w185') || placeholderPoster(f.titolo)) + '">' +
+      '<b>' + esc(f.titolo) + '</b>' +
+      '<small>' + (f.anno || '') + '</small>' +
+    '</div>';
+
+  const righe = misure.map(m => {
+    const va = Number(m.a) || 0, vb = Number(m.b) || 0;
+    const max = Math.max(va, vb);
+    /* Senza dato la barra non si disegna: zero non e' "ha incassato
+       zero", vuol dire che il dato non c'e'. */
+    const pa = max && va ? Math.max(4, Math.round(va / max * 100)) : 0;
+    const pb = max && vb ? Math.max(4, Math.round(vb / max * 100)) : 0;
+    const eq = va && vb && va === vb;
+    return '<div class="vs-riga">' +
+      '<div class="vs-nome">' + esc(m.nome) + '<small>' + esc(m.fonte) + '</small></div>' +
+      '<div class="vs-barre">' +
+        '<div class="vs-lato">' +
+          '<span class="vs-val' + (!eq && va > vb ? ' vince' : '') + '">' +
+            (va ? esc(m.fmt(va)) : 'dato non disponibile') + '</span>' +
+          '<span class="vs-barra vs-a"><i style="width:' + pa + '%"></i></span>' +
+        '</div>' +
+        '<div class="vs-lato">' +
+          '<span class="vs-val' + (!eq && vb > va ? ' vince' : '') + '">' +
+            (vb ? esc(m.fmt(vb)) : 'dato non disponibile') + '</span>' +
+          '<span class="vs-barra vs-b"><i style="width:' + pb + '%"></i></span>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+
+  const punti = misure.reduce((acc, m) => {
+    const va = Number(m.a) || 0, vb = Number(m.b) || 0;
+    if (va && vb && va !== vb) acc[va > vb ? 0 : 1]++;
+    return acc;
+  }, [0, 0]);
+  const mancanti = misure.filter(m => !m.a || !m.b).length;
+
+  el.vsCorpo.innerHTML =
+    '<div class="vs-testa">' + testa(a, 'a') +
+      '<span class="vs-vs">VS</span>' + testa(b, 'b') + '</div>' +
+    '<p class="vs-punti">' + punti[0] + ' a ' + punti[1] +
+      (punti[0] === punti[1] ? ' · pari' :
+        ' · avanti ' + esc(punti[0] > punti[1] ? a.titolo : b.titolo)) + '</p>' +
+    '<div class="vs-griglia">' + righe + '</div>' +
+    (mancanti ? '<p class="vs-nota">' + mancanti + (mancanti === 1 ? ' misura non è confrontabile' :
+      ' misure non sono confrontabili') + ': il dato manca per almeno uno dei due film. ' +
+      'Incasso del weekend e media per sala esistono solo dove qualcuno li ha dichiarati in ' +
+      'data/boxoffice.json, perché nessuna API aperta li pubblica.</p>' : '');
+}
+
+/* --- La card 9:16 del duello ---------------------------------------
+   Qui non si riusa storyPng: quella card ha UNA locandina al centro,
+   questa ne ha due affiancate e le barre in mezzo. Stesso fondo,
+   stesso piede, impaginazione diversa. ------------------------------ */
+async function versusPng(d){
+  const c = document.createElement('canvas');
+  c.width = STORY_W; c.height = STORY_H;
+  const ctx = c.getContext('2d');
+  if (!ctx) return null;
+  const F = 'Outfit, Helvetica, Arial, sans-serif';
+  const { a, b, misure } = d;
+
+  ctx.fillStyle = '#0b0910';
+  ctx.fillRect(0, 0, STORY_W, STORY_H);
+  const sfondo = await caricaImg(img(a.poster, 'w780'));
+  if (sfondo) sfondoSfocato(ctx, sfondo, STORY_W, STORY_H);
+  const buio = ctx.createLinearGradient(0, 0, 0, STORY_H);
+  buio.addColorStop(0, 'rgba(9,7,14,.86)');
+  buio.addColorStop(1, 'rgba(6,5,10,.96)');
+  ctx.fillStyle = buio;
+  ctx.fillRect(0, 0, STORY_W, STORY_H);
+
+  marchioStory(ctx, 92, 116, 58);
+  ctx.textAlign = 'left';
+  ctx.font = '600 40px ' + F;
+  ctx.fillStyle = '#f4f1fa';
+  ctx.fillText('CineGlass', 168, 160);
+  ctx.textAlign = 'right';
+  ctx.font = '300 30px ' + F;
+  ctx.fillStyle = 'rgba(244,241,250,.66)';
+  ctx.fillText('Il duello', STORY_W - 92, 158);
+
+  /* due locandine affiancate, con il VS in mezzo */
+  const pw = 400, ph = 600, gap = 76;
+  const ax = (STORY_W - pw * 2 - gap) / 2, py = 250;
+  const bx2 = ax + pw + gap;
+  const [pa, pb] = await Promise.all([
+    caricaImg(img(a.poster, 'w500')), caricaImg(img(b.poster, 'w500'))]);
+  [[ax, pa, a, '#00f2fe'], [bx2, pb, b, '#ff3b5c']].forEach(([x, im, f, col]) => {
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,.6)';
+    ctx.shadowBlur = 50; ctx.shadowOffsetY = 22;
+    ctx.fillStyle = '#14121c';
+    rettoTondo(ctx, x, py, pw, ph, 30);
+    ctx.fill();
+    ctx.restore();
+    ctx.save();
+    rettoTondo(ctx, x, py, pw, ph, 30);
+    ctx.clip();
+    if (im) disegnaCoprendo(ctx, im, x, py, pw, ph);
+    else { ctx.fillStyle = 'rgba(255,255,255,.08)'; ctx.fillRect(x, py, pw, ph); }
+    ctx.restore();
+    ctx.strokeStyle = col;
+    ctx.lineWidth = 3;
+    rettoTondo(ctx, x, py, pw, ph, 30);
+    ctx.stroke();
+    ctx.textAlign = 'center';
+    ctx.font = '600 34px ' + F;
+    ctx.fillStyle = '#fff';
+    testoACapo(ctx, f.titolo, pw, 2).forEach((r, i) => ctx.fillText(r, x + pw / 2, py + ph + 52 + i * 40));
+  });
+  ctx.textAlign = 'center';
+  ctx.font = '700 46px ' + F;
+  ctx.fillStyle = 'rgba(244,241,250,.5)';
+  ctx.fillText('VS', STORY_W / 2, py + ph / 2 + 16);
+
+  /* le barre: solo le misure che esistono per tutti e due */
+  const buone = misure.filter(m => Number(m.a) > 0 && Number(m.b) > 0).slice(0, 4);
+  /* Il blocco delle barre si centra nello spazio che resta fra i titoli
+     e il piede: con due sole misure confrontabili, altrimenti, meta'
+     card resterebbe vuota. */
+  const passo = 112;
+  const cima = py + ph + 150, fondo = STORY_H - 150;
+  const blocco = buone.length * passo;
+  let y = Math.max(cima, cima + Math.round((fondo - cima - blocco) / 2)) + 30;
+  buone.forEach(m => {
+    const va = Number(m.a), vb = Number(m.b), max = Math.max(va, vb);
+    ctx.textAlign = 'center';
+    ctx.font = '300 27px ' + F;
+    ctx.fillStyle = 'rgba(244,241,250,.6)';
+    ctx.fillText(m.nome.toUpperCase(), STORY_W / 2, y);
+    y += 40;
+    ctx.font = '600 30px ' + F;
+    ctx.textAlign = 'left';
+    ctx.fillStyle = va >= vb ? '#7af4ff' : 'rgba(244,241,250,.7)';
+    ctx.fillText(m.fmt(va), 92, y);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = vb > va ? '#ff8aa0' : 'rgba(244,241,250,.7)';
+    ctx.fillText(m.fmt(vb), STORY_W - 92, y);
+    y += 18;
+    /* due barre contrapposte, che partono dal centro */
+    const mezzo = STORY_W / 2, largo = 400, alto = 14;
+    ctx.fillStyle = 'rgba(255,255,255,.08)';
+    rettoTondo(ctx, mezzo - largo - 12, y, largo, alto, 7); ctx.fill();
+    rettoTondo(ctx, mezzo + 12, y, largo, alto, 7); ctx.fill();
+    const la = Math.max(10, Math.round(va / max * largo));
+    const lb = Math.max(10, Math.round(vb / max * largo));
+    ctx.fillStyle = '#00f2fe';
+    rettoTondo(ctx, mezzo - 12 - la, y, la, alto, 7); ctx.fill();
+    ctx.fillStyle = '#ff3b5c';
+    rettoTondo(ctx, mezzo + 12, y, lb, alto, 7); ctx.fill();
+    y += passo - 52;
+  });
+
+  ctx.textAlign = 'center';
+  ctx.font = '300 24px ' + F;
+  ctx.fillStyle = 'rgba(244,241,250,.42)';
+  ctx.fillText('Incassi e dati da TMDB · confronto fatto con CineGlass', STORY_W / 2, STORY_H - 86);
+  return new Promise(res => c.toBlob(res, 'image/png', .95));
+}
+
+async function condividiVersus(){
+  if (!versusDati) return;
+  el.vsShare.disabled = true;
+  const era = el.vsShare.textContent;
+  el.vsShare.textContent = 'Preparo…';
+  try{
+    const blob = await versusPng(versusDati);
+    if (!blob){ toast('Non riesco a generare la card', 'warn'); return; }
+    const nome = nomeFile('CineGlass-Duello',
+      versusDati.a.titolo + '-vs-' + versusDati.b.titolo);
+    const condivisa = await condividiImmagine(blob, nome,
+      versusDati.a.titolo + ' vs ' + versusDati.b.titolo, '');
+    if (!condivisa) toast('Duello salvato 📸', 'ok');
+  } finally {
+    el.vsShare.disabled = false;
+    el.vsShare.textContent = era;
+  }
+}
+
+/* =========================================================
+   26. IL BIGLIETTO NEL TELEFONO
+   ---------------------------------------------------------
+   Una precisazione che vale la pena scrivere nel codice, perche'
+   prima o poi qualcuno riaprira' questo file e si chiedera' perche'
+   non c'e' un .pkpass.
+
+   Un pass di Apple Wallet non e' un file che si "genera": e' uno zip
+   il cui manifest va FIRMATO con un certificato Pass Type ID emesso da
+   Apple, e la firma si verifica sul telefono. Firmare qui vorrebbe
+   dire spedire la chiave privata dentro il browser, dove chiunque
+   aprirebbe il sorgente e se la prenderebbe. Google Wallet chiede la
+   stessa cosa: un JWT firmato con la chiave di un service account.
+   Senza un server che firmi, nessuno dei due si puo' fare, e un
+   pulsante "Aggiungi al Wallet" che scarica un file rifiutato dal
+   telefono sarebbe peggio di non averlo.
+
+   Quello che si puo' fare davvero, e che ottiene la stessa cosa, e'
+   un evento di calendario: sta nel telefono anche offline, porta con
+   se' la sala e le sue coordinate, e il sistema lo mostra sulla
+   schermata di blocco quando l'ora si avvicina.
+   ========================================================= */
+function icsData(d){
+  const due = n => String(n).padStart(2, '0');
+  return d.getUTCFullYear() + due(d.getUTCMonth() + 1) + due(d.getUTCDate()) + 'T' +
+         due(d.getUTCHours()) + due(d.getUTCMinutes()) + due(d.getUTCSeconds()) + 'Z';
+}
+
+/* iCalendar vuole le righe spezzate a 75 OTTETTI, non a 75 caratteri,
+   con uno spazio a capo. La differenza conta: un'emoji pesa quattro
+   byte e un trattino lungo tre, quindi contare i caratteri lascia
+   passare righe fuori misura che certi calendari rifiutano. */
+function icsRiga(testo){
+  const t = String(testo).replace(/\\/g, '\\\\').replace(/\n/g, '\\n')
+                         .replace(/;/g, '\\;').replace(/,/g, '\\,');
+  const cod = new TextEncoder();
+  const fuori = [];
+  let riga = '', peso = 0;
+  for (const ch of t){                  /* per punti di codice, non per unita' UTF-16 */
+    const b = cod.encode(ch).length;
+    if (peso + b > 75){ fuori.push(riga); riga = ' ' + ch; peso = 1 + b; continue; }
+    riga += ch; peso += b;
+  }
+  if (riga) fuori.push(riga);
+  return fuori.join('\r\n');
+}
+
+function icsBiglietto(movie, details, extra){
+  const o = extra || {};
+  const iso = o.data || (details && details.releaseIT) || movie.release_date;
+  const giorno = parseISO(iso);
+  if (!giorno) return null;
+  /* Senza un orario dichiarato si mette lo spettacolo serale: e' una
+     scelta, non un dato, e la descrizione lo dice. */
+  const [hh, mm] = String(o.orario || '21:00').split(':').map(Number);
+  const inizio = new Date(giorno.getFullYear(), giorno.getMonth(), giorno.getDate(),
+                          hh || 21, mm || 0, 0);
+  const durata = (details && details.runtime) || 110;
+  const fine = new Date(inizio.getTime() + (durata + 20) * 60000);
+  const link = deepLink(movie);
+  const sala = o.sala || null;
+
+  const righe = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//CineGlass//Biglietto//IT',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    'BEGIN:VEVENT',
+    'UID:cineglass-' + movie.id + '-' + inizio.getTime() + '@cineglass',
+    'DTSTAMP:' + icsData(new Date()),
+    'DTSTART:' + icsData(inizio),
+    'DTEND:' + icsData(fine),
+    icsRiga('SUMMARY:\ud83c\udfac ' + movie.title),
+    icsRiga('DESCRIPTION:Il tuo CinePass per ' + movie.title +
+            (o.orario ? '' : ' \u2014 orario da confermare con la sala') +
+            '. Scheda e codice QR: ' + link),
+    icsRiga('URL:' + link)
+  ];
+  if (sala){
+    righe.push(icsRiga('LOCATION:' + [sala.nome, sala.indirizzo].filter(Boolean).join(', ')));
+    if (sala.lat != null && sala.lon != null)
+      righe.push('GEO:' + Number(sala.lat).toFixed(6) + ';' + Number(sala.lon).toFixed(6));
+  }
+  righe.push(
+    'BEGIN:VALARM',
+    'TRIGGER:-PT90M',
+    'ACTION:DISPLAY',
+    icsRiga('DESCRIPTION:Fra un\u2019ora e mezza: ' + movie.title),
+    'END:VALARM',
+    'END:VEVENT',
+    'END:VCALENDAR');
+  return righe.join('\r\n') + '\r\n';
+}
+
+async function salvaBiglietto(extra){
+  const movie = movies()[state.activeIndex];
+  if (!movie) return;
+  buzz(APTICA.micro);
+  const ics = icsBiglietto(movie, state.activeDetails, extra);
+  if (!ics){
+    toast('Senza una data d\u2019uscita non posso creare il promemoria', 'warn');
+    return;
+  }
+  const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+  const nome = nomeFile('cinepass', movie.title, 'ics');
+  const file = new File([blob], nome, { type: 'text/calendar' });
+  if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })){
+    try{
+      await navigator.share({ files: [file], title: 'CinePass \u00b7 ' + movie.title });
+      return;
+    }catch(err){ if (err && err.name === 'AbortError') return; }
+  }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = nome;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  toast('Biglietto nel calendario del telefono \ud83d\udcc5', 'ok');
+}
+
+/* =========================================================
+   25. CINEGLASS MATCH
+   ---------------------------------------------------------
+   Confrontare due watchlist senza un server si puo': la lista sta
+   tutta nel link. Gli id TMDB vengono scritti in base 36 e separati
+   da un punto, cosi' un identificativo da sette cifre occupa cinque
+   caratteri invece di sette e il QR resta leggibile.
+
+   Il QR pero' ha un tetto vero: il generatore integrato arriva alla
+   versione 5, cioe' un centinaio di caratteri. Quando la lista non ci
+   sta, il codice porta i primi film e il link li porta tutti: meglio
+   dirlo che troncare di nascosto.
+   ========================================================= */
+const MATCH_MAX = 80;
+
+function codificaMatch(ids){
+  return ids.slice(0, MATCH_MAX)
+    .map(n => Number(n) || 0).filter(n => n > 0)
+    .sort((a, b) => a - b)
+    .map(n => n.toString(36))
+    .join('.');
+}
+
+function decodificaMatch(testo){
+  return String(testo || '').split(/[.,]/)
+    .map(p => parseInt(p, 36))
+    .filter(n => n > 0);
+}
+
+function linkMatch(ids){
+  const base = location.origin + location.pathname;
+  return base + '?match=' + codificaMatch(ids);
+}
+
+/* Il QR piu' lungo che il generatore riesce a scrivere: si tolgono
+   film finche' non ci sta, e si dice quanti ne sono rimasti dentro. */
+function qrMatchPiuLungo(canvas, ids){
+  for (let n = ids.length; n > 0; n--){
+    const url = linkMatch(ids.slice(0, n));
+    if (drawQR(canvas, url)) return { dentro: n, url };
+  }
+  return { dentro: 0, url: linkMatch([]) };
+}
+
+function apriMatchInvito(){
+  const ids = state.favs.map(f => f.id);
+  if (!ids.length){
+    toast('Salva qualche film nella watchlist, poi riprova 🍿', 'warn');
+    return;
+  }
+  el.matchSheet.hidden = false;
+  openSheet(el.matchSheet);
+  el.matchInvito.hidden = false;
+  el.matchRisultati.hidden = true;
+  el.matchTitolo.textContent = '🍿 Trova film da vedere insieme';
+  const esito = qrMatchPiuLungo(el.matchQr, ids);
+  el.matchLink.textContent = esito.url.replace(/^https?:\/\//, '');
+  el.matchLink.title = esito.url;
+  el.matchSheet.dataset.link = esito.url;
+  el.matchNota.textContent = esito.dentro >= ids.length
+    ? `Il codice contiene tutti i ${ids.length} film della tua watchlist.`
+    : `Il codice contiene i primi ${esito.dentro} film su ${ids.length}: per mandarli tutti usa il link.`;
+  /* il link completo resta comunque copiabile */
+  el.matchSheet.dataset.linkPieno = linkMatch(ids);
+}
+
+async function condividiMatch(){
+  const url = el.matchSheet.dataset.linkPieno || el.matchSheet.dataset.link || '';
+  if (!url) return;
+  const testo = 'Ecco la mia watchlist su CineGlass: apri il link e vediamo che film abbiamo in comune 🍿';
+  if (navigator.share){
+    try{ await navigator.share({ title: 'CineGlass Match', text: testo, url }); return; }
+    catch(err){ if (err && err.name === 'AbortError') return; }
+  }
+  try{
+    await navigator.clipboard.writeText(url);
+    toast('Link copiato: mandalo al tuo amico 🔗', 'ok');
+  }catch(err){
+    toast('Copia il link dalla riga qui sopra', 'warn');
+  }
+}
+
+/* --- Il lato di chi riceve: l'incrocio vero e proprio --- */
+function mostraMatch(ids){
+  const miei = state.favs;
+  const suoi = new Set(ids);
+  const comuni = miei.filter(f => suoi.has(f.id))
+    .sort((a, b) => (b.vote_average || 0) - (a.vote_average || 0));
+
+  el.matchSheet.hidden = false;
+  openSheet(el.matchSheet);
+  el.matchInvito.hidden = true;
+  el.matchRisultati.hidden = false;
+  el.matchTitolo.textContent = comuni.length
+    ? '🎯 ' + comuni.length + (comuni.length === 1 ? ' film in comune' : ' film in comune')
+    : '🤷 Nessun film in comune';
+
+  if (!comuni.length){
+    el.matchLista.innerHTML =
+      '<li class="match-vuoto">Le vostre watchlist non si incrociano su nessun titolo.' +
+      (miei.length ? '' : ' La tua watchlist è ancora vuota: salva qualche film col popcorn e riprova.') +
+      '</li>';
+    el.matchSotto.textContent = 'Ha mandato ' + ids.length +
+      (ids.length === 1 ? ' film' : ' film') + ', nessuno dei quali è nella tua lista.';
+    return;
+  }
+
+  el.matchSotto.textContent = 'Su ' + ids.length + ' film suoi e ' + miei.length +
+    ' tuoi. Il primo ha il voto TMDB piu’ alto.';
+  el.matchLista.innerHTML = comuni.map((m, i) => {
+    const voto = Number(m.vote_average) || 0;
+    const voti = Number(m.vote_count) || 0;
+    const mostra = voti >= MIN_VOTES && voto > 0;
+    return '<li class="match-riga" data-match-id="' + m.id + '">' +
+      '<img class="match-pic" alt="" loading="lazy" decoding="async" src="' +
+        esc(img(m.poster_path, 'w185') || placeholderPoster(m.title)) + '">' +
+      '<span class="match-info">' +
+        '<b>' + esc(m.title) + '</b>' +
+        '<small>' + esc([fmtYear(m.release_date), genreNames(m.genre_ids, 2)].filter(Boolean).join(' · ')) + '</small>' +
+        (i === 0 ? '<span class="match-top">✨ Ottima scelta per stasera!</span>' : '') +
+      '</span>' +
+      (mostra ? '<span class="match-voto">★ ' + voto.toFixed(1).replace('.', ',') + '</span>' : '') +
+    '</li>';
+  }).join('');
+}
+
+/* =========================================================
+   24. LINK CONDIVISI DA ALTRE APP  (Web Share Target)
+   ---------------------------------------------------------
+   Con l'app installata, CineGlass compare nel menu "Condividi" del
+   telefono. Il manifest dichiara share_target, quindi il sistema apre
+   l'app con ?link=&text=&titolo= e tocca a noi capire di che film si
+   parla. Tre sorgenti coprono quasi tutto quello che si condivide:
+
+   - TMDB      themoviedb.org/movie/1234-slug   -> l'id e' nell'URL
+   - IMDb      imdb.com/title/tt0111161/        -> /find con external_source
+   - Letterboxd letterboxd.com/film/slug/       -> dallo slug si ricava
+                                                   il titolo, poi ricerca
+
+   Se il link non e' di nessuna delle tre, si cerca il testo condiviso:
+   e' comunque meglio che non fare niente.
+   ========================================================= */
+function estraiDaLink(testo){
+  const t = String(testo || '');
+  const tmdb = /themoviedb\.org\/movie\/(\d+)/i.exec(t);
+  if (tmdb) return { tipo: 'tmdb', valore: tmdb[1] };
+  const imdb = /imdb\.com\/title\/(tt\d+)/i.exec(t);
+  if (imdb) return { tipo: 'imdb', valore: imdb[1] };
+  const lb = /letterboxd\.com\/film\/([a-z0-9-]+)/i.exec(t);
+  if (lb){
+    /* lo slug e' il titolo in minuscolo con i trattini: a volte finisce
+       con l'anno ("dune-part-two-2024"), che si toglie e si riusa */
+    let slug = lb[1].replace(/\/$/, '');
+    let anno = 0;
+    const m = /-((?:19|20)\d{2})$/.exec(slug);
+    if (m){ anno = Number(m[1]); slug = slug.slice(0, -m[0].length); }
+    return { tipo: 'titolo', valore: slug.replace(/-/g, ' ').trim(), anno };
+  }
+  return null;
+}
+
+async function apriDaCondivisione(q){
+  const grezzo = [q.get('link'), q.get('text'), q.get('titolo')].filter(Boolean).join(' ');
+  if (!grezzo) return;
+  const key = resolveKey();
+  if (!key){ toast('Serve una chiave TMDB per aprire il film condiviso', 'warn'); return; }
+  /* un URL nel testo vale piu' del testo stesso */
+  const dato = estraiDaLink(grezzo) ||
+               { tipo: 'titolo', valore: grezzo.replace(/https?:\/\/\S+/g, '').trim(), anno: 0 };
+  if (!dato.valore) return;
+  toast('Cerco il film condiviso\u2026', 'ok');
+  try{
+    let film = null;
+    if (dato.tipo === 'tmdb'){
+      film = await fetchJSON(`${API_BASE}/movie/${dato.valore}?api_key=${encodeURIComponent(key)}&language=it-IT`);
+    } else if (dato.tipo === 'imdb'){
+      const d = await fetchJSON(`${API_BASE}/find/${dato.valore}?api_key=${encodeURIComponent(key)}` +
+                                '&language=it-IT&external_source=imdb_id');
+      const primo = d && d.movie_results && d.movie_results[0];
+      if (primo) film = await fetchJSON(`${API_BASE}/movie/${primo.id}?api_key=${encodeURIComponent(key)}&language=it-IT`);
+    } else {
+      const trovato = await cercaFilmBase(key, dato.valore, 0);
+      if (trovato) film = await fetchJSON(`${API_BASE}/movie/${trovato.id}?api_key=${encodeURIComponent(key)}&language=it-IT`);
+    }
+    if (film && film.id){
+      mostraSingolo(film);
+      toast('\ud83c\udfac ' + film.title, 'ok');
+    } else {
+      toast('Non ho riconosciuto il film in quel link', 'warn');
+    }
+  }catch(err){
+    toast('Non riesco ad aprire il film condiviso', 'warn');
+  }
 }
 
 /* Chi arriva da un CinePass condiviso deve capirlo al primo sguardo, e
@@ -9195,7 +10169,8 @@ el.creatorBtn.addEventListener('click', () => openSheet(el.creatorSheet));
 $('#creatorLink').addEventListener('click', () => openSheet(el.creatorSheet));
 el.creatorBtn.addEventListener('click', () => closeSheet(el.menuSheet), true);
 [el.diceBtn, el.refresh].forEach(b => b && b.addEventListener('click', () => apriMenu(false)));
-[el.creatorSheet, el.filmoSheet, el.menuSheet, el.impSheet, el.saleSheet].forEach(sheet => {
+[el.creatorSheet, el.filmoSheet, el.menuSheet, el.impSheet, el.saleSheet, el.matchSheet,
+ el.vsSheet].forEach(sheet => {
   sheet.addEventListener('click', e => { if (e.target.closest('[data-close]')) closeSheet(sheet); });
 });
 el.sfxBtn.addEventListener('click', () => {
@@ -9229,6 +10204,16 @@ el.boAnni.addEventListener('click', e => {
 el.icsBtn.addEventListener('click', scaricaIcs);
 el.cpQrBtn.addEventListener('click', condividiQR);
 el.cpCopy.addEventListener('click', copiaLinkCinePass);
+/* --- Match: invito, condivisione e apertura di un film trovato --- */
+el.wMatch.addEventListener('click', () => { apriWatchlist(false); apriMatchInvito(); });
+el.matchInvia.addEventListener('click', condividiMatch);
+el.matchLista.addEventListener('click', e => {
+  const riga = e.target.closest('[data-match-id]');
+  if (!riga) return;
+  closeSheet(el.matchSheet);
+  vaiAlFilm(Number(riga.dataset.matchId));
+});
+
 /* --- Sale vicine: raggio, ricerca manuale --- */
 el.saleRaggi.addEventListener('click', e => {
   const b = e.target.closest('[data-raggio]');
@@ -9295,6 +10280,7 @@ el.impSvuota.addEventListener('click', svuotaStoria);
 
 el.cpSave.addEventListener('click', scaricaCinePass);
 el.cpStory.addEventListener('click', condividiStory);
+el.cpWallet.addEventListener('click', () => salvaBiglietto(staseraContesto));
 el.cpTaglio.addEventListener('click', tagliaCinePass);
 /* Invio e Spazio: la linea e' un role="button", e un bottone si preme
    anche da tastiera. Spacebar va fermata o la pagina scorre. */
@@ -11051,6 +12037,8 @@ function registraSW(){
 
 aggiornaStatiImport();
 aggiornaVoceInstalla();
+/* il widget della serata parte dopo il primo caricamento, non prima */
+setTimeout(caricaStasera, 2200);
 if (suIOS()) armaPwa();
 registraSW();
 
